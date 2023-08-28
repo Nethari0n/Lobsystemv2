@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 
-namespace SBO.Lobsystem.Domain.Models
+namespace Lobsystem.Shared.Models
 {
     public class User : IdentityUser
     {
+
         public string Name { get; set; }
 
 

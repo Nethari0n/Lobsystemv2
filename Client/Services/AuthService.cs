@@ -21,7 +21,8 @@ namespace Lobsystem.Client.Services
         public async Task Login(LoginRequest loginRequest)
         {
             var result = await _httpClient.PostAsJsonAsync("api/auth/login", loginRequest);
-            if (result.StatusCode == System.Net.HttpStatusCode.BadRequest) throw new Exception(await result.Content.ReadAsStringAsync());
+            if (result.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                throw new Exception(await result.Content.ReadAsStringAsync());
             result.EnsureSuccessStatusCode();
         }
 
@@ -34,7 +35,8 @@ namespace Lobsystem.Client.Services
         public async Task Register(RegisterRequest registerRequest)
         {
             var result = await _httpClient.PostAsJsonAsync("api/auth/register", registerRequest);
-            if (result.StatusCode == System.Net.HttpStatusCode.BadRequest) throw new Exception(await result.Content.ReadAsStringAsync());
+            if (result.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                throw new Exception(await result.Content.ReadAsStringAsync());
             result.EnsureSuccessStatusCode();
         }
 

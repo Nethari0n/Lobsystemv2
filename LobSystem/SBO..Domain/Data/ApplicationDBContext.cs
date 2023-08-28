@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using SBO.Lobsystem.Domain.Models;
 using Lobsystem.Shared.Models;
 using System.Data;
 
@@ -39,6 +38,7 @@ namespace SBO.Lobsystem.Domain.Data
                                     new User
                                     {
                                         UserName = "oledf",
+                                        Name = "Ole",
                                         NormalizedUserName = "OLEDF",
                                         PasswordHash = hasher.HashPassword(null, "P@ssw0rd"),
                                         Email = "admin@example.com",

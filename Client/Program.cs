@@ -2,6 +2,8 @@ using Lobsystem.Client.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Lobsystem.Client.APICallers;
+using Lobsystem.Client.IAPICallers;
 
 namespace Lobsystem.Client
 {
@@ -19,6 +21,8 @@ namespace Lobsystem.Client
             builder.Services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<CustomStateProvider>());
             builder.Services.AddScoped<IAuthService, AuthService>();
 
+            builder.Services.AddScoped<IEventCaller, EventCaller>();
+            builder.Services.AddScoped<ICRUDCaller, CRUDCaller>();
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 

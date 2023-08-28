@@ -24,23 +24,21 @@ namespace SBO.LobSystem.Services.Services
 
         #region Event
 
-        public Event AddEvent(Event events)
+        public void AddEvent(Event events)
         {
             
                 _lobsContext.Events.Add(events);
                 _lobsContext.SaveChanges();
             
            
-            return FindEvent(events.CreateDate, events.Username);
+            //return FindEvent(events.CreateDate, events.Username);
         }
 
-        public Event FindEvent(DateTime time, string name) => _lobsContext.Events.Where(x => x.CreateDate == time && x.Username == name).AsNoTracking().FirstOrDefault();
+        //public Event FindEvent(DateTime time, string name) => _lobsContext.Events.Where(x => x.CreateDate == time && x.Username == name).AsNoTracking().FirstOrDefault();
 
 
 
         public List<Event> GetAllEvents() => _lobsContext.Events.Where(e => e.IsDeleted == false).Include(x => x.Type).AsNoTracking().ToList();
-
-        public Event GetEvent(int id) => _lobsContext.Events.Where(c => c.EventID == id).AsNoTracking().FirstOrDefault();
 
         public void DeleteEvent(int ID)
         {

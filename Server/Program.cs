@@ -1,9 +1,9 @@
+using Lobsystem.Shared.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using SBO.Lobsystem.Domain.Data;
-using SBO.Lobsystem.Domain.Models;
 using SBO.LobSystem.Services.Interface;
 using SBO.LobSystem.Services.Services;
 

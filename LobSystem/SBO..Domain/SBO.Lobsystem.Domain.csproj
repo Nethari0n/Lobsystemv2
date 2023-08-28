@@ -19,4 +19,8 @@
     <ProjectReference Include="..\..\Shared\Lobsystem.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\" />
+  </ItemGroup>
+
 </Project>

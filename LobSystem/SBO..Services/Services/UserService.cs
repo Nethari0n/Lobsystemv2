@@ -10,7 +10,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using SBO.Lobsystem.Domain.Models;
 
 namespace SBO.LobSystem.Services.Services
 {

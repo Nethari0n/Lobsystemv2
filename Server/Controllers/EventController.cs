@@ -20,7 +20,8 @@ namespace Lobsystem.Server.Controllers
         {
             try
             {
-                return Ok(_eventPostTypesService.AddEvent(events));
+                _eventPostTypesService.AddEvent(events);
+                return Ok();
             }
             catch (Exception)
             {
@@ -28,19 +29,19 @@ namespace Lobsystem.Server.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("{time}/{name}")]
-        public IActionResult FindEvent(DateTime time, string name)
-        {
-            try
-            {
-                return Ok(_eventPostTypesService.FindEvent(time, name));
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest);
-            }
-        }
+        //[HttpGet]
+        //[Route("{time}/{name}")]
+        //public IActionResult FindEvent(DateTime time, string name)
+        //{
+        //    try
+        //    {
+        //        return Ok(_eventPostTypesService.FindEvent(time, name));
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return StatusCode(StatusCodes.Status400BadRequest);
+        //    }
+        //}
 
         [HttpGet]
         [Route("{id}")]

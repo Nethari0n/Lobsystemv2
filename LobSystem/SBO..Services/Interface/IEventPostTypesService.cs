@@ -1,5 +1,4 @@
 ﻿using Lobsystem.Shared.Models;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +11,9 @@ namespace SBO.LobSystem.Services.Interface
     {
         #region Event
 
-        Event AddEvent(Event events);
+        void AddEvent(Event events);
 
-        Event FindEvent(DateTime time, string name);
-
-        Event GetEvent(int id);
+        //Event FindEvent(DateTime time, string name);
 
         List<Event> GetAllEvents();
 

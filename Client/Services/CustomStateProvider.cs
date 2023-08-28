@@ -34,7 +34,8 @@ namespace Lobsystem.Client.Services
 
         private async Task<CurrentUser> GetCurrentUser()
         {
-            if (_currentUser != null && _currentUser.IsAuthenticated) return _currentUser;
+            if (_currentUser != null && _currentUser.IsAuthenticated)
+                return _currentUser;
             _currentUser = await api.CurrentUserInfo();
             return _currentUser;
         }
