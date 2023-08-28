@@ -1,0 +1,38 @@
+﻿@inherits LayoutComponentBase
+
+<header>
+    <NewNavMenu />
+
+</header>
+
+
+<body class="layout d-flex flex-column h-100">
+    <main class="flex-shrink-0">
+        <article class="content px-4">
+            @Body
+        </article>
+
+        <BlazoredToasts />
+    </main>
+
+
+    <footer class=" footer foot py-3 mt-auto">
+        <div class="copyRight container">
+            <p>©@DateTime.Now.Year Skole Oplæring.</p>
+        </div>
+    </footer>
+</body>
+@functions {
+
+    [CascadingParameter]
+    Task<AuthenticationState> AuthenticationState { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (!(await AuthenticationState).User.Identity.IsAuthenticated)
+        {
+            navigationManager.NavigateTo("/login");
+        }
+    }
+    
+}

@@ -1,0 +1,41 @@
+﻿@page "/login"
+@layout AuthLayout
+@inject NavigationManager navigationManager
+@inject CustomStateProvider authStateProvider
+
+<div class="container loginPage loginbox">
+
+
+    <EditForm class="form-group" OnValidSubmit="OnSubmit" Model="loginRequest">
+        <DataAnnotationsValidator />
+        <label for="Username" class="col-form-label">Brugernavn:</label>
+        <InputText @bind-Value="loginRequest.UserName" class="form-control" id="Username" />
+        <ValidationMessage For="@(() => loginRequest.UserName)" />
+        <label style="margin-top: 1rem;" for="Password" class="col-form-label">Password:</label>
+        <InputText type="password" @bind-Value="loginRequest.Password" class="form-control" id="Password" />
+        <ValidationMessage For="@(() => loginRequest.Password)" />
+        <button type="submit" class="btn logoColor">Login</button>
+
+        <label class="text-danger">@error</label>
+
+        
+    </EditForm>
+</div>
+@code {
+    LoginRequest loginRequest { get; set; } = new LoginRequest();
+    string error { get; set; }
+
+    async Task OnSubmit()
+    {
+        error = null;
+        try
+        {
+            await authStateProvider.Login(loginRequest);
+            navigationManager.NavigateTo("");
+        }
+        catch (Exception ex)
+        {
+            error = ex.Message;
+        }
+    }
+}
