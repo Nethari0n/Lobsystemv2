@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SBO.LobSystem.Domain.Model;
+using Lobsystem.Shared.Models;
 using SBO.LobSystem.Services.Interface;
 
 namespace Lobsystem.Server.Controllers

@@ -5,14 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SBO.LobSystem.Domain.Model
+namespace Lobsystem.Shared.Models
 {
     public class Group
     {
         [Required]
         public int GroupID { get; set; }
 
-        [MaxLength(30),Required]
+        [MaxLength(30), Required]
         public string GroupName { get; set; }
 
         [Required]

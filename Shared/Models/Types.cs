@@ -5,33 +5,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SBO.LobSystem.Domain.Model
+namespace Lobsystem.Shared.Models
 {
-    public class Post
+    public class Types
     {
         [Required]
-        public int PostID { get; set; }
-
-        [Required]
-        public int EventID { get; set; }
-
+        public int TypesID { get; set; }
+        [MaxLength(30), Required]
+        public string TypeName { get; set; }
         [Required]
         public int Multiplyer { get; set; }
 
-        [Required, MaxLength(5)]
-        public int Distance { get; set; }
-
         [Required]
-        public int PostNum { get; set; }
-
+        public bool MultipleRounds { get; set; }
         [Required]
         public bool IsDeleted { get; set; }
 
-        public Event Event { get; set; }
+        public List<Event> Event { get; set; }
 
-        public List<Scanning> Scannings { get; set; }
-
-        public Post()
+        public Types()
         {
             IsDeleted = false;
         }

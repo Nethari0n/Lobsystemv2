@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SBO.Lobsystem.Domain.Data;
-using SBO.LobSystem.Domain.Model;
+using Lobsystem.Shared.Models;
 using SBO.LobSystem.Services.Classes;
 using SBO.LobSystem.Services.Interface;
 using System;

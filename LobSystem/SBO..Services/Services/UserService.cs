@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SBO.Lobsystem.Domain.Data;
-using SBO.Lobsystem.Domain.Models;
-using SBO.LobSystem.Domain.Model;
+using Lobsystem.Shared.Models;
 using SBO.LobSystem.Services.ExtensionMethods;
 using SBO.LobSystem.Services.Interface;
 using System;
@@ -11,6 +10,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using SBO.Lobsystem.Domain.Models;
 
 namespace SBO.LobSystem.Services.Services
 {

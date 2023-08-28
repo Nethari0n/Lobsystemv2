@@ -1,5 +1,5 @@
-﻿using SBO.Lobsystem.Domain.Models;
-using SBO.LobSystem.Domain.Model;
+﻿using Lobsystem.Shared.Models;
+using SBO.Lobsystem.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

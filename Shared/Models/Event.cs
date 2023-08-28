@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SBO.LobSystem.Domain.Model
+namespace Lobsystem.Shared.Models
 {
     public class Event
     {

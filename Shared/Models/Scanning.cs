@@ -5,20 +5,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SBO.LobSystem.Domain.Model
+namespace Lobsystem.Shared.Models
 {
-    public class Registration
+    public class Scanning
     {
         [Required]
-        public int RegistrationID { get; set; }
+        public int ScanningID { get; set; }
         [Required]
         public int ChipID { get; set; }
         [Required]
-        public int EventID { get; set; }
+        public int PostID { get; set; }
         [Required]
-        public DateTime CreateDate { get; set; }
+        public DateTime TimeStamp { get; set; }
+        [Required]
+        public bool IsDeleted { get; set; }
 
-        public Event Event { get; set; }
         public Chip Chip { get; set; }
+        public Post Post { get; set; }
     }
 }

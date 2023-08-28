@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SBO.Lobsystem.Domain.Models;
-using SBO.LobSystem.Domain.Model;
+using Lobsystem.Shared.Models;
 using System.Data;
 
 namespace SBO.Lobsystem.Domain.Data

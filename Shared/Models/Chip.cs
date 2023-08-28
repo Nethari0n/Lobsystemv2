@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SBO.LobSystem.Domain.Model
+namespace Lobsystem.Shared.Models
 {
     public class Chip
     {
@@ -16,8 +16,8 @@ namespace SBO.LobSystem.Domain.Model
         public string UID { get; set; }
 
         [MaxLength(30)]
-        public string LaanerID { get; set;}
-        
+        public string LaanerID { get; set; }
+
         [Required]
         public DateTime CreateDate { get; set; }
 

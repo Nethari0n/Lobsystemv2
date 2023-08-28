@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SBO.LobSystem.Domain.Model;
+using Lobsystem.Shared.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
