@@ -1,0 +1,367 @@
+﻿@page "/Scan"
+@using System.Web;
+@implements IDisposable
+
+
+
+
+
+<div class="container">
+    <div class="text-center">
+        <div class="EventScan">
+            <h1>@Title</h1>
+
+            <div class="container main">
+                <div class="container scanBox">
+                    <div class="title">
+                        <h2 class="boxTitle">Klar</h2>
+                        <input id="ErrorMessage" class="ErrorInput" type="text" @bind="ErrorMessage" readonly />
+                    </div>
+                    <div class="User">
+                        <input id="User" class="UserInput" type="text" @bind="User" readonly />
+                    </div>
+                </div>
+                @if (StartDate > DateTime.Now)
+                {
+                    <h3>Event ikke startet.</h3>
+                }
+                else if (EndDate <= DateTime.Now)
+                {
+                    <h3>Event er afsluttet.</h3>
+                }
+                <div class="input">
+
+                    @if (PostList.Count() > 1)
+                    {
+                        @if (EndDate > DateTime.Now)
+                        {
+                            <select @onchange="@(async e => {PostID = (string)e.Value; await RemoveFocusSelect(); await FocusInput(); if (Convert.ToInt32(PostID) > 0) { await Show();} else { await Hide();} })" class="form-control" id="PostSelecter">
+                                <option value="0">Vælge Post</option>
+                                @foreach (var item in PostList)
+                                {
+                                    <option value="@item.PostID">@item.PostNum</option>
+                                }
+                            </select>
+                        }
+                        @if (StartDate < DateTime.Now && EndDate > DateTime.Now)
+                        {
+                            if (Convert.ToInt32(PostID) > 0)
+                            {
+                                <input id="UID" @bind="UID" @onkeypress="@Enter" @oninput="@(e => {UID=(string)e.Value;})" type="text" class="form-control" autofocus autocomplete="off" />
+                                InvokeAsync(FocusInput);
+                            }
+                            else
+                            {
+                                <input id="UID" @bind="UID" @onkeypress="@Enter" @oninput="@(e => {UID=(string)e.Value;})" type="text" class="form-control" readonly />
+                            }
+
+                        }
+                    }
+                    else
+                    {
+                        PostID = PostList.FirstOrDefault().PostID.ToString();
+                        @if (StartDate < DateTime.Now && EndDate > DateTime.Now)
+                        {
+                            <input id="UID" @bind="UID" @onkeypress="@Enter" @oninput="@(e => {UID=(string)e.Value;})" type="text" class="form-control" autofocus autocomplete="off" />
+                        }
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*No internet connection pop-up warrning*@
+@*<div id="PopUp">Internet Problemer..</div>*@
+
+
+@code {
+    //------------------------ Properties ------------------------//
+
+    private int Value { get; set; }
+
+    private string Title { get; set; }
+
+    private DateTime StartDate { get; set; }
+
+    private DateTime EndDate { get; set; }
+
+    private bool Sucsses { get; set; }
+
+    private bool InternetConnection { get; set; }
+
+    private bool MultiRound { get; set; }
+
+    private System.Threading.Timer? timer;
+
+    private int CooldownTimer { get; set; }
+
+    private string ErrorMessage { get; set; }
+
+
+    //User
+    private string User { get; set; }
+
+    private string UID { get; set; }
+
+
+    //Post
+    private List<Post> PostList { get; set; }
+
+    private string PostID { get; set; }
+
+
+    //Scan
+    private List<string> ChipList { get; set; }
+
+
+
+    //private System.Threading.Timer timer { get; set; }
+
+    //private List<ScanningDTO> ScanningList { get; set; }
+
+    //private List<string> UIDList { get; set; }
+
+
+    //------------------------- Methods --------------------------//
+
+    /// <summary>
+    /// Initializeses lists & starts Timer method
+    /// </summary>
+    /// <returns></returns>
+    protected override async Task OnInitializedAsync()
+    {
+        // if (HttpContextAccessor.HttpContext.Session.GetInt32("id") == null)
+        // {
+        //     NavManager.NavigateTo("/Index", true);
+        // }
+
+        var uri = navigationManager.ToAbsoluteUri(navigationManager.Uri);
+        var test = HttpUtility.ParseQueryString(uri.Query)["id"];
+        //var test2 = test["id"];
+
+        if (int.TryParse(test, out int result))
+        {
+            InitializeProperties(result);
+        }
+        else
+        {
+            navigationManager.NavigateTo("/HomePage");
+        }
+
+        MultiRound = _TypesCaller.GetMultiRound(Convert.ToInt32(result));
+
+        timer = new System.Threading.Timer(async (object? stateInfo) =>
+        {
+            try
+            {
+                CheckStartDate(Convert.ToInt32(result));
+                CheckEndDate(Convert.ToInt32(result));
+                await InvokeAsync(StateHasChanged); //MUST CALL StateHasChanged() BECAUSE THIS IS TRIGGERED BY A TIMER INSTEAD OF A USER EVENT
+            }
+            catch (Exception)
+            {
+                Dispose();
+                throw;
+            }
+        }, new System.Threading.AutoResetEvent(false), 10000, 10000); //TODO: might change fire timer: fires every 10000 milliseconds
+
+
+        //await Timer();
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+    /// <summary>
+    /// Initializes all the necessary properties
+    /// </summary>
+    /// <param name="value"></param>
+    protected async void InitializeProperties(int value)
+    {
+        //Int32.TryParse(value, out int result);
+
+
+
+        Event eventDTO =  await _EventCaller.GetEventByID(value);
+        Title = eventDTO.EventName;
+        StartDate = eventDTO.StartDate;
+        EndDate = eventDTO.EndDate;
+        CooldownTimer = eventDTO.CooldownTimer;
+
+        PostList = _PostCaller.GetAllPostByEventID(value).OrderBy(e => e.PostNum).ToList();
+
+        ChipList = _ChipCaller.GetAllUIDFromEvent(Value);
+
+        //UIDList = new List<string>();
+        //ScanningList = new List<ScanningDTO>();
+    }
+
+    /// <summary>
+    /// Validate uid recived if true save in uid list
+    /// </summary>
+    /// <param name="uid"></param>
+    /// <returns></returns>
+    protected async Task OnScan(string uid)
+    {
+        DateTime lastScan = DateTime.Parse("0001-01-01");
+        Sucsses = false;
+        ErrorMessage = "";
+
+
+        if (UID != null && ChipList.Contains(uid))        
+            lastScan = _ScanCaller.FindScansDatetime(uid, Convert.ToInt32(PostID));       
+        else if (UID == null)        
+            await ScanResualts(uid, "UID er tomt!");       
+        else if (!ChipList.Contains(uid))        
+            await ScanResualts(uid, "Chip er ikke med i begivenhed!");
+
+
+        if (lastScan != DateTime.Parse("0001-01-01") && lastScan.AddSeconds(CooldownTimer) <= DateTime.Now)
+        {
+            Sucsses = true;
+
+            Scanning scan = _ScanCaller.GetScan(uid, Convert.ToInt32(PostID));
+
+            if (Sucsses) { await _ChipCaller.OnScan(scan); }
+
+            await ScanResualts(uid);
+        }
+        else if (lastScan.AddSeconds(CooldownTimer) > DateTime.Now)
+        {
+            await ScanResualts(uid, "Cooldown!");
+        }
+    }
+
+
+
+
+    /// <summary>
+    /// Call OnScan method if enter key is pressed
+    /// </summary>
+    /// <param name="e"></param>
+    /// <returns></returns>
+    protected async Task Enter(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" || e.Code == "NumpadEnter") await OnScan(UID);
+    }
+
+    /// <summary>
+    /// Display succes or failure of scan
+    /// </summary>
+    /// <param name="e"></param>
+    /// <returns></returns>
+    protected async Task ScanResualts(string uid, string error = null)
+    {
+        await JsRuntime.InvokeVoidAsync("myStopFunction");
+
+        User = null;
+
+        StateHasChanged();
+
+        //Call javascript
+        await JsRuntime.InvokeVoidAsync("IsTrue", Sucsses);
+        await JsRuntime.InvokeVoidAsync("IsTrueTitle", Sucsses);
+
+        User = uid; UID = null;
+        ErrorMessage = error;
+
+        StateHasChanged();
+
+        await JsRuntime.InvokeVoidAsync("Clear");
+    }
+
+    /// <summary>
+    /// Remove readonly from UID input field
+    /// </summary>
+    /// <returns></returns>
+    protected async Task Show() => await JsRuntime.InvokeVoidAsync("Show");
+
+    /// <summary>
+    /// Add readonly to UID input field
+    /// </summary>
+    /// <returns></returns>
+    protected async Task Hide() => await JsRuntime.InvokeVoidAsync("Hide");
+
+    /// <summary>
+    /// Foce focus on UID input field
+    /// </summary>
+    /// <returns></returns>
+    protected async Task FocusInput() => await JsRuntime.InvokeVoidAsync("FocusInput");
+
+
+    protected async Task RemoveFocusSelect() => await JsRuntime.InvokeVoidAsync("RemoveFocusSelect");
+
+    //TODO: dont use result
+    protected void CheckStartDate(int result) => StartDate =  _EventCaller.GetEventByID(result).GetAwaiter().GetResult().StartDate;
+    protected void CheckEndDate(int result) => EndDate = _EventCaller.GetEventByID(result).GetAwaiter().GetResult().EndDate;
+
+
+    /// <summary>
+    /// Every 3 secounds check if wifi connection then upload "ScanLists" content to database
+    /// </summary>
+    /// <returns></returns>
+    //protected async Task Timer()
+    //{
+    //    timer = new System.Threading.Timer(async (object stateInfo) =>
+    //    {
+    //        InternetConnection = await IsConnectedToInternetAsync();
+
+    //        if (InternetConnection)
+    //        {
+    //            try { await JsRuntime.InvokeVoidAsync("InternetConnection", InternetConnection); } catch { }
+
+    //        }
+    //        else { try { await JsRuntime.InvokeVoidAsync("InternetConnection", InternetConnection); } catch { } }
+
+    //        await InvokeAsync(StateHasChanged);
+    //    }, new System.Threading.AutoResetEvent(false), 0, 3000);
+    //}
+
+    /// <summary>
+    /// Check if able to ping domain
+    /// </summary>
+    /// <returns></returns>
+    //protected async Task<bool> IsConnectedToInternetAsync()
+    //{
+    //    string host = "8.8.8.8";
+    //    bool result = false;
+    //    Ping p = new Ping();
+
+    //    try {PingReply reply = await p.SendPingAsync(host, 3000); if (reply.Status == IPStatus.Success) { return true;}} catch { }
+
+    //    return result;
+    //}
+
+
+    /// <summary>
+    /// Uploads content from scan list to database
+    /// </summary>
+    /// <returns></returns>
+    //protected async Task UploadScannigsAsync() => ScanningList = await _IRepo.AddScansFromListAsync(ScanningList);
+
+    /// <summary>
+    /// Convert Uid to "scans" then uploads them to "ScanningList"
+    /// </summary>
+    //protected void UploadUID()
+    //{
+    //    for (int i = 0; i < UIDList.Count; i++)
+    //    {
+    //        if (_IRepo.GetMultiRound(Value))
+    //        {
+    //            if (Sucsses)
+    //                ScanningList.Add(_IRepo.GetScan(UIDList[i], Convert.ToInt32(PostID)));
+    //        }
+    //        else
+    //        {
+    //            if (!_IRepo.CheckPostScan(_IRepo.GetChipIDByUID(UIDList[i]), Convert.ToInt32(PostID)))
+    //                if (Sucsses)
+    //                    ScanningList.Add(_IRepo.GetScan(UIDList[i], Convert.ToInt32(PostID)));
+    //        }
+
+    //        UIDList.Remove(UIDList[i]);
+    //    }
+    //}
+
+}

@@ -12,7 +12,14 @@
 @using Lobsystem.Client.Services
 @using Lobsystem.Shared.Models;
 @using Microsoft.AspNetCore.Components.Authorization
+@using System.Timers
+@using System.Net.NetworkInformation
+@using Microsoft.Extensions.Primitives
 
+@inject IChipCaller _ChipCaller
+@inject IPostCaller _PostCaller
+@inject ITypesCaller _TypesCaller
+@inject IScanCaller _ScanCaller
 @inject IEventCaller _EventCaller
 @inject NavigationManager navigationManager
 @inject CustomStateProvider authStateProvider

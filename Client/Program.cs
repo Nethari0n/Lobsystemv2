@@ -23,7 +23,10 @@ namespace Lobsystem.Client
 
             builder.Services.AddScoped<IEventCaller, EventCaller>();
             builder.Services.AddScoped<ICRUDCaller, CRUDCaller>();
-
+            builder.Services.AddScoped<IScanCaller, ScanCaller>();
+            builder.Services.AddScoped<ITypesCaller, TypesCaller>();
+            builder.Services.AddScoped<IPostCaller, PostCaller>();
+            builder.Services.AddScoped<IChipCaller, ChipCaller>();
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
             await builder.Build().RunAsync();
