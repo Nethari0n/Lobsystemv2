@@ -1,4 +1,5 @@
-﻿
+﻿@page "/"
+@using Lobsystem.Shared.DTO;
 
 <div class="container">
     <div class="text-center">
@@ -31,7 +32,7 @@
                                     {
                                         <td>@item.EventName</td>
                                     }
-                                    <td>@item.Type.TypeName</td>
+                                    <td>@item.TypeName</td>
                                     <td>@item.StartDate.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td>@item.EndDate.ToString("dd/MM/yyyy HH:mm")</td>
                                     <td>@item.Username</td>
@@ -83,7 +84,7 @@
                                         {
                                             <td>@item.EventName</td>
                                         }
-                                        <td>@item.Type.TypeName</td>
+                                        <td>@item.TypeName</td>
                                         <td>@item.StartDate.ToString("dd/MM/yyyy HH:mm")</td>
                                         <td>@item.EndDate.ToString("dd/MM/yyyy HH:mm")</td>
                                         <td>@item.Username</td>
@@ -134,7 +135,7 @@
                                         {
                                             <td>@item.EventName</td>
                                         }
-                                        <td>@item.Type.TypeName</td>
+                                        <td>@item.TypeName</td>
                                         <td>@item.StartDate.ToString("dd/MM/yyyy HH:mm")</td>
                                         <td>@item.EndDate.ToString("dd/MM/yyyy HH:mm")</td>
                                         <td>@item.Username</td>
@@ -161,38 +162,45 @@
 </div>
 
 @code {
-
     //------------------------ Properties ------------------------//
 
-    public List<Event> EventList { get; set; }
+    public List<EventTypeDTO> EventList { get; set; } = new();
 
     public string EventID { get; set; }
 
     //------------------------- Methods --------------------------//
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         // if (HttpContextAccessor.HttpContext.Session.GetInt32("id") == null)
         // {
-        navigationManager.NavigateTo("/Index", true);
+        // // navigationManager.NavigateTo("/Index", true);
         //}
 
-        //EventList = _EventPostTypesService.GetAllEvents().OrderBy(e => e.StartDate).ToList();
+
+        //EventList =  _EventPostTypesService.GetAllEvents().OrderBy(e => e.StartDate).ToList();
     }
 
-    protected async Task StartEvent(Event eventDTO)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        EventList = await _EventCaller.GetAllEvents();
+        StateHasChanged();
+        //return base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected async Task StartEvent(EventTypeDTO eventDTO)
     {
         eventDTO.StartDate = DateTime.Now;
         //await _CreateService.UpdateEntity(eventDTO);
     }
 
-    protected async Task EndEvent(Event eventDTO)
+    protected async Task EndEvent(EventTypeDTO eventDTO)
     {
         eventDTO.EndDate = DateTime.Now;
         //await _CreateService.UpdateEntity(eventDTO);
     }
 
-    protected async Task DeleteEvent(Event events)
+    protected async Task DeleteEvent(EventTypeDTO events)
     {
         if (!await JsRuntime.InvokeAsync<bool>("confirm", $"Er du sikker på du vil slette begivenheden til '{events.EventName}'?"))
             return;
@@ -203,7 +211,7 @@
         }
     }
 
-    protected async Task StartEventConf(Event events)
+    protected async Task StartEventConf(EventTypeDTO events)
     {
         if (!await JsRuntime.InvokeAsync<bool>("confirm", $"Er du sikker på du vil start begivenheden til '{events.EventName}'?"))
             return;
@@ -214,7 +222,7 @@
         }
     }
 
-    protected async Task EndEventConf(Event events)
+    protected async Task EndEventConf(EventTypeDTO events)
     {
         if (!await JsRuntime.InvokeAsync<bool>("confirm", $"Er du sikker på du vil slutte begivenheden til '{events.EventName}'?"))
             return;

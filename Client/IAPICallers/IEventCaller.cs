@@ -1,4 +1,5 @@
-﻿using Lobsystem.Shared.Models;
+﻿using Lobsystem.Shared.DTO;
+using Lobsystem.Shared.Models;
 
 namespace Lobsystem.Client.IAPICallers
 {
@@ -8,7 +9,7 @@ namespace Lobsystem.Client.IAPICallers
 
         //Event FindEvent(DateTime time, string name);
 
-        Task<List<Event>> GetAllEvents();
+        Task<List<EventTypeDTO>> GetAllEvents();
 
         Task<Event> GetEventByID(int id);
 

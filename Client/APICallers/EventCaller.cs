@@ -1,4 +1,5 @@
 ﻿using Lobsystem.Client.IAPICallers;
+using Lobsystem.Shared.DTO;
 using Lobsystem.Shared.Models;
 using System.Net.Http.Json;
 
@@ -25,9 +26,10 @@ namespace Lobsystem.Client.APICallers
         //    var test = await _httpClient.GetFromJsonAsync<Event>("");
         //}
 
-        public async Task<List<Event>> GetAllEvents()
+        public async Task<List<EventTypeDTO>> GetAllEvents()
         {
-            return await _httpClient.GetFromJsonAsync<List<Event>>("Event");
+            var test = await _httpClient.GetFromJsonAsync<List<EventTypeDTO>>("Event");
+            return test.ToList();
         }
 
         public async Task<Event> GetEventByID(int id)

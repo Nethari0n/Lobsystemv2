@@ -1,5 +1,7 @@
-﻿using Lobsystem.Shared.Models;
+﻿using Lobsystem.Shared.DTO;
+using Lobsystem.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Logging;
 using SBO.LobSystem.Services.Interface;
 
 namespace Lobsystem.Server.Controllers
@@ -58,11 +60,29 @@ namespace Lobsystem.Server.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllEvents()
+        public async Task<IActionResult> GetAllEvents()
         {
             try
             {
-                return Ok(_eventPostTypesService.GetAllEvents());
+                var test = await _eventPostTypesService.GetAllEvents();
+                List<EventTypeDTO> eventTypeDTOs = new List<EventTypeDTO>();
+                foreach (var item in test)
+                {
+                    eventTypeDTOs
+                        .Add(new EventTypeDTO
+                        {
+                            CooldownTimer = item.CooldownTimer, 
+                            Description = item.Description, 
+                            EndDate = item.EndDate, 
+                            StartDate = item.StartDate, 
+                            EventID = item.EventID, 
+                            EventName = item.EventName, 
+                            TypeName = item.Type.TypeName, 
+                            TypesID = item.TypesID, 
+                            Username = item.Username 
+                        });
+                }
+                return Ok(eventTypeDTOs);
             }
             catch (Exception)
             {

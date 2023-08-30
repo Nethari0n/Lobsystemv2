@@ -31,7 +31,10 @@ namespace Lobsystem.Server
                     return Task.CompletedTask;
                 };
             });
-            builder.Services.AddControllers().AddNewtonsoftJson();
+            builder.Services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+            });
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
 

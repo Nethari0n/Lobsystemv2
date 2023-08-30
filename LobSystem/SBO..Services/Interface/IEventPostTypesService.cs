@@ -15,7 +15,7 @@ namespace SBO.LobSystem.Services.Interface
 
         //Event FindEvent(DateTime time, string name);
 
-        List<Event> GetAllEvents();
+        Task<List<Event>> GetAllEvents();
 
         Event GetEventByID(int id);
 

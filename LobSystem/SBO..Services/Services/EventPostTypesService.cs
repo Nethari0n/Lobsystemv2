@@ -26,11 +26,11 @@ namespace SBO.LobSystem.Services.Services
 
         public void AddEvent(Event events)
         {
-            
-                _lobsContext.Events.Add(events);
-                _lobsContext.SaveChanges();
-            
-           
+
+            _lobsContext.Events.Add(events);
+            _lobsContext.SaveChanges();
+
+
             //return FindEvent(events.CreateDate, events.Username);
         }
 
@@ -38,7 +38,7 @@ namespace SBO.LobSystem.Services.Services
 
 
 
-        public List<Event> GetAllEvents() => _lobsContext.Events.Where(e => e.IsDeleted == false).Include(x => x.Type).AsNoTracking().ToList();
+        public async Task<List<Event>> GetAllEvents() => await _lobsContext.Events.Where(e => e.IsDeleted == false).Include(x => x.Type).AsNoTracking().ToListAsync();
 
         public void DeleteEvent(int ID)
         {
@@ -52,9 +52,9 @@ namespace SBO.LobSystem.Services.Services
 
         public Event GetEventByID(int id)
         {
-            
-                return _lobsContext.Events.Where(c => c.EventID == id).AsNoTracking().FirstOrDefault();
-            
+
+            return _lobsContext.Events.Where(c => c.EventID == id).AsNoTracking().FirstOrDefault();
+
         }
 
         #endregion
@@ -77,10 +77,10 @@ namespace SBO.LobSystem.Services.Services
 
         public string GetTypeNameByID(int id)
         {
-            
-                string types = _lobsContext.Types.Where(x => x.TypesID == id).AsNoTracking().FirstOrDefault().TypeName;
-                return types;
-            
+
+            string types = _lobsContext.Types.Where(x => x.TypesID == id).AsNoTracking().FirstOrDefault().TypeName;
+            return types;
+
         }
 
         public void DeleteType(int ID)
@@ -100,8 +100,8 @@ namespace SBO.LobSystem.Services.Services
 
         public bool TypeExists(string TypeName)
         {
-            var types = _lobsContext.Types.Where(x => x.TypeName == TypeName && x.IsDeleted == false).AsNoTracking().SingleOrDefault() ;
-          
+            var types = _lobsContext.Types.Where(x => x.TypeName == TypeName && x.IsDeleted == false).AsNoTracking().SingleOrDefault();
+
 
             if ( types == null )
             {
