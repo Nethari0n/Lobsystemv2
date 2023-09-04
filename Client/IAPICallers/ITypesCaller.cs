@@ -14,7 +14,7 @@ namespace Lobsystem.Client.IAPICallers
 
         string GetTypeNameByID(int id);
 
-        bool GetMultiRound(int id);
+        Task<bool> GetMultiRound(int id);
 
         void DeleteType(int ID);
     }

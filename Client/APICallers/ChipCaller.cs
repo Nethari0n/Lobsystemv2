@@ -1,10 +1,16 @@
 ﻿using Lobsystem.Client.IAPICallers;
 using Lobsystem.Shared.Models;
+using System.Net.Http.Json;
 
 namespace Lobsystem.Client.APICallers
 {
     public class ChipCaller : IChipCaller
     {
+        private readonly HttpClient _httpClient;
+        public ChipCaller(HttpClient httpClient)
+        {
+            _httpClient = httpClient;
+        }
         public bool CheckUID(string uid)
         {
             throw new NotImplementedException();
@@ -25,9 +31,19 @@ namespace Lobsystem.Client.APICallers
             throw new NotImplementedException();
         }
 
-        public List<string> GetAllUIDFromEvent(int id)
+        public async Task<List<string>> GetAllUIDFromEvent(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<List<string>>($"Chip/{id}");
+
+                return response;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         public int GetChipIDByChipUID(string UID)

@@ -34,7 +34,8 @@ namespace Lobsystem.Client.APICallers
 
         public async Task<Event> GetEventByID(int id)
         {
-            return await _httpClient.GetFromJsonAsync<Event>($"Event/{id}");
+            var response = await _httpClient.GetFromJsonAsync<Event>($"Event/{id}");
+            return response;
         }
     }
 }

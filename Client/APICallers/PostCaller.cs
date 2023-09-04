@@ -1,10 +1,16 @@
 ﻿using Lobsystem.Client.IAPICallers;
 using Lobsystem.Shared.Models;
+using System.Net.Http.Json;
 
 namespace Lobsystem.Client.APICallers
 {
     public class PostCaller : IPostCaller
     {
+        private readonly HttpClient _httpClient;
+        public PostCaller(HttpClient httpClient)
+        {
+                _httpClient = httpClient;
+        }
         public void AddPostFromList(List<Post> list, int id)
         {
             throw new NotImplementedException();
@@ -15,9 +21,18 @@ namespace Lobsystem.Client.APICallers
             throw new NotImplementedException();
         }
 
-        public List<Post> GetAllPostByEventID(int id)
+        public async Task<List<Post>> GetAllPostByEventID(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<List<Post>>($"post/{id}");
+                return response;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         public List<Post> GetAllPosts()

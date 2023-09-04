@@ -6,7 +6,7 @@ namespace Lobsystem.Client.IAPICallers
     {
         void AddPostFromList(List<Post> list, int id);
 
-        List<Post> GetAllPostByEventID(int id);
+        Task<List<Post>> GetAllPostByEventID(int id);
 
         List<Post> GetAllPosts();
 

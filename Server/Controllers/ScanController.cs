@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Lobsystem.Shared.Models;
+using Microsoft.AspNetCore.Mvc;
 using SBO.LobSystem.Services.Interface;
 
 namespace Lobsystem.Server.Controllers
@@ -8,10 +9,12 @@ namespace Lobsystem.Server.Controllers
     public class ScanController : ControllerBase
     {
         private readonly IScanService _scanService;
+        private readonly ICreateService _createService;
 
-        public ScanController(IScanService scanService)
+        public ScanController(IScanService scanService, ICreateService createService)
         {
             _scanService = scanService;
+            _createService = createService;
         }
 
         [HttpGet]
@@ -24,6 +27,20 @@ namespace Lobsystem.Server.Controllers
             catch (Exception)
             {
                 return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
+        [HttpPost]
+        public IActionResult CreateScan(Scanning scanning)
+        {
+            try
+            {
+                return Ok(_createService.CreateEntity(scanning));
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
 

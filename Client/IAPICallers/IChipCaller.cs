@@ -22,7 +22,7 @@ namespace Lobsystem.Client.IAPICallers
 
         int GetChipIDByUID(string uid);
 
-        List<string> GetAllUIDFromEvent(int id);
+        Task<List<string>> GetAllUIDFromEvent(int id);
 
         bool ChipExists(string UID);
 

@@ -1,4 +1,4 @@
-﻿@page "/Scan"
+﻿@page "/EventScan"
 @using System.Web;
 @implements IDisposable
 
@@ -98,6 +98,8 @@
 
     private string ErrorMessage { get; set; }
 
+    public int SiteId { get; set; }
+
 
     //User
     private string User { get; set; }
@@ -106,13 +108,13 @@
 
 
     //Post
-    private List<Post> PostList { get; set; }
+    private List<Post> PostList { get; set; } = new();
 
     private string PostID { get; set; }
 
 
     //Scan
-    private List<string> ChipList { get; set; }
+    private List<string> ChipList { get; set; } = new();
 
 
 
@@ -142,21 +144,34 @@
 
         if (int.TryParse(test, out int result))
         {
-            InitializeProperties(result);
+            SiteId = result;
+            await InitializeProperties(SiteId);
+
         }
         else
         {
             navigationManager.NavigateTo("/HomePage");
         }
 
-        MultiRound = _TypesCaller.GetMultiRound(Convert.ToInt32(result));
+        MultiRound = _TypesCaller.GetMultiRound(Convert.ToInt32(SiteId)).GetAwaiter().GetResult();
+
+
+
+
+        //await Timer();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        
 
         timer = new System.Threading.Timer(async (object? stateInfo) =>
         {
             try
             {
-                CheckStartDate(Convert.ToInt32(result));
-                CheckEndDate(Convert.ToInt32(result));
+                CheckStartDate(Convert.ToInt32(SiteId));
+                CheckEndDate(Convert.ToInt32(SiteId));
                 await InvokeAsync(StateHasChanged); //MUST CALL StateHasChanged() BECAUSE THIS IS TRIGGERED BY A TIMER INSTEAD OF A USER EVENT
             }
             catch (Exception)
@@ -166,8 +181,6 @@
             }
         }, new System.Threading.AutoResetEvent(false), 10000, 10000); //TODO: might change fire timer: fires every 10000 milliseconds
 
-
-        //await Timer();
     }
 
     public void Dispose()
@@ -178,21 +191,21 @@
     /// Initializes all the necessary properties
     /// </summary>
     /// <param name="value"></param>
-    protected async void InitializeProperties(int value)
+    protected async Task InitializeProperties(int value)
     {
         //Int32.TryParse(value, out int result);
 
-
-
-        Event eventDTO =  await _EventCaller.GetEventByID(value);
+        Event eventDTO = new();
+        //TODO: HER BENJAMIN
+        eventDTO = await _EventCaller.GetEventByID(value);
         Title = eventDTO.EventName;
         StartDate = eventDTO.StartDate;
         EndDate = eventDTO.EndDate;
         CooldownTimer = eventDTO.CooldownTimer;
 
-        PostList = _PostCaller.GetAllPostByEventID(value).OrderBy(e => e.PostNum).ToList();
+        PostList = _PostCaller.GetAllPostByEventID(value).GetAwaiter().GetResult().OrderBy(e => e.PostNum).ToList();
 
-        ChipList = _ChipCaller.GetAllUIDFromEvent(Value);
+        ChipList =  _ChipCaller.GetAllUIDFromEvent(Value).GetAwaiter().GetResult();
 
         //UIDList = new List<string>();
         //ScanningList = new List<ScanningDTO>();
@@ -211,7 +224,7 @@
 
 
         if (UID != null && ChipList.Contains(uid))        
-            lastScan = _ScanCaller.FindScansDatetime(uid, Convert.ToInt32(PostID));       
+            lastScan = await _ScanCaller.FindScansDatetime(uid, Convert.ToInt32(PostID));       
         else if (UID == null)        
             await ScanResualts(uid, "UID er tomt!");       
         else if (!ChipList.Contains(uid))        
@@ -222,9 +235,9 @@
         {
             Sucsses = true;
 
-            Scanning scan = _ScanCaller.GetScan(uid, Convert.ToInt32(PostID));
+            Scanning scan = await _ScanCaller.GetScan(uid, Convert.ToInt32(PostID));
 
-            if (Sucsses) { await _ChipCaller.OnScan(scan); }
+            if (Sucsses) { await _ScanCaller.CreateScan(scan); }
 
             await ScanResualts(uid);
         }
