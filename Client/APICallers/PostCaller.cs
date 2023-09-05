@@ -25,8 +25,8 @@ namespace Lobsystem.Client.APICallers
         {
             try
             {
-                var response = await _httpClient.GetFromJsonAsync<List<Post>>($"post/{id}");
-                return response;
+                List<Post> response = await _httpClient.GetFromJsonAsync<List<Post>>($"post/{id}");
+                return response.OrderBy(e => e.PostNum).ToList();
             }
             catch (Exception)
             {

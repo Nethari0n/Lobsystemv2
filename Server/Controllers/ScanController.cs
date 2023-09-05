@@ -1,4 +1,5 @@
-﻿using Lobsystem.Shared.Models;
+﻿using Lobsystem.Shared.DTO;
+using Lobsystem.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using SBO.LobSystem.Services.Interface;
 
@@ -31,11 +32,17 @@ namespace Lobsystem.Server.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateScan(Scanning scanning)
+        [Route("Test")]
+        public async Task<IActionResult> CreateScan(ScanningDTO scanning)
         {
             try
             {
-                return Ok(_createService.CreateEntity(scanning));
+                Scanning scan = new() { ChipID = scanning.ChipID, IsDeleted = false, PostID = scanning.PostID, TimeStamp = scanning.TimeStamp };
+
+                //_createService.CreateEntity(scanning);
+                var _ok = Ok(  _createService.CreateEntity(scan));
+
+                return _ok;
             }
             catch (Exception)
             {

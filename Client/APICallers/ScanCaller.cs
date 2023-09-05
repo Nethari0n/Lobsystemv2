@@ -1,4 +1,5 @@
 ﻿using Lobsystem.Client.IAPICallers;
+using Lobsystem.Shared.DTO;
 using Lobsystem.Shared.Models;
 using System.Net.Http.Json;
 
@@ -38,14 +39,14 @@ namespace Lobsystem.Client.APICallers
             }
         }
 
-        public async Task CreateScan(Scanning scanning)
+        public async Task CreateScan(ScanningDTO scanning)
         {
             try
             {
-                var test =  await _httpClient.PostAsJsonAsync("Scan",scanning);
+                var test =  await _httpClient.PostAsJsonAsync("Scan/Test",scanning);
                 test.EnsureSuccessStatusCode();
             }
-            catch (Exception)
+            catch (Exception e)
             {
 
                 throw;

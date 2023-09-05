@@ -35,9 +35,9 @@ namespace Lobsystem.Client.APICallers
         {
             try
             {
-                var response = await _httpClient.GetFromJsonAsync<List<string>>($"Chip/{id}");
+                var response = await _httpClient.GetFromJsonAsync<List<string>>($"Chip/{id}/Event");
 
-                return response;
+                return response.ToList();
             }
             catch (Exception)
             {

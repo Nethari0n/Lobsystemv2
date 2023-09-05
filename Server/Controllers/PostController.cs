@@ -35,7 +35,7 @@ namespace Lobsystem.Server.Controllers
         {
             try
             {
-                return Ok(_eventPostTypesService.GetAllPostByEventID(id));
+                return Ok(_eventPostTypesService.GetAllPostByEventID(id).ToList());
             }
             catch (Exception)
             {

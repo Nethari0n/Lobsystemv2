@@ -1,78 +1,82 @@
 ﻿@page "/EventScan"
 @using System.Web;
+@using Lobsystem.Shared.DTO;
 @implements IDisposable
 
 
 
+@if (_render)
+{
 
 
-<div class="container">
-    <div class="text-center">
-        <div class="EventScan">
-            <h1>@Title</h1>
+    <div class="container">
+        <div class="text-center">
+            <div class="EventScan">
+                <h1>@Title</h1>
 
-            <div class="container main">
-                <div class="container scanBox">
-                    <div class="title">
-                        <h2 class="boxTitle">Klar</h2>
-                        <input id="ErrorMessage" class="ErrorInput" type="text" @bind="ErrorMessage" readonly />
+                <div class="container main">
+                    <div class="container scanBox">
+                        <div class="title">
+                            <h2 class="boxTitle">Klar</h2>
+                            <input id="ErrorMessage" class="ErrorInput" type="text" @bind="ErrorMessage" readonly />
+                        </div>
+                        <div class="User">
+                            <input id="User" class="UserInput" type="text" @bind="User" readonly />
+                        </div>
                     </div>
-                    <div class="User">
-                        <input id="User" class="UserInput" type="text" @bind="User" readonly />
-                    </div>
-                </div>
-                @if (StartDate > DateTime.Now)
-                {
-                    <h3>Event ikke startet.</h3>
-                }
-                else if (EndDate <= DateTime.Now)
-                {
-                    <h3>Event er afsluttet.</h3>
-                }
-                <div class="input">
-
-                    @if (PostList.Count() > 1)
+                    @if (StartDate > DateTime.Now)
                     {
-                        @if (EndDate > DateTime.Now)
+                        <h3>Event ikke startet.</h3>
+                    }
+                    else if (EndDate <= DateTime.Now)
+                    {
+                        <h3>Event er afsluttet.</h3>
+                    }
+                    <div class="input">
+
+                        @if (PostList.Count() > 1)
                         {
-                            <select @onchange="@(async e => {PostID = (string)e.Value; await RemoveFocusSelect(); await FocusInput(); if (Convert.ToInt32(PostID) > 0) { await Show();} else { await Hide();} })" class="form-control" id="PostSelecter">
-                                <option value="0">Vælge Post</option>
-                                @foreach (var item in PostList)
+                            @if (EndDate > DateTime.Now)
+                            {
+                                <select @onchange="@(async e => {PostID = (string)e.Value; await RemoveFocusSelect(); await FocusInput(); if (Convert.ToInt32(PostID) > 0) { await Show();} else { await Hide();} })" class="form-control" id="PostSelecter">
+                                    <option value="0">Vælge Post</option>
+                                    @foreach (var item in PostList)
+                                    {
+                                        <option value="@item.PostID">@item.PostNum</option>
+                                    }
+                                </select>
+                            }
+                            @if (StartDate < DateTime.Now && EndDate > DateTime.Now)
+                            {
+                                if (Convert.ToInt32(PostID) > 0)
                                 {
-                                    <option value="@item.PostID">@item.PostNum</option>
+                                    <input id="UID" @bind="UID" @onkeypress="@Enter" @oninput="@(e => {UID=(string)e.Value;})" type="text" class="form-control" autofocus autocomplete="off" />
+                                    InvokeAsync(FocusInput);
                                 }
-                            </select>
+                                else
+                                {
+                                    <input id="UID" @bind="UID" @onkeypress="@Enter" @oninput="@(e => {UID=(string)e.Value;})" type="text" class="form-control" readonly />
+                                }
+
+                            }
                         }
-                        @if (StartDate < DateTime.Now && EndDate > DateTime.Now)
+                        else
                         {
-                            if (Convert.ToInt32(PostID) > 0)
+                            PostID = PostList.FirstOrDefault().PostID.ToString();
+                            @if (StartDate < DateTime.Now && EndDate > DateTime.Now)
                             {
                                 <input id="UID" @bind="UID" @onkeypress="@Enter" @oninput="@(e => {UID=(string)e.Value;})" type="text" class="form-control" autofocus autocomplete="off" />
-                                InvokeAsync(FocusInput);
                             }
-                            else
-                            {
-                                <input id="UID" @bind="UID" @onkeypress="@Enter" @oninput="@(e => {UID=(string)e.Value;})" type="text" class="form-control" readonly />
-                            }
-
                         }
-                    }
-                    else
-                    {
-                        PostID = PostList.FirstOrDefault().PostID.ToString();
-                        @if (StartDate < DateTime.Now && EndDate > DateTime.Now)
-                        {
-                            <input id="UID" @bind="UID" @onkeypress="@Enter" @oninput="@(e => {UID=(string)e.Value;})" type="text" class="form-control" autofocus autocomplete="off" />
-                        }
-                    }
 
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-@*No internet connection pop-up warrning*@
-@*<div id="PopUp">Internet Problemer..</div>*@
+    @*No internet connection pop-up warrning*@
+    @*<div id="PopUp">Internet Problemer..</div>*@
+}
 
 
 @code {
@@ -116,7 +120,7 @@
     //Scan
     private List<string> ChipList { get; set; } = new();
 
-
+    public bool _render { get; set; } = false;
 
     //private System.Threading.Timer timer { get; set; }
 
@@ -153,10 +157,10 @@
             navigationManager.NavigateTo("/HomePage");
         }
 
-        MultiRound = _TypesCaller.GetMultiRound(Convert.ToInt32(SiteId)).GetAwaiter().GetResult();
+        MultiRound = await _TypesCaller.GetMultiRound(Convert.ToInt32(SiteId));
 
 
-
+        _render = true;
 
         //await Timer();
     }
@@ -164,7 +168,7 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
 
-        
+
 
         timer = new System.Threading.Timer(async (object? stateInfo) =>
         {
@@ -203,9 +207,9 @@
         EndDate = eventDTO.EndDate;
         CooldownTimer = eventDTO.CooldownTimer;
 
-        PostList = _PostCaller.GetAllPostByEventID(value).GetAwaiter().GetResult().OrderBy(e => e.PostNum).ToList();
+        PostList = await _PostCaller.GetAllPostByEventID(value);
 
-        ChipList =  _ChipCaller.GetAllUIDFromEvent(Value).GetAwaiter().GetResult();
+        ChipList = await _ChipCaller.GetAllUIDFromEvent(value);
 
         //UIDList = new List<string>();
         //ScanningList = new List<ScanningDTO>();
@@ -223,11 +227,11 @@
         ErrorMessage = "";
 
 
-        if (UID != null && ChipList.Contains(uid))        
-            lastScan = await _ScanCaller.FindScansDatetime(uid, Convert.ToInt32(PostID));       
-        else if (UID == null)        
-            await ScanResualts(uid, "UID er tomt!");       
-        else if (!ChipList.Contains(uid))        
+        if (UID != null && ChipList.Contains(uid))
+            lastScan = await _ScanCaller.FindScansDatetime(uid, Convert.ToInt32(PostID));
+        else if (UID == null)
+            await ScanResualts(uid, "UID er tomt!");
+        else if (!ChipList.Contains(uid))
             await ScanResualts(uid, "Chip er ikke med i begivenhed!");
 
 
@@ -236,8 +240,12 @@
             Sucsses = true;
 
             Scanning scan = await _ScanCaller.GetScan(uid, Convert.ToInt32(PostID));
-
-            if (Sucsses) { await _ScanCaller.CreateScan(scan); }
+            ScanningDTO test = new() { ChipID = scan.ChipID, PostID = Convert.ToInt32(PostID), TimeStamp = DateTime.Now };
+            //scan.PostID = Convert.ToInt32(PostID);
+            if (Sucsses) 
+            { 
+                await _ScanCaller.CreateScan(test);
+            }
 
             await ScanResualts(uid);
         }
@@ -307,8 +315,8 @@
     protected async Task RemoveFocusSelect() => await JsRuntime.InvokeVoidAsync("RemoveFocusSelect");
 
     //TODO: dont use result
-    protected void CheckStartDate(int result) => StartDate =  _EventCaller.GetEventByID(result).GetAwaiter().GetResult().StartDate;
-    protected void CheckEndDate(int result) => EndDate = _EventCaller.GetEventByID(result).GetAwaiter().GetResult().EndDate;
+    protected async void CheckStartDate(int result) => StartDate = await _EventCaller.GetEventByIDStartDate(result);
+    protected async void CheckEndDate(int result) => EndDate = await _EventCaller.GetEventByIDEndDate(result);
 
 
     /// <summary>

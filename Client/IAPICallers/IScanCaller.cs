@@ -1,4 +1,5 @@
-﻿using Lobsystem.Shared.Models;
+﻿using Lobsystem.Shared.DTO;
+using Lobsystem.Shared.Models;
 
 namespace Lobsystem.Client.IAPICallers
 {
@@ -12,7 +13,7 @@ namespace Lobsystem.Client.IAPICallers
 
         Task<Scanning> GetScan(string uid, int postID);
 
-        Task CreateScan(Scanning scanning);
+        Task CreateScan(ScanningDTO scanning);
 
         //bool CheckPostScan(int id, int postID);
     }

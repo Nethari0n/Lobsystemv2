@@ -13,5 +13,7 @@ namespace Lobsystem.Client.IAPICallers
 
         Task<Event> GetEventByID(int id);
 
+        Task<DateTime> GetEventByIDStartDate(int id);
+        Task<DateTime> GetEventByIDEndDate(int id);
     }
 }
