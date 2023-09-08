@@ -19,9 +19,11 @@ namespace SBO.LobSystem.Services.Services
         {
 
             _context.Add(entity);
+
             await _context.SaveChangesAsync();
             _context.Entry(entity).State = EntityState.Detached;
         }
+
 
         public async Task DeleteEntity<T>(T entity) where T : class
         {

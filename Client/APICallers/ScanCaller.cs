@@ -43,7 +43,7 @@ namespace Lobsystem.Client.APICallers
         {
             try
             {
-                var test =  await _httpClient.PostAsJsonAsync("Scan/Test",scanning);
+                var test =  await _httpClient.PostAsJsonAsync("Scan/CreateOne", scanning);
                 
             }
             catch (Exception e)
@@ -52,6 +52,21 @@ namespace Lobsystem.Client.APICallers
                 throw;
             }
         }
+
+        public async Task CreateScans(List<ScanningDTO> scans)
+        {
+            try
+            {
+                var test = await _httpClient.PostAsJsonAsync("Scan/CreateList", scans);
+
+            }
+            catch (Exception e)
+            {
+
+                throw;
+            }
+        }
+
 
         public Task<List<Scanning>> GetAllScannings()
         {

@@ -307,6 +307,7 @@
                             }
                             else if (lastScan.AddSeconds(CooldownTimer) > DateTime.Now)
                             {
+
                                 await ScanResualts(uid, "Cooldown!");
                                 await localStore.SetItemAsync("LocalStore", scanningDTOs);
                                 return;
@@ -315,6 +316,7 @@
                         }
                         else
                         {
+                            Sucsses = true;
                             await ScanResualts(uid);
                         }
                     }
@@ -348,20 +350,21 @@
             List<ScanningDTO> scanningDTOs = await localStore.GetItemAsync<List<ScanningDTO>>("LocalStore");
             //For some reason foreach doesn't work??? So we're running with a for loop.
             //When we run with a foreach it only runs through it once even though there is multiple objects in the list we're looping through.
-            for (int i = scanningDTOs.Count - 1; i >= 0; i--)
-            {
+            // for (int i = scanningDTOs.Count - 1; i >= 0; i--)
+            // {
                 try
                 {
-                    await _ScanCaller.CreateScan(scanningDTOs[i]);
-                    scanningDTOs.Remove(scanningDTOs[i]);
-                    await localStore.SetItemAsync("LocalStore", scanningDTOs);
+                    await _ScanCaller.CreateScans(scanningDTOs);
+                    //scanningDTOs.Remove(scanningDTOs[i]);
+                    //await localStore.SetItemAsync("LocalStore", scanningDTOs);
+                    await localStore.ClearAsync();
                 }
                 catch (Exception)
                 {
 
 
                 }
-            }
+            //}
             //    foreach (var item in scanningDTOs) // May the force be with you
             //{
             //    //if (await IsConnectedToInternetAsync())

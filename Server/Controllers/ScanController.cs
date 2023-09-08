@@ -32,7 +32,7 @@ namespace Lobsystem.Server.Controllers
         }
 
         [HttpPost]
-        [Route("Test")]
+        [Route("CreateOne")]
         public async Task<IActionResult> CreateScan(ScanningDTO scanning)
         {
             try
@@ -50,6 +50,32 @@ namespace Lobsystem.Server.Controllers
                 throw;
             }
         }
+
+        [HttpPost]
+        [Route("CreateList")]
+        public async Task<IActionResult> CreateScans(List<ScanningDTO> scanningDTOs)
+        {
+
+            try
+            {
+
+                foreach (var scanning in scanningDTOs)
+                {
+                    Scanning scan = new() { ChipID = scanning.ChipID, IsDeleted = false, PostID = scanning.PostID, TimeStamp = scanning.TimeStamp };
+
+                    //_createService.CreateEntity(scanning);
+                    await _createService.CreateEntity<Scanning>(scan);
+
+                }
+                return Ok();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
 
         [HttpGet]
         [Route("{uid}/{id}/datetime")]

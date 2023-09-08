@@ -14,6 +14,7 @@ namespace Lobsystem.Client.IAPICallers
         Task<Scanning> GetScan(string uid, int postID);
 
         Task CreateScan(ScanningDTO scanning);
+        Task CreateScans(List<ScanningDTO> scans);
 
         //bool CheckPostScan(int id, int postID);
     }
