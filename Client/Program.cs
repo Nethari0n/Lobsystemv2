@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Lobsystem.Client.APICallers;
 using Lobsystem.Client.IAPICallers;
+using Blazored.Toast;
+using Blazored.Modal;
+using Blazored.LocalStorage;
 
 namespace Lobsystem.Client
 {
@@ -28,6 +31,12 @@ namespace Lobsystem.Client
             builder.Services.AddScoped<IPostCaller, PostCaller>();
             builder.Services.AddScoped<IChipCaller, ChipCaller>();
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+            
+
+            builder.Services.AddBlazoredToast();
+            builder.Services.AddBlazoredModal();
+            builder.Services.AddBlazoredLocalStorage();
 
             await builder.Build().RunAsync();
         }

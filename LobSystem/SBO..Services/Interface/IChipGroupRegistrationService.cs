@@ -1,4 +1,5 @@
-﻿using Lobsystem.Shared.Models;
+﻿using Lobsystem.Shared.DTO;
+using Lobsystem.Shared.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +30,7 @@ namespace SBO.LobSystem.Services.Interface
 
         int GetChipIDByUID(string uid);
 
-        List<string> GetAllUIDFromEvent(int id); 
+        List<ChipDTO> GetAllChipsFromEvent(int id); 
 
         bool ChipExists(string UID);
 

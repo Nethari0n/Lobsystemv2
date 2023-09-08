@@ -8,6 +8,7 @@ using SBO.LobSystem.Services.ExtensionMethods;
 using System.Threading.Tasks;
 using SBO.LobSystem.Services.Interface;
 using SBO.Lobsystem.Domain.Data;
+using Lobsystem.Shared.DTO;
 
 namespace SBO.LobSystem.Services.Services
 {
@@ -40,13 +41,13 @@ namespace SBO.LobSystem.Services.Services
             try { return _lobsContext.Chips.Where(x => x.UID == uid).AsNoTracking().FirstOrDefault().ChipID; } catch { return 0; }
         }
 
-        public List<string> GetAllUIDFromEvent(int id)
+        public List<ChipDTO> GetAllChipsFromEvent(int id)
         {
-            List<string> list = new List<string>();
+            List<ChipDTO> list = new List<ChipDTO>();
 
             foreach ( var item in _lobsContext.Registrations.Where(x => x.EventID == id).Include(x => x.Chip).AsNoTracking() )
             {
-                list.Add(item.Chip.UID);
+                list.Add(new ChipDTO { ChipID = item.ChipID, UID = item.Chip.UID});
             }
 
             return list;

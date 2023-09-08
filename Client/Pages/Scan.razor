@@ -1,7 +1,11 @@
 ﻿@page "/EventScan"
 @using System.Web;
 @using Lobsystem.Shared.DTO;
-@implements IDisposable
+@using System.Net
+@using System.Net.NetworkInformation
+@inject HttpClient _httpClient
+
+
 
 
 
@@ -98,6 +102,8 @@
 
     private System.Threading.Timer? timer;
 
+    private System.Threading.Timer? InternetTimer;
+
     private int CooldownTimer { get; set; }
 
     private string ErrorMessage { get; set; }
@@ -118,9 +124,11 @@
 
 
     //Scan
-    private List<string> ChipList { get; set; } = new();
+    private List<ChipDTO> ChipList { get; set; } = new();
 
     public bool _render { get; set; } = false;
+
+    private IJSObjectReference _jsModule;
 
     //private System.Threading.Timer timer { get; set; }
 
@@ -148,6 +156,8 @@
 
         if (int.TryParse(test, out int result))
         {
+            //_jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./scripts/jsExamples.js");
+            _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/scan.js");
             SiteId = result;
             await InitializeProperties(SiteId);
 
@@ -165,32 +175,41 @@
         //await Timer();
     }
 
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-
-
-
         timer = new System.Threading.Timer(async (object? stateInfo) =>
         {
             try
             {
-                CheckStartDate(Convert.ToInt32(SiteId));
-                CheckEndDate(Convert.ToInt32(SiteId));
-                await InvokeAsync(StateHasChanged); //MUST CALL StateHasChanged() BECAUSE THIS IS TRIGGERED BY A TIMER INSTEAD OF A USER EVENT
+                if (await IsConnectedToInternetAsync())
+                {
+                    CheckStartDate(Convert.ToInt32(SiteId));
+                    CheckEndDate(Convert.ToInt32(SiteId));
+                    UploadLocalStore();
+                    await InvokeAsync(StateHasChanged); //MUST CALL StateHasChanged() BECAUSE THIS IS TRIGGERED BY A TIMER INSTEAD OF A USER EVENT
+                }
+
             }
             catch (Exception)
             {
-                Dispose();
+                DisposeTimer();
                 throw;
             }
-        }, new System.Threading.AutoResetEvent(false), 10000, 10000); //TODO: might change fire timer: fires every 10000 milliseconds
+        }, new System.Threading.AutoResetEvent(false), 10000, 30000); //TODO: might change fire timer: fires every 10000 milliseconds
 
     }
-
-    public void Dispose()
+    public void DisposeTimer()
     {
         timer?.Dispose();
+
     }
+    public void DisposeInternetTímer()
+    {
+        InternetTimer?.Dispose();
+    }
+
+
     /// <summary>
     /// Initializes all the necessary properties
     /// </summary>
@@ -209,7 +228,7 @@
 
         PostList = await _PostCaller.GetAllPostByEventID(value);
 
-        ChipList = await _ChipCaller.GetAllUIDFromEvent(value);
+        ChipList = await _ChipCaller.GetAllChipsFromEvent(value);
 
         //UIDList = new List<string>();
         //ScanningList = new List<ScanningDTO>();
@@ -226,37 +245,126 @@
         Sucsses = false;
         ErrorMessage = "";
 
-
-        if (UID != null && ChipList.Contains(uid))
-            lastScan = await _ScanCaller.FindScansDatetime(uid, Convert.ToInt32(PostID));
-        else if (UID == null)
-            await ScanResualts(uid, "UID er tomt!");
-        else if (!ChipList.Contains(uid))
-            await ScanResualts(uid, "Chip er ikke med i begivenhed!");
-
-
-        if (lastScan != DateTime.Parse("0001-01-01") && lastScan.AddSeconds(CooldownTimer) <= DateTime.Now)
+        if (await IsConnectedToInternetAsync())
         {
-            Sucsses = true;
+            if (UID != null && ChipList.Any(x => x.UID == uid))
+                lastScan = await _ScanCaller.FindScansDatetime(uid, Convert.ToInt32(PostID));
+            else if (UID == null)
+                await ScanResualts(uid, "UID er tomt!");
+            else if (!ChipList.Any(x => x.UID == uid))
+                await ScanResualts(uid, "Chip er ikke med i begivenhed!");
 
-            Scanning scan = await _ScanCaller.GetScan(uid, Convert.ToInt32(PostID));
-            ScanningDTO test = new() { ChipID = scan.ChipID, PostID = Convert.ToInt32(PostID), TimeStamp = DateTime.Now };
-            //scan.PostID = Convert.ToInt32(PostID);
-            if (Sucsses) 
-            { 
-                await _ScanCaller.CreateScan(test);
+
+            if (lastScan != DateTime.Parse("0001-01-01") && lastScan.AddSeconds(CooldownTimer) <= DateTime.Now)
+            {
+                Sucsses = true;
+
+                Scanning scan = await _ScanCaller.GetScan(uid, Convert.ToInt32(PostID));
+                ScanningDTO scanningDTO = new() { ChipID = scan.ChipID, PostID = Convert.ToInt32(PostID), TimeStamp = DateTime.Now };
+                //scan.PostID = Convert.ToInt32(PostID);
+                if (Sucsses)
+                {
+                    await _ScanCaller.CreateScan(scanningDTO);
+                }
+
+                await ScanResualts(uid);
+            }
+            else if (lastScan.AddSeconds(CooldownTimer) > DateTime.Now)
+            {
+                await ScanResualts(uid, "Cooldown!");
+            }
+        }
+        else
+        {
+            if (UID != null && ChipList.Any(x => x.UID == uid))
+            {
+                List<ScanningDTO> scanningDTOs = new();
+                ScanningDTO scanningDTO = new() { TimeStamp = DateTime.Now, ChipID = ChipList.Where(x => x.UID == uid).FirstOrDefault().ChipID, PostID = int.Parse(PostID) };
+                if (await localStore.GetItemAsync<List<ScanningDTO>>("LocalStore") != null)
+                {
+                    scanningDTOs = await localStore.GetItemAsync<List<ScanningDTO>>("LocalStore");
+                    await localStore.ClearAsync();
+                }
+
+                if (scanningDTOs.Count() > 0)
+                {
+                    
+                    foreach (var item in scanningDTOs.ToList())
+                    {
+                        Sucsses = false;
+                        if (item.ChipID == scanningDTO.ChipID)
+                        {
+
+                            lastScan = item.TimeStamp;
+                            if (lastScan != DateTime.Parse("0001-01-01") && lastScan.AddSeconds(CooldownTimer) <= DateTime.Now)
+                            {
+                                Sucsses = true;
+                                scanningDTOs.Add(scanningDTO);
+
+                                await localStore.SetItemAsync("LocalStore", scanningDTOs);
+                                await ScanResualts(uid);
+                            }
+                            else if (lastScan.AddSeconds(CooldownTimer) > DateTime.Now)
+                            {
+                                await ScanResualts(uid, "Cooldown!");
+                            }
+
+                        }
+                        else
+                        {
+                            scanningDTOs.Add(scanningDTO);
+
+                            await localStore.SetItemAsync("LocalStore", scanningDTOs);
+                            await ScanResualts(uid);
+                        }
+                    }
+                }
+                else
+                {
+                    Sucsses = true;
+                    scanningDTOs.Add(scanningDTO);
+
+                    await localStore.SetItemAsync("LocalStore", scanningDTOs);
+                    await ScanResualts(uid);
+                }
+
+
+            }
+            else
+            {
+                await ScanResualts(uid, "Chip er ikke med i begivenhed!");
             }
 
-            await ScanResualts(uid);
-        }
-        else if (lastScan.AddSeconds(CooldownTimer) > DateTime.Now)
-        {
-            await ScanResualts(uid, "Cooldown!");
         }
     }
 
 
+    protected async Task UploadLocalStore()
+    {
 
+        if (await localStore.GetItemAsync<List<ScanningDTO>>("LocalStore") != null)
+        {
+            List<ScanningDTO> scanningDTOs = await localStore.GetItemAsync<List<ScanningDTO>>("LocalStore");
+            foreach (var item in scanningDTOs)
+            {
+                if (await IsConnectedToInternetAsync())
+                {
+                    try
+                    {
+                        await _ScanCaller.CreateScan(item);
+                        scanningDTOs.Remove(item);
+                        await localStore.SetItemAsync("LocalStore", scanningDTOs);
+                    }
+                    catch (Exception)
+                    {
+
+
+                    }
+                }
+            }
+
+        }
+    }
 
     /// <summary>
     /// Call OnScan method if enter key is pressed
@@ -275,44 +383,44 @@
     /// <returns></returns>
     protected async Task ScanResualts(string uid, string error = null)
     {
-        await JsRuntime.InvokeVoidAsync("myStopFunction");
+        await _jsModule.InvokeVoidAsync("myStopFunction");
 
         User = null;
 
         StateHasChanged();
 
         //Call javascript
-        await JsRuntime.InvokeVoidAsync("IsTrue", Sucsses);
-        await JsRuntime.InvokeVoidAsync("IsTrueTitle", Sucsses);
+        await _jsModule.InvokeVoidAsync("IsTrue", Sucsses);
+        await _jsModule.InvokeVoidAsync("IsTrueTitle", Sucsses);
 
         User = uid; UID = null;
         ErrorMessage = error;
 
         StateHasChanged();
 
-        await JsRuntime.InvokeVoidAsync("Clear");
+        await _jsModule.InvokeVoidAsync("Clear");
     }
 
     /// <summary>
     /// Remove readonly from UID input field
     /// </summary>
     /// <returns></returns>
-    protected async Task Show() => await JsRuntime.InvokeVoidAsync("Show");
+    protected async Task Show() => await _jsModule.InvokeVoidAsync("Show");
 
     /// <summary>
     /// Add readonly to UID input field
     /// </summary>
     /// <returns></returns>
-    protected async Task Hide() => await JsRuntime.InvokeVoidAsync("Hide");
+    protected async Task Hide() => await _jsModule.InvokeVoidAsync("Hide");
 
     /// <summary>
     /// Foce focus on UID input field
     /// </summary>
     /// <returns></returns>
-    protected async Task FocusInput() => await JsRuntime.InvokeVoidAsync("FocusInput");
+    protected async Task FocusInput() => await _jsModule.InvokeVoidAsync("FocusInput");
 
 
-    protected async Task RemoveFocusSelect() => await JsRuntime.InvokeVoidAsync("RemoveFocusSelect");
+    protected async Task RemoveFocusSelect() => await _jsModule.InvokeVoidAsync("RemoveFocusSelect");
 
     //TODO: dont use result
     protected async void CheckStartDate(int result) => StartDate = await _EventCaller.GetEventByIDStartDate(result);
@@ -344,16 +452,58 @@
     /// Check if able to ping domain
     /// </summary>
     /// <returns></returns>
-    //protected async Task<bool> IsConnectedToInternetAsync()
-    //{
-    //    string host = "8.8.8.8";
-    //    bool result = false;
-    //    Ping p = new Ping();
+    protected async Task<bool> IsConnectedToInternetAsync()
+    {
 
-    //    try {PingReply reply = await p.SendPingAsync(host, 3000); if (reply.Status == IPStatus.Success) { return true;}} catch { }
+        bool result = false;
 
-    //    return result;
-    //}
+
+        try
+        {
+
+            var response = await _httpClient.GetAsync("Event");
+            if (response.IsSuccessStatusCode)
+            {
+
+                //await StartInternetTimer();
+                return true;
+            }
+            else
+            {
+                //DisposeInternetTímer();
+                return false;
+            }
+
+
+        }
+        catch (Exception)
+        {
+
+            return false;
+        }
+
+    }
+
+    protected async Task StartInternetTimer()
+    {
+        InternetTimer = new System.Threading.Timer(async (object? stateInfo) =>
+       {
+           try
+           {
+               if (await IsConnectedToInternetAsync())
+               {
+                   UploadLocalStore();
+                   await InvokeAsync(StateHasChanged); //MUST CALL StateHasChanged() BECAUSE THIS IS TRIGGERED BY A TIMER INSTEAD OF A USER EVENT
+               }
+
+           }
+           catch (Exception)
+           {
+               DisposeInternetTímer();
+               throw;
+           }
+       }, new System.Threading.AutoResetEvent(false), 10000, 5000); //TODO: might change fire timer: fires every 10000 milliseconds
+    }
 
 
     /// <summary>

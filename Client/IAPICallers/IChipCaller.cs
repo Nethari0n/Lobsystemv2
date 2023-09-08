@@ -1,4 +1,5 @@
-﻿using Lobsystem.Shared.Models;
+﻿using Lobsystem.Shared.DTO;
+using Lobsystem.Shared.Models;
 
 namespace Lobsystem.Client.IAPICallers
 {
@@ -22,7 +23,7 @@ namespace Lobsystem.Client.IAPICallers
 
         int GetChipIDByUID(string uid);
 
-        Task<List<string>> GetAllUIDFromEvent(int id);
+        Task<List<ChipDTO>> GetAllChipsFromEvent(int id);
 
         bool ChipExists(string UID);
 

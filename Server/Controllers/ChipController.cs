@@ -100,11 +100,11 @@ namespace Lobsystem.Server.Controllers
 
         [HttpGet]
         [Route("{id}/event")]
-        public IActionResult GetAllUIDFromEvent(int id)
+        public IActionResult GetAllChipsFromEvent(int id)
         {
             try
             {
-                return Ok(_chipGroupRegistrationService.GetAllUIDFromEvent(id));
+                return Ok(_chipGroupRegistrationService.GetAllChipsFromEvent(id));
             }
             catch (Exception)
             {

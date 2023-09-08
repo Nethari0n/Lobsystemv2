@@ -15,6 +15,10 @@
 @using System.Timers
 @using System.Net.NetworkInformation
 @using Microsoft.Extensions.Primitives
+@using Blazored.Toast
+@using Blazored.Toast.Services
+@using Blazored.Modal
+@using Blazored.Modal.Services
 
 @inject IChipCaller _ChipCaller
 @inject IPostCaller _PostCaller
@@ -24,3 +28,4 @@
 @inject NavigationManager navigationManager
 @inject CustomStateProvider authStateProvider
 @inject IJSRuntime JsRuntime
+@inject Blazored.LocalStorage.ILocalStorageService localStore

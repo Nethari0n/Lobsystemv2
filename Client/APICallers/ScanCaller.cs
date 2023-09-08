@@ -44,7 +44,7 @@ namespace Lobsystem.Client.APICallers
             try
             {
                 var test =  await _httpClient.PostAsJsonAsync("Scan/Test",scanning);
-                test.EnsureSuccessStatusCode();
+                
             }
             catch (Exception e)
             {

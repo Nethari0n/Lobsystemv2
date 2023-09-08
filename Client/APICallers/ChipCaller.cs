@@ -1,4 +1,5 @@
 ﻿using Lobsystem.Client.IAPICallers;
+using Lobsystem.Shared.DTO;
 using Lobsystem.Shared.Models;
 using System.Net.Http.Json;
 
@@ -31,11 +32,11 @@ namespace Lobsystem.Client.APICallers
             throw new NotImplementedException();
         }
 
-        public async Task<List<string>> GetAllUIDFromEvent(int id)
+        public async Task<List<ChipDTO>> GetAllChipsFromEvent(int id)
         {
             try
             {
-                var response = await _httpClient.GetFromJsonAsync<List<string>>($"Chip/{id}/Event");
+                var response = await _httpClient.GetFromJsonAsync<List<ChipDTO>>($"Chip/{id}/Event");
 
                 return response.ToList();
             }

@@ -40,9 +40,9 @@ namespace Lobsystem.Server.Controllers
                 Scanning scan = new() { ChipID = scanning.ChipID, IsDeleted = false, PostID = scanning.PostID, TimeStamp = scanning.TimeStamp };
 
                 //_createService.CreateEntity(scanning);
-                var _ok = Ok(  _createService.CreateEntity(scan));
 
-                return _ok;
+
+                return Ok(_createService.CreateEntity<Scanning>(scan));
             }
             catch (Exception)
             {
