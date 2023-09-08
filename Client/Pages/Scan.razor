@@ -178,26 +178,29 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        timer = new System.Threading.Timer(async (object? stateInfo) =>
+        if (firstRender)
         {
-            try
+            timer = new System.Threading.Timer(async (object? stateInfo) =>
             {
-                if (await IsConnectedToInternetAsync())
+                try
                 {
-                    CheckStartDate(Convert.ToInt32(SiteId));
-                    CheckEndDate(Convert.ToInt32(SiteId));
-                    UploadLocalStore();
-                    await InvokeAsync(StateHasChanged); //MUST CALL StateHasChanged() BECAUSE THIS IS TRIGGERED BY A TIMER INSTEAD OF A USER EVENT
+                    if (await IsConnectedToInternetAsync())
+                    {
+                        CheckStartDate(Convert.ToInt32(SiteId));
+                        CheckEndDate(Convert.ToInt32(SiteId));
+                        UploadLocalStore();
+                        await InvokeAsync(StateHasChanged); //MUST CALL StateHasChanged() BECAUSE THIS IS TRIGGERED BY A TIMER INSTEAD OF A USER EVENT
+                    }
+
                 }
+                catch (Exception)
+                {
+                    DisposeTimer();
+                    throw;
+                }
+            }, new System.Threading.AutoResetEvent(false), 10000, 30000); //TODO: might change fire timer: fires every 10000 milliseconds
 
-            }
-            catch (Exception)
-            {
-                DisposeTimer();
-                throw;
-            }
-        }, new System.Threading.AutoResetEvent(false), 10000, 30000); //TODO: might change fire timer: fires every 10000 milliseconds
-
+        }
     }
     public void DisposeTimer()
     {
@@ -288,7 +291,7 @@
 
                 if (scanningDTOs.Count() > 0)
                 {
-                    
+
                     foreach (var item in scanningDTOs.ToList())
                     {
                         Sucsses = false;
@@ -299,22 +302,19 @@
                             if (lastScan != DateTime.Parse("0001-01-01") && lastScan.AddSeconds(CooldownTimer) <= DateTime.Now)
                             {
                                 Sucsses = true;
-                                scanningDTOs.Add(scanningDTO);
 
-                                await localStore.SetItemAsync("LocalStore", scanningDTOs);
                                 await ScanResualts(uid);
                             }
                             else if (lastScan.AddSeconds(CooldownTimer) > DateTime.Now)
                             {
                                 await ScanResualts(uid, "Cooldown!");
+                                await localStore.SetItemAsync("LocalStore", scanningDTOs);
+                                return;
                             }
 
                         }
                         else
                         {
-                            scanningDTOs.Add(scanningDTO);
-
-                            await localStore.SetItemAsync("LocalStore", scanningDTOs);
                             await ScanResualts(uid);
                         }
                     }
@@ -322,12 +322,13 @@
                 else
                 {
                     Sucsses = true;
-                    scanningDTOs.Add(scanningDTO);
 
-                    await localStore.SetItemAsync("LocalStore", scanningDTOs);
                     await ScanResualts(uid);
                 }
 
+                scanningDTOs.Add(scanningDTO);
+
+                await localStore.SetItemAsync("LocalStore", scanningDTOs);
 
             }
             else
@@ -345,23 +346,29 @@
         if (await localStore.GetItemAsync<List<ScanningDTO>>("LocalStore") != null)
         {
             List<ScanningDTO> scanningDTOs = await localStore.GetItemAsync<List<ScanningDTO>>("LocalStore");
-            foreach (var item in scanningDTOs)
+            //For some reason foreach doesn't work??? So we're running with a for loop.
+            //When we run with a foreach it only runs through it once even though there is multiple objects in the list we're looping through.
+            for (int i = scanningDTOs.Count - 1; i >= 0; i--)
             {
-                if (await IsConnectedToInternetAsync())
+                try
                 {
-                    try
-                    {
-                        await _ScanCaller.CreateScan(item);
-                        scanningDTOs.Remove(item);
-                        await localStore.SetItemAsync("LocalStore", scanningDTOs);
-                    }
-                    catch (Exception)
-                    {
+                    await _ScanCaller.CreateScan(scanningDTOs[i]);
+                    scanningDTOs.Remove(scanningDTOs[i]);
+                    await localStore.SetItemAsync("LocalStore", scanningDTOs);
+                }
+                catch (Exception)
+                {
 
 
-                    }
                 }
             }
+            //    foreach (var item in scanningDTOs) // May the force be with you
+            //{
+            //    //if (await IsConnectedToInternetAsync())
+            //    //{
+
+            //    //}
+            //}
 
         }
     }
@@ -456,7 +463,6 @@
     {
 
         bool result = false;
-
 
         try
         {
