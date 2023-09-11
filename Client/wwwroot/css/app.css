@@ -11,6 +11,10 @@ table tfoot {
     border: none !important;
 }
 
+.foot{
+    padding-top: 3rem!important;
+}
+
 .foot .copyRight {
     width: max-content;
     font-size: 12px;

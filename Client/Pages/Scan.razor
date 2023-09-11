@@ -37,7 +37,7 @@
                         <h3>Event er afsluttet.</h3>
                     }
                     <div class="input">
-
+                        
                         @if (PostList.Count() > 1)
                         {
                             @if (EndDate > DateTime.Now)
@@ -72,7 +72,10 @@
                                 <input id="UID" @bind="UID" @onkeypress="@Enter" @oninput="@(e => {UID=(string)e.Value;})" type="text" class="form-control" autofocus autocomplete="off" />
                             }
                         }
-
+                        @if (LocalStoreCount > 0)
+                        {
+                            <p>Der er @LocalStoreCount i Offline Køen</p>
+                        }
                     </div>
                 </div>
             </div>
@@ -109,6 +112,8 @@
     private string ErrorMessage { get; set; }
 
     public int SiteId { get; set; }
+
+    public int LocalStoreCount { get; set; }
 
 
     //User
@@ -188,7 +193,11 @@
                     {
                         CheckStartDate(Convert.ToInt32(SiteId));
                         CheckEndDate(Convert.ToInt32(SiteId));
-                        UploadLocalStore();
+                        if (await localStore.GetItemAsync<List<ScanningDTO>>("LocalStore") != null)
+                        {
+                            UploadLocalStore();
+                        }
+
                         await InvokeAsync(StateHasChanged); //MUST CALL StateHasChanged() BECAUSE THIS IS TRIGGERED BY A TIMER INSTEAD OF A USER EVENT
                     }
 
@@ -248,7 +257,7 @@
         Sucsses = false;
         ErrorMessage = "";
 
-        if (await IsConnectedToInternetAsync())
+        if (!await IsConnectedToInternetAsync())
         {
             if (UID != null && ChipList.Any(x => x.UID == uid))
                 lastScan = await _ScanCaller.FindScansDatetime(uid, Convert.ToInt32(PostID));
@@ -286,6 +295,8 @@
                 if (await localStore.GetItemAsync<List<ScanningDTO>>("LocalStore") != null)
                 {
                     scanningDTOs = await localStore.GetItemAsync<List<ScanningDTO>>("LocalStore");
+                    LocalStoreCount = scanningDTOs.Count();
+                    StateHasChanged();
                     await localStore.ClearAsync();
                 }
 
@@ -352,26 +363,17 @@
             //When we run with a foreach it only runs through it once even though there is multiple objects in the list we're looping through.
             // for (int i = scanningDTOs.Count - 1; i >= 0; i--)
             // {
-                try
-                {
-                    await _ScanCaller.CreateScans(scanningDTOs);
-                    //scanningDTOs.Remove(scanningDTOs[i]);
-                    //await localStore.SetItemAsync("LocalStore", scanningDTOs);
-                    await localStore.ClearAsync();
-                }
-                catch (Exception)
-                {
-
-
-                }
-            //}
-            //    foreach (var item in scanningDTOs) // May the force be with you
-            //{
-            //    //if (await IsConnectedToInternetAsync())
-            //    //{
-
-            //    //}
-            //}
+            try
+            {
+                await _ScanCaller.CreateScans(scanningDTOs);
+                await localStore.ClearAsync();
+                LocalStoreCount = 0;
+                StateHasChanged();
+            }
+            catch (Exception)
+            {
+                toastService.ShowError("Noget gik galt med upload af Lokale Chips");
+            }
 
         }
     }
@@ -493,26 +495,26 @@
 
     }
 
-    protected async Task StartInternetTimer()
-    {
-        InternetTimer = new System.Threading.Timer(async (object? stateInfo) =>
-       {
-           try
-           {
-               if (await IsConnectedToInternetAsync())
-               {
-                   UploadLocalStore();
-                   await InvokeAsync(StateHasChanged); //MUST CALL StateHasChanged() BECAUSE THIS IS TRIGGERED BY A TIMER INSTEAD OF A USER EVENT
-               }
+    // protected async Task StartInternetTimer()
+    // {
+    //     InternetTimer = new System.Threading.Timer(async (object? stateInfo) =>
+    //    {
+    //        try
+    //        {
+    //            if (await IsConnectedToInternetAsync())
+    //            {
+    //                UploadLocalStore();
+    //                await InvokeAsync(StateHasChanged); //MUST CALL StateHasChanged() BECAUSE THIS IS TRIGGERED BY A TIMER INSTEAD OF A USER EVENT
+        //            }
 
-           }
-           catch (Exception)
-           {
-               DisposeInternetTímer();
-               throw;
-           }
-       }, new System.Threading.AutoResetEvent(false), 10000, 5000); //TODO: might change fire timer: fires every 10000 milliseconds
-    }
+    //        }
+    //        catch (Exception)
+    //        {
+    //            DisposeInternetTímer();
+    //            throw;
+    //        }
+    //    }, new System.Threading.AutoResetEvent(false), 10000, 30000); //TODO: might change fire timer: fires every 10000 milliseconds
+    // }
 
 
     /// <summary>
