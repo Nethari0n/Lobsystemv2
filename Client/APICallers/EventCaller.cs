@@ -1,4 +1,6 @@
-﻿using Lobsystem.Client.IAPICallers;
+﻿using Blazored.Toast;
+using Blazored.Toast.Services;
+using Lobsystem.Client.IAPICallers;
 using Lobsystem.Shared.DTO;
 using Lobsystem.Shared.Models;
 using System.Net.Http.Json;
@@ -12,12 +14,23 @@ namespace Lobsystem.Client.APICallers
 
         public EventCaller(HttpClient httpClient)
         {
-            _httpClient = httpClient;   
+            _httpClient = httpClient;
         }
 
-        public async void AddEvent(Event events)
+        public async Task AddEvent(EventPostsDTO events)
         {
-            await _httpClient.PostAsJsonAsync("Event",events);
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync("Event", events);
+                response.EnsureSuccessStatusCode();
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
 
         }
 

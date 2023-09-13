@@ -18,14 +18,40 @@ namespace Lobsystem.Server.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddEvent(Event events)
+        public async Task<IActionResult> AddEvent(EventPostsDTO eventType)
         {
             try
             {
-                _eventPostTypesService.AddEvent(events);
+                List<Post> posts = new List<Post>();
+                foreach (var item in eventType.PostList)
+                {
+                    Post post = new()
+                    {
+                        Multiplyer = item.Multiplyer,
+                        IsDeleted = false,
+                        Distance = item.Distance
+                    };
+
+                    posts.Add(post);
+                }
+                Event newEvent = new()
+                {
+                    EventName = eventType.EventTypeDTO.EventName,
+                    Description = eventType.EventTypeDTO.Description,
+                    CreateDate = DateTime.Now,
+                    EndDate = eventType.EventTypeDTO.EndDate,
+                    StartDate = eventType.EventTypeDTO.StartDate,
+                    CooldownTimer = eventType.EventTypeDTO.CooldownTimer,
+                    IsDeleted = false,
+                    TypesID = eventType.EventTypeDTO.TypesID,                    
+                    Username = eventType.EventTypeDTO.Username,
+                    Posts = posts
+                };
+              
+                _eventPostTypesService.AddEvent(newEvent);
                 return Ok();
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
@@ -71,15 +97,15 @@ namespace Lobsystem.Server.Controllers
                     eventTypeDTOs
                         .Add(new EventTypeDTO
                         {
-                            CooldownTimer = item.CooldownTimer, 
-                            Description = item.Description, 
-                            EndDate = item.EndDate, 
-                            StartDate = item.StartDate, 
-                            EventID = item.EventID, 
-                            EventName = item.EventName, 
-                            TypeName = item.Type.TypeName, 
-                            TypesID = item.TypesID, 
-                            Username = item.Username 
+                            CooldownTimer = item.CooldownTimer,
+                            Description = item.Description,
+                            EndDate = item.EndDate,
+                            StartDate = item.StartDate,
+                            EventID = item.EventID,
+                            EventName = item.EventName,
+                            TypeName = item.Type.TypeName,
+                            TypesID = item.TypesID,
+                            Username = item.Username
                         });
                 }
                 return Ok(eventTypeDTOs);

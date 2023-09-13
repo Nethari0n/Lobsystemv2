@@ -4,7 +4,7 @@ namespace Lobsystem.Client.IAPICallers
 {
     public interface ITypesCaller
     {
-        List<Types> GetAllTypes();
+        Task<List<Types>> GetAllTypes();
 
         List<Types> TypesPagination(int page, int totalItem);
 

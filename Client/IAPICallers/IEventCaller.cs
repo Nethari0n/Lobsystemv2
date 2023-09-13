@@ -5,7 +5,7 @@ namespace Lobsystem.Client.IAPICallers
 {
     public interface IEventCaller
     {
-        void AddEvent(Event events);
+        Task AddEvent(EventPostsDTO events);
 
         //Event FindEvent(DateTime time, string name);
 
