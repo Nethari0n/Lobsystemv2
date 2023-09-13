@@ -30,6 +30,7 @@ namespace Lobsystem.Client
             builder.Services.AddScoped<ITypesCaller, TypesCaller>();
             builder.Services.AddScoped<IPostCaller, PostCaller>();
             builder.Services.AddScoped<IChipCaller, ChipCaller>();
+            builder.Services.AddScoped<IRapportAPICaller, RapportAPICaller>();
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
             
