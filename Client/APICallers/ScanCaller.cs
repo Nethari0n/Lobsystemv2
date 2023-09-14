@@ -77,7 +77,7 @@ namespace Lobsystem.Client.APICallers
         {
             try
             {
-                var response = await _httpClient.GetFromJsonAsync<List<Scanning>>($"Scan/{id}/{eventID}");               
+                var response = await _httpClient.GetFromJsonAsync<List<Scanning>>($"Scan?id={id}&eventID={eventID}");               
                 return response;
             }
             catch (Exception)
@@ -93,6 +93,20 @@ namespace Lobsystem.Client.APICallers
             {
                 var response = await _httpClient.GetFromJsonAsync<Scanning>($"Scan/{uid}/{postID}");
                 return response;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task DeleteScan(Scanning scanning)
+        {
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync<Scanning>("Scan",scanning);
+                response.EnsureSuccessStatusCode();
             }
             catch (Exception)
             {

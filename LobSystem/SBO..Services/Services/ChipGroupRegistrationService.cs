@@ -38,7 +38,14 @@ namespace SBO.LobSystem.Services.Services
 
         public int GetChipIDByUID(string uid)
         {
-            try { return _lobsContext.Chips.Where(x => x.UID == uid).AsNoTracking().FirstOrDefault().ChipID; } catch { return 0; }
+            try
+            {
+                return _lobsContext.Chips.Where(x => x.UID == uid).AsNoTracking().FirstOrDefault().ChipID;
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
         public List<ChipDTO> GetAllChipsFromEvent(int id)
@@ -47,7 +54,7 @@ namespace SBO.LobSystem.Services.Services
 
             foreach ( var item in _lobsContext.Registrations.Where(x => x.EventID == id).Include(x => x.Chip).AsNoTracking() )
             {
-                list.Add(new ChipDTO { ChipID = item.ChipID, UID = item.Chip.UID});
+                list.Add(new ChipDTO { ChipID = item.ChipID, UID = item.Chip.UID });
             }
 
             return list;
@@ -156,14 +163,14 @@ namespace SBO.LobSystem.Services.Services
 
         public Registration GetRegistrationByChipAndEventId(int id, int eventId)
         {
-            
-                return _lobsContext.Registrations.Where(c => c.ChipID == id).Where(c => c.EventID == eventId).AsNoTracking().FirstOrDefault();
-            
+
+            return _lobsContext.Registrations.Where(c => c.ChipID == id).Where(c => c.EventID == eventId).AsNoTracking().FirstOrDefault();
+
         }
         public async Task<Registration> GetRegistrationById(int id)
         {
-                return await _lobsContext.Registrations.Where(x => x.RegistrationID == id).AsNoTracking().FirstOrDefaultAsync();
-            
+            return await _lobsContext.Registrations.Where(x => x.RegistrationID == id).AsNoTracking().FirstOrDefaultAsync();
+
         }
 
 
