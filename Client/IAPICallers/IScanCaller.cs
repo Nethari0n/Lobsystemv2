@@ -15,7 +15,7 @@ namespace Lobsystem.Client.IAPICallers
 
         Task CreateScan(ScanningDTO scanning);
         Task CreateScans(List<ScanningDTO> scans);
-        Task DeleteScan(Scanning scanning);
+        Task DeleteScan(int id);
 
         //bool CheckPostScan(int id, int postID);
     }

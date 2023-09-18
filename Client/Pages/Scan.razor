@@ -231,7 +231,6 @@
         //Int32.TryParse(value, out int result);
 
         Event eventDTO = new();
-        //TODO: HER BENJAMIN
         eventDTO = await _EventCaller.GetEventByID(value);
         Title = eventDTO.EventName;
         StartDate = eventDTO.StartDate;

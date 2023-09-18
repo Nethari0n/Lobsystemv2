@@ -104,5 +104,21 @@ namespace Lobsystem.Server.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
+
+        [HttpDelete]
+        [Route("Delete/{id}")]
+        public async Task<IActionResult> DeleteScan(int id)
+        {
+            try
+            {
+                Scanning scanning = _scanService.GetScanById(id);
+                await _createService.DeleteEntity(scanning);
+                return Ok();
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
     }
 }

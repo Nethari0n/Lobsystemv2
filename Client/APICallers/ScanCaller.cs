@@ -101,11 +101,12 @@ namespace Lobsystem.Client.APICallers
             }
         }
 
-        public async Task DeleteScan(Scanning scanning)
+        public async Task DeleteScan(int id)
         {
             try
             {
-                var response = await _httpClient.PostAsJsonAsync<Scanning>("Scan",scanning);
+                var response = await _httpClient.DeleteAsync($"Scan/Delete/{id}");
+
                 response.EnsureSuccessStatusCode();
             }
             catch (Exception)

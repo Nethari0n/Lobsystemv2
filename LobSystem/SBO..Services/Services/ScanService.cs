@@ -113,6 +113,11 @@ namespace SBO.LobSystem.Services.Services
             return _lobsContext.Scannings.Any(x => x.ChipID == id && x.PostID == postID) ? true : false;
         }
 
+        public Scanning GetScanById(int id)
+        {
+            return _lobsContext.Scannings.Where(x => x.ScanningID == id).SingleOrDefault();
+        }
+
         //public async Task<List<Scanning>> AddScansFromListAsync(List<Scanning> list)
         //{
         //    for ( int i = 0; i < list.Count; i++ )

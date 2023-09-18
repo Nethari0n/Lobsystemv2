@@ -5,7 +5,7 @@
 @inject IJSRuntime JsRuntime
 
 
-<div class="container">
+<div class="container End-rapport">
     <div>
         <h1 class="text-center">Afsluttende Rapport for @EventName</h1>
     </div>
@@ -61,7 +61,7 @@
 
 
 
-    @* <!-- Modal -->
+    <!-- Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -100,7 +100,7 @@
                 </div>
             </div>
         </div>
-    </div>*@
+    </div>
 </div> 
 
 @code {
@@ -163,7 +163,7 @@
         if (!await JsRuntime.InvokeAsync<bool>("confirm", $"Er du sikker på du ville slette denne Skanning? \n\nDETTE KAN IKKE FORTRYDES ELLER GENDANNES."))
             return;
 
-        //await _CreateService.DeleteEntity(scan);
+        await _ScanCaller.DeleteScan(scan.ScanningID);
         Scannings.Remove(Scannings.SingleOrDefault(i => i.ScanningID == scan.ScanningID));
         GetRapport(eventId);
         StateHasChanged();

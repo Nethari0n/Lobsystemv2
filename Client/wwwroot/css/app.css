@@ -810,6 +810,10 @@ input[type=number] {
     max-height: 46rem;
 }
 
+.End-rapport .TableScrollable {
+    max-height: 46rem;
+}
+
 .Live-rapport .TableScrollable {
     max-height: 48.5rem;
 }
