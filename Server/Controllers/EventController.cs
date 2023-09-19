@@ -18,6 +18,7 @@ namespace Lobsystem.Server.Controllers
         }
 
         [HttpPost]
+        //[Route("CreateEvent")]
         public async Task<IActionResult> AddEvent(EventPostsDTO eventType)
         {
             try
@@ -29,29 +30,31 @@ namespace Lobsystem.Server.Controllers
                     {
                         Multiplyer = item.Multiplyer,
                         IsDeleted = false,
-                        Distance = item.Distance
+                        Distance = item.Distance,
+                        PostNum = item.PostNum
+
                     };
 
                     posts.Add(post);
                 }
                 Event newEvent = new()
                 {
-                    EventName = eventType.EventTypeDTO.EventName,
-                    Description = eventType.EventTypeDTO.Description,
+                    EventName = eventType.CreateEvent.EventName,
+                    Description = eventType.CreateEvent.Description,
                     CreateDate = DateTime.Now,
-                    EndDate = eventType.EventTypeDTO.EndDate,
-                    StartDate = eventType.EventTypeDTO.StartDate,
-                    CooldownTimer = eventType.EventTypeDTO.CooldownTimer,
+                    EndDate = eventType.CreateEvent.EndDate,
+                    StartDate = eventType.CreateEvent.StartDate,
+                    CooldownTimer = eventType.CreateEvent.CooldownTimer,
                     IsDeleted = false,
-                    TypesID = eventType.EventTypeDTO.TypesID,                    
-                    Username = eventType.EventTypeDTO.Username,
+                    TypesID = eventType.CreateEvent.TypesID,                    
+                    Username = eventType.CreateEvent.Username,
                     Posts = posts
                 };
               
                 _eventPostTypesService.AddEvent(newEvent);
                 return Ok();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status400BadRequest);
             }

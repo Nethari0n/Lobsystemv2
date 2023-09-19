@@ -4,6 +4,8 @@ using Lobsystem.Client.IAPICallers;
 using Lobsystem.Shared.DTO;
 using Lobsystem.Shared.Models;
 using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
 
 namespace Lobsystem.Client.APICallers
 {
@@ -21,8 +23,9 @@ namespace Lobsystem.Client.APICallers
         {
             try
             {
-                var response = await _httpClient.PostAsJsonAsync("Event", events);
-                response.EnsureSuccessStatusCode();
+                var jsoncontet = JsonSerializer.Serialize(events);
+                var response2 = await _httpClient.PostAsync("Event", new StringContent(jsoncontet, Encoding.UTF8, "application/json"));
+                response2.EnsureSuccessStatusCode();
 
             }
             catch (Exception)
@@ -33,6 +36,8 @@ namespace Lobsystem.Client.APICallers
 
 
         }
+
+
 
         //public async Event FindEvent(DateTime time, string name)
         //{

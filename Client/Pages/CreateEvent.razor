@@ -30,7 +30,7 @@
                 <div class="col-4 space"></div>
                 <div class="col-4 end">
                     <label for="endDate">Slut Tid <i class="Required">*</i></label>
-                    <input class="form-control" type="datetime-local" id="endDate" min="@StartDate" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-dd HH:mm")" value="@EndDate" @onchange="(async e => {await EndDateValidation((string)e.Value);StateHasChanged();})" />
+                    <input class="form-control" type="datetime-local" id="endDate" min="@StartDate" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-dd HH:mm")" value="@EndDate" @onchange="(async e => {await EndDateValidation((string)e.Value);await InvokeAsync(StateHasChanged);})" />
                     <label for="TimeOutParamater" class="CooldownLabel">Cooldown <i class="ToolTip">*</i></label>
                     <input class="form-control Cooldown" onkeypress="@NumbersOnly" onpaste="return false;" ondrop="return false;" autocomplete="off" @bind="Cooldown" placeholder="Default er 30 sec" id="TimeOutParamater" />
                 </div>
@@ -98,7 +98,7 @@
         </div>
 
         @*Toast Notifaction*@
-        <div aria-live="polite" aria-atomic="true">
+        @* <div aria-live="polite" aria-atomic="true">
             <div class="toast-container position-absolute top-0 end-0 p-3">
 
                 <div class="toast align-items-center text-white bg-danger border-0" id="TitleToast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -169,7 +169,7 @@
                 </div>
 
             </div>
-        </div>
+        </div> *@
     </div>
 </div>
 
@@ -252,7 +252,7 @@
         {
             StartDate = DateTime.Now.ToString("yyyy-MM-ddTHH:mm");
             //ErrorMessage = "Start dato må ikke være tidliger ind idag.";
-            toastService.ShowError("Start dato må ikke være tidliger ind idag.");
+            toastService.ShowError("Start dato må ikke være tidligere end idag.");
             //await _jsModule.InvokeVoidAsync("ToastError");
             await _jsModule.InvokeVoidAsync("UpdateStartDate", DateTime.Now.ToString("yyyy-MM-ddTHH:mm"));
         }
@@ -272,25 +272,44 @@
         {
             EndDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
             //ErrorMessage = $"Slut dato må senste være {DateTime.Now.AddYears(20).ToString("dd-MM-yyyy")}";
-            toastService.ShowError("$Slut dato må senste være { DateTime.Now.AddYears(20).ToString('dd-MM-yyyy')}");
+            toastService.ShowError($"Slut dato må senste være { DateTime.Now.AddYears(20).ToString("dd-MM-yyyy")}");
 
             //await _jsModule.InvokeVoidAsync("ToastError");
             await _jsModule.InvokeVoidAsync("UpdateEndDate", DateTime.Now.ToString("yyyy-MM-ddTHH:mm"));
         }
         else
         {
-            await _jsModule.InvokeVoidAsync("OnEndChange");
+            //await _jsModule.InvokeVoidAsync("OnEndChange");
+           
             if (DateTime.Parse(value) > DateTime.Parse(StartDate))
             {
                 EndDate = value;
-                await _jsModule.InvokeVoidAsync("UpdateEndDate", DateTime.Parse(EndDate).ToString("yyyy-MM-ddTHH:mm"));
+                //await _jsModule.InvokeVoidAsync("UpdateEndDate", DateTime.Parse(EndDate).ToString("yyyy-MM-ddTHH:mm"));
+            }
+            else
+            {
+                EndDate = StartDate;
+                toastService.ShowError("Slut dato må ikke være før start dato.");
             }
         }
     }
 
     protected async Task CheckBoxMulti() => await _jsModule.InvokeVoidAsync("CheckedMulti");
 
-    protected async Task ToastTitle() => await _jsModule.InvokeVoidAsync("ToastValidation");
+    protected async Task ToastTitle()
+    {
+        //await _jsModule.InvokeVoidAsync("ToastValidation")
+
+        if (string.IsNullOrWhiteSpace(Title))
+            toastService.ShowError("Der skal være en Titel");
+        if (string.IsNullOrWhiteSpace(StartDate))
+            toastService.ShowError("Der skal være en Start Dato");
+        if (string.IsNullOrWhiteSpace(EndDate))
+            toastService.ShowError("Der skal være en Slut Dato");
+        if (TypesID == 0)
+            toastService.ShowError("Der skal vælges en Type");
+
+    }
 
 
     protected async Task AddEvents()
@@ -306,7 +325,7 @@
 
                 
 
-                EventTypeDTO eventDTO = new EventTypeDTO
+                CreateEventDTO eventDTO = new CreateEventDTO
                     {
                         EventName = Title.Trim(),
                         StartDate = DateTime.Parse(StartDate),
@@ -315,22 +334,21 @@
                         TypesID = TypesID,
                         Username = currentUser.UserName,
                         CooldownTimer = Convert.ToInt32(Cooldown),
-                        Posts = PostList
 
                     };
-                EventPostsDTO eventPostsDTO = new() {EventTypeDTO = eventDTO, PostList = PostList}; 
+                EventPostsDTO eventPostsDTO = new() { CreateEvent = eventDTO, PostList = PostList };
 
-                // try
-                // {
+                try
+                {
                 await _EventCaller.AddEvent(eventPostsDTO);
-                //}
-                // catch (Exception e)
-                // {
-                //     toastService.ShowError("Fejl opstod under oprettelse af Event");
-                //     toastService.ShowError(e.Message);
-                //     throw;
+                }
+                catch (Exception e)
+                {
+                    toastService.ShowError("Fejl opstod under oprettelse af Event");
+                    //toastService.ShowError(e.Message);
 
-                // }
+
+                }
 
 
                 //_EventPostTypesService.AddPostFromList(PostList, eventDTO.EventID);

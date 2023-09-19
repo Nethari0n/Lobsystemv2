@@ -14,17 +14,9 @@ export function OnEndChange() {
     var endDate = document.getElementById("endDate").value;
 
     if ((Date.parse(endDate) < Date.parse(startDate))) {
-        var toastLiveExample = document.getElementById('DateToast');
-
-        toastLiveExample.style.display = "block";
-        toastLiveExample.style.opacity = "1";
-
+  
         document.getElementById("endDate").value = startDate;
 
-        setTimeout(function () {
-            toastLiveExample.style.display = "none";
-            toastLiveExample.style.opacity = "0";
-        }, 5000);
     }
 }
 

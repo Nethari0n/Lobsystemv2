@@ -8,7 +8,7 @@ namespace Lobsystem.Shared.DTO
 {
     public class EventPostsDTO
     {
-        public EventTypeDTO EventTypeDTO { get; set; }
+        public CreateEventDTO CreateEvent { get; set; }
 
         public List<PostDTO> PostList { get; set; }
     }
