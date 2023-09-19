@@ -66,5 +66,25 @@ namespace Lobsystem.Client.APICallers
             var response = await _httpClient.GetFromJsonAsync<Event>($"Event/{id}");
             return response.EndDate;
         }
+
+        public async Task<EditEventPostDTO> GetEditEventPost(int id)
+        {
+            var response = await _httpClient.GetFromJsonAsync<EditEventPostDTO>($"Event/GetEditEventPost/{id}");
+            return response;
+        }
+
+        public async Task UpdateEventPosts(EditEventDTO editEventDTO)
+        {
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync<EditEventDTO>("Event/UpdateEvent", editEventDTO);
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
     }
 }

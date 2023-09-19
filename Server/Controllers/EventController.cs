@@ -1,8 +1,10 @@
 ﻿using Lobsystem.Shared.DTO;
 using Lobsystem.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.IdentityModel.Logging;
 using SBO.LobSystem.Services.Interface;
+using SBO.LobSystem.Services.Services;
 
 namespace Lobsystem.Server.Controllers
 {
@@ -11,14 +13,14 @@ namespace Lobsystem.Server.Controllers
     public class EventController : ControllerBase
     {
         private readonly IEventPostTypesService _eventPostTypesService;
-
-        public EventController(IEventPostTypesService eventPostTypesService)
+        private readonly ICRUDService _createService;
+        public EventController(IEventPostTypesService eventPostTypesService, ICRUDService createService)
         {
             _eventPostTypesService = eventPostTypesService;
+            _createService = createService;
         }
 
-        [HttpPost]
-        //[Route("CreateEvent")]
+        [HttpPost]        
         public async Task<IActionResult> AddEvent(EventPostsDTO eventType)
         {
             try
@@ -118,5 +120,80 @@ namespace Lobsystem.Server.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
+
+
+        [HttpGet]
+        [Route("GetEditEventPost/{id}")]
+        public async Task<IActionResult> GetEditEventPost(int id)
+        {
+            try
+            {
+                var temp = _eventPostTypesService.GetEventByID(id);
+                var templist = _eventPostTypesService.GetAllPostByEventID(id);
+                
+                List<EditPostDTO> editPostDTOs = new();
+                EditEventDTO editEventDTO = new()
+                {
+                     StartDate = temp.StartDate,
+                     EndDate=temp.EndDate,
+                     EventId = id,
+                     EventName = temp.EventName,
+                     CooldownTimer=temp.CooldownTimer,
+                     Description = temp.Description,
+                     TypesID = temp.TypesID,
+                     Username = temp.Username
+                };
+
+                foreach (var item in templist)
+                {
+                    EditPostDTO editPostDTO = new()
+                    {
+                        Distance = item.Distance,
+                        EventId = item.EventID,
+                        Multiplyer = item.Multiplyer,
+                        PostId = item.PostID,
+                        PostNum = item.PostNum
+                    };
+                    editPostDTOs.Add(editPostDTO);
+                }
+
+                EditEventPostDTO editEventPostDTO = new() { EditEventDTO = editEventDTO, EditPostDTOs = editPostDTOs };
+
+                return Ok(editEventPostDTO);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+
+            }
+        }
+
+        [HttpPost]
+        [Route("UpdateEvent")]
+        public async Task<IActionResult> UpdateEvent(EditEventDTO editEventPostDTO)
+        {
+            try
+            {
+                var temp = _eventPostTypesService.GetEventByID(editEventPostDTO.EventId);
+
+                temp.StartDate = editEventPostDTO.StartDate;
+                temp.Username = editEventPostDTO.Username;
+                temp.CooldownTimer = editEventPostDTO.CooldownTimer;
+                temp.Description = editEventPostDTO.Description;
+                temp.EndDate = editEventPostDTO.EndDate;
+                temp.EventName = editEventPostDTO.EventName;
+                temp.TypesID = editEventPostDTO.TypesID;
+
+                await _createService.UpdateEntity(temp);
+
+                return Ok();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
     }
+
 }

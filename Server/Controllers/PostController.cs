@@ -1,5 +1,7 @@
-﻿using Lobsystem.Shared.Models;
+﻿using Lobsystem.Shared.DTO;
+using Lobsystem.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 using SBO.LobSystem.Services.Interface;
 
 namespace Lobsystem.Server.Controllers
@@ -9,10 +11,11 @@ namespace Lobsystem.Server.Controllers
     public class PostController : ControllerBase
     {
         private readonly IEventPostTypesService _eventPostTypesService;
-
-        public PostController(IEventPostTypesService eventPostTypesService)
+        private readonly ICRUDService _createService;
+        public PostController(IEventPostTypesService eventPostTypesService, ICRUDService createService)
         {
             _eventPostTypesService = eventPostTypesService;
+            _createService = createService;
         }
 
         [HttpPost]
@@ -64,6 +67,54 @@ namespace Lobsystem.Server.Controllers
             try
             {
                 _eventPostTypesService.DeletePost(id);
+                return Ok();
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
+        [HttpPost]
+        [Route("UpdatePost")]
+        public async Task<IActionResult> UpdatePost(EditPostDTO editPostDTO)
+        {
+            try
+            {
+                Post post = new()
+                {
+                    PostID = editPostDTO.PostId,
+                    PostNum = editPostDTO.PostNum,
+                    EventID = editPostDTO.EventId,
+                    Distance = editPostDTO.Distance,
+                    Multiplyer = editPostDTO.Multiplyer,
+                };
+                await _createService.UpdateEntity(post);
+
+                return Ok();
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
+        [HttpPost]
+        [Route("CreatePost")]
+        public async Task<IActionResult> CreatePost(EditPostDTO editPostDTO)
+        {
+            try
+            {
+                Post post = new()
+                {
+                    PostNum = editPostDTO.PostNum,
+                    EventID = editPostDTO.EventId,
+                    Distance = editPostDTO.Distance,
+                    Multiplyer = editPostDTO.Multiplyer,
+                    IsDeleted = false
+                };
+               await  _createService.CreateEntity(post);
+
                 return Ok();
             }
             catch (Exception)

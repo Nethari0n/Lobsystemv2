@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace SBO.LobSystem.Services.Services
 {
-    public class CreateService : ICreateService
+    public class CRUDService : ICRUDService
     {
 
         private readonly ApplicationDBContext _context;
 
-        public CreateService(ApplicationDBContext lobsContext)
+        public CRUDService(ApplicationDBContext lobsContext)
         {
             _context = lobsContext;
         }

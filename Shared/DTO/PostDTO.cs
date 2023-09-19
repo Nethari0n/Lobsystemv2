@@ -9,6 +9,7 @@ namespace Lobsystem.Shared.DTO
 {
     public class PostDTO
     {
+        
         public int Multiplyer { get; set; }
 
         public int Distance { get; set; }

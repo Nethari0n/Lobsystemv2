@@ -21,6 +21,7 @@ namespace Lobsystem.Client.APICallers
             try
             {
                 var response = await _httpClient.GetFromJsonAsync<List<Types>>("Types");
+                
                 return response;
             }
             catch (Exception)

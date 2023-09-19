@@ -13,6 +13,9 @@ namespace Lobsystem.Client.IAPICallers
 
         Task<Event> GetEventByID(int id);
 
+        Task<EditEventPostDTO> GetEditEventPost(int id);
+        Task UpdateEventPosts(EditEventDTO editEventPostDTO);
+
         Task<DateTime> GetEventByIDStartDate(int id);
         Task<DateTime> GetEventByIDEndDate(int id);
     }

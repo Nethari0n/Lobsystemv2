@@ -150,10 +150,6 @@
     /// <returns></returns>
     protected override async Task OnInitializedAsync()
     {
-        // if (HttpContextAccessor.HttpContext.Session.GetInt32("id") == null)
-        // {
-        //     NavManager.NavigateTo("/Index", true);
-        // }
 
         var uri = navigationManager.ToAbsoluteUri(navigationManager.Uri);
         var test = HttpUtility.ParseQueryString(uri.Query)["id"];
