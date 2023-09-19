@@ -7,8 +7,8 @@ namespace Lobsystem.Server.Controllers
     [Route("[controller]")]
     public class GenericCRUDController : ControllerBase
     {
-        private readonly ICreateService _createService;
-        public GenericCRUDController(ICreateService createService)
+        private readonly ICRUDService _createService;
+        public GenericCRUDController(ICRUDService createService)
         {
             _createService = createService;
         }

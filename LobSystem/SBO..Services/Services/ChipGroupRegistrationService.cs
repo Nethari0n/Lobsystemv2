@@ -17,9 +17,9 @@ namespace SBO.LobSystem.Services.Services
 
         private readonly ApplicationDBContext _lobsContext;
 
-        private readonly ICreateService _create;
+        private readonly ICRUDService _create;
 
-        public ChipGroupRegistrationService(ApplicationDBContext lobsContext, ICreateService create)
+        public ChipGroupRegistrationService(ApplicationDBContext lobsContext, ICRUDService create)
         {
             _lobsContext = lobsContext;
             _create = create;

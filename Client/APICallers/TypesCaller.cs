@@ -16,9 +16,19 @@ namespace Lobsystem.Client.APICallers
             throw new NotImplementedException();
         }
 
-        public List<Types> GetAllTypes()
+        public async Task<List<Types>> GetAllTypes()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<List<Types>>("Types");
+                
+                return response;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         public async Task<bool> GetMultiRound(int id)

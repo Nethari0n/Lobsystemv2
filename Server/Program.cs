@@ -38,7 +38,7 @@ namespace Lobsystem.Server
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
 
-            builder.Services.AddScoped<ICreateService, CreateService>();
+            builder.Services.AddScoped<ICRUDService, CRUDService>();
             builder.Services.AddScoped<IRapportService, RapportService>();
             builder.Services.AddScoped<IChipGroupRegistrationService, ChipGroupRegistrationService>();
             builder.Services.AddScoped<IEventPostTypesService, EventPostTypesService>();

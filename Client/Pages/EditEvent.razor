@@ -1,0 +1,396 @@
+﻿@page "/EditEvent"
+@using System.Web;
+@using Lobsystem.Shared.DTO;
+
+
+<div class="container">
+    <div class="text-center EventAdmin">
+        <div class="d-flex justify-content-between">
+            <h3 class="title-e">Rediger Begivenhed</h3>
+        </div>
+        <hr />
+
+
+        @*Event properties*@
+        <div class="container EventProp">
+            <div class="row col-row">
+                <div class="col-4 start">
+                    <label for="Title">Titel <i class="Required">*</i></label>
+                    <input type="text" id="Title" maxlength="200" @bind="Title" class="form-control left" />
+                </div>
+                <div class="col-4 space"></div>
+                <div class="col-4 end">
+                    <label for="startDate">Start Tid <i class="Required RightSideReq">*</i></label>
+                    <input class="form-control" type="datetime-local" id="startDate" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-dd HH:mm")" min="@DateTime.Parse(OldStartDate).ToString("yyyy-MM-dd HH:mm")" value="@StartDate" @onchange="(async e => {await StartDateValidation((string)e.Value);StateHasChanged();})" />
+                </div>
+            </div>
+            <br />
+            <div class="row col-row">
+                <div class="col-4 start">
+                    <label for="Beskrivelse">Beskrivelse</label>
+                    <textarea type="text" @bind="Desc" id="Beskrivelse" class="form-control left"></textarea>
+                </div>
+                <div class="col-4 space"></div>
+                <div class="col-4 end">
+                    <label for="endDate">Slut Tid <i class="Required RightSideReq">*</i></label>
+                    <input class="form-control" type="datetime-local" id="endDate" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-dd HH:mm")" min="@DateTime.Parse(OldStartDate).ToString("yyyy-MM-dd HH:mm")" value="@EndDate" @onchange="(async e => {await EndDateValidation((string)e.Value);StateHasChanged();})" />
+                    <label for="TimeOutParamater" class="CooldownLabel">Cooldown <i class="ToolTip">*</i></label>
+                    <input class="form-control Cooldown" onkeypress="@NumbersOnly" onpaste="return false;" ondrop="return false;" autocomplete="off" @bind="Cooldown" placeholder="Default er 30 sec" id="TimeOutParamater" />
+                </div>
+            </div>
+            <br />
+            <div class="row col-row">
+                <div class="col-4 start">
+                    <label for="Types">Type <i class="Required">*</i></label>
+                    <select class="form-control" id="Types" @bind="TypesID">
+                        <option value="0">Vælg Type</option>
+                        @foreach (var item in TypeList)
+                        {
+                            <option value="@item.TypesID">@item.TypeName</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-8 end align-self-end">
+                    <input type="submit" id="EventAdd" class="btn logoColor" value="Gem" @onclick="(async e => { await ToastTitle(); EditEventMethod(); StateHasChanged();})" />
+                </div>
+            </div>
+            <br />
+        </div>
+
+
+        @*Post table*@
+        <div class="container PostTable">
+            <nav class="navbar navbar-expand-lg">
+                <div class="d-flex">
+                    <input type="checkbox" class="form-check-input" id="multiplyer" value="@IsChekced" @onchange="(async e => {await CheckBoxMulti(); IsChekced = (bool)e.Value;})" style="margin: 0; margin-top: 8px;" />
+                    <label class="form-check-label" for="multiplyer" style="margin-left: 25px; line-height:30px;">Multiplier</label>
+                    <input type="number" onkeypress="@NumbersOnly" id="MultiTetxt" @bind="Multiplyer" class="form-control small" placeholder="2x" disabled />
+                </div>
+                <div class="d-flex">
+                    <label style="line-height:30px;">Afstand mellem poster</label>
+                    <input type="number" onkeypress="@NumbersOnly" id="distance" maxlength="5" @bind="Distance" class="form-control InputMeter small" placeholder="100m" />
+                    <label class="form-control InputMeterText" for="distance">M</label>
+                </div>
+                <div class="d-flex">
+                    <input type="submit" id="PostTilf" value="Tilføj" @onclick="(e => {AddPost(); StateHasChanged();})" class="btn logoColor float-right" />
+                </div>
+            </nav>
+            <div class="TableScrollable">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Post nr.</th>
+                            <th>Multiplier</th>
+                            <th>Afstand</th>
+                            <th>Handling</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in PostList)
+                        {
+                            <tr>
+                                <td>@item.PostNum</td>
+                                <td>@item.Multiplyer</td>
+                                <td>@item.Distance</td>
+                                <td><a type="button" class="hyperlink" @onclick="() => {DeletePost(item);}">Slet</a></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@code {
+    private List<Types> TypeList { get; set; } = new();
+
+    private List<EditPostDTO> PostList { get; set; } = new();
+
+    private List<EditPostDTO> DeletetedPosts { get; set; } = new();
+
+    private string NumbersOnly { get; set; }
+
+
+    private string ErrorMessage { get; set; }
+
+    //Post Prop
+    private bool IsChekced { get; set; }
+
+    private int Distance { get; set; }
+
+    private int Multiplyer { get; set; }
+
+    private int PostNrCounter { get; set; }
+
+    private string OldStartDate { get; set; } = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+
+    private string OldEndDate { get; set; } = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+
+    //Event Prop
+    private string StartDate { get; set; }
+
+    private string EndDate { get; set; }
+
+    private string Title { get; set; }
+
+    private string Desc { get; set; }
+
+    private int TypesID { get; set; }
+
+    private int ChipsCount { get; set; }
+
+    private string Username { get; set; }
+
+    private int ID { get; set; }
+
+    private string EventID { get; set; }
+
+    private string Cooldown { get; set; }
+
+    public int SiteId { get; set; }
+
+    private IJSObjectReference _jsModule;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        var uri = navigationManager.ToAbsoluteUri(navigationManager.Uri);
+        var test = HttpUtility.ParseQueryString(uri.Query)["id"];
+
+        if (int.TryParse(test, out int result))
+        {
+
+            _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/CreateEvent.js");
+            SiteId = result;
+            await InitializeProperties(SiteId.ToString());
+
+        }
+        else
+        {
+            navigationManager.NavigateTo("/");
+        }
+
+        EventID = result.ToString();
+    }
+
+    protected async Task InitializeProperties(StringValues value)
+    {
+        int id = Convert.ToInt32(value);
+
+        EditEventPostDTO ev = await _EventCaller.GetEditEventPost(id);
+
+
+
+        PostList = ev.EditPostDTOs;
+
+
+
+        TypeList = await _TypesCaller.GetAllTypes();
+
+        Title = ev.EditEventDTO.EventName;
+        Desc = ev.EditEventDTO.Description;
+        TypesID = ev.EditEventDTO.TypesID;
+        Username = ev.EditEventDTO.Username;
+        Cooldown = ev.EditEventDTO.CooldownTimer.ToString();
+
+        ID = ev.EditEventDTO.EventId;
+
+        StartDate = ev.EditEventDTO.StartDate.ToString("yyyy-MM-dd HH:mm");
+        EndDate = ev.EditEventDTO.EndDate.ToString("yyyy-MM-dd HH:mm");
+
+        OldStartDate = ev.EditEventDTO.StartDate.ToString("yyyy-MM-dd HH:mm");
+        OldEndDate = ev.EditEventDTO.EndDate.ToString("yyyy-MM-dd HH:mm");
+
+        NumbersOnly = "return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))";
+    }
+
+    protected async Task StartDateValidation(string value)
+    {
+        if (value == "" || DateTime.Parse(value) < DateTime.Now)
+        {
+            StartDate = DateTime.Now.ToString("yyyy-MM-ddTHH:mm");
+            //ErrorMessage = "Start dato må ikke være tidliger ind idag.";
+            toastService.ShowError("Start dato må ikke være tidligere end idag.");
+            //await _jsModule.InvokeVoidAsync("ToastError");
+            await _jsModule.InvokeVoidAsync("UpdateStartDate", DateTime.Now.ToString("yyyy-MM-ddTHH:mm"));
+        }
+        else if (DateTime.Parse(EndDate) < DateTime.Parse(value))
+        {
+            await _jsModule.InvokeVoidAsync("OnDateChange");
+            StartDate = DateTime.Parse(value).ToString("yyyy-MM-ddTHH:mm");
+            EndDate = DateTime.Parse(value).ToString("yyyy-MM-ddTHH:mm");
+            await _jsModule.InvokeVoidAsync("UpdateEndDate", DateTime.Parse(value).ToString("yyyy-MM-ddTHH:mm"));
+        }
+        await _jsModule.InvokeVoidAsync("OnDateChange");
+    }
+
+    protected async Task EndDateValidation(string value)
+    {
+        if (value == "" || DateTime.Parse(value) > DateTime.Now.AddYears(20))
+        {
+            EndDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+            //ErrorMessage = $"Slut dato må senste være {DateTime.Now.AddYears(20).ToString("dd-MM-yyyy")}";
+            toastService.ShowError($"Slut dato må senste være {DateTime.Now.AddYears(20).ToString("dd-MM-yyyy")}");
+
+            //await _jsModule.InvokeVoidAsync("ToastError");
+            await _jsModule.InvokeVoidAsync("UpdateEndDate", DateTime.Now.ToString("yyyy-MM-ddTHH:mm"));
+        }
+        else
+        {
+            //await _jsModule.InvokeVoidAsync("OnEndChange");
+
+            if (DateTime.Parse(value) > DateTime.Parse(StartDate))
+            {
+                EndDate = value;
+                //await _jsModule.InvokeVoidAsync("UpdateEndDate", DateTime.Parse(EndDate).ToString("yyyy-MM-ddTHH:mm"));
+            }
+            else
+            {
+                EndDate = StartDate;
+                toastService.ShowError("Slut dato må ikke være før start dato.");
+                StateHasChanged();
+            }
+        }
+    }
+
+    protected async Task CheckBoxMulti() => await JsRuntime.InvokeVoidAsync("CheckedMulti");
+
+    protected async Task ToastTitle()
+    {
+        //await _jsModule.InvokeVoidAsync("ToastValidation")
+
+        if (string.IsNullOrWhiteSpace(Title))
+            toastService.ShowError("Der skal være en Titel");
+        if (string.IsNullOrWhiteSpace(StartDate))
+            toastService.ShowError("Der skal være en Start Dato");
+        if (string.IsNullOrWhiteSpace(EndDate))
+            toastService.ShowError("Der skal være en Slut Dato");
+        if (TypesID == 0)
+            toastService.ShowError("Der skal vælges en Type");
+
+    }
+
+
+    protected async void EditEventMethod()
+    {
+        if (PostList.Count() != 0)
+        {
+            if (StartDate != EndDate)
+            {
+
+
+                var _ = Cooldown != null ? Cooldown : Cooldown = "30";
+                if (!string.IsNullOrWhiteSpace(Title) && Title.Length <= 200 && StartDate != null && EndDate != null && TypesID != 0)
+                {
+                    var j = Desc == null ? Desc = "" : Desc;
+
+                    EditEventDTO eventDTO = new EditEventDTO
+                        {
+                            EventId = ID,
+                            EventName = Title.Trim(),
+                            StartDate = DateTime.Parse(StartDate),
+                            EndDate = DateTime.Parse(EndDate),
+                            Description = Desc.Trim(),
+                            //Chips = ChipsCount,
+                            TypesID = TypesID,
+                            Username = Username,
+                            CooldownTimer = Convert.ToInt32(Cooldown)
+
+                        };
+
+                    for (int i = 0; i < PostList.Count(); i++)
+                    {
+                        PostList[i].PostNum = (i + 1);
+                        if (PostList[i].PostId != 0)
+                        {
+                            await _PostCaller.UpdatePost(PostList[i]);
+                        }
+                        else
+                        {
+                            await _PostCaller.CreatePost(PostList[i]);
+                        }
+                    }
+
+                    for (int i = 0; i < DeletetedPosts.Count(); i++)
+                    {
+                        if (DeletetedPosts[i].PostId != 0)
+                        {
+                            _PostCaller.DeletePost(DeletetedPosts[i].PostId);
+                        }
+                    }
+
+
+                    try
+                    {
+                        await _EventCaller.UpdateEventPosts(eventDTO);
+                    }
+                    catch (Exception)
+                    {
+                        toastService.ShowError("Fejl opstod under ændring af Event");
+                    }
+
+                    //DeletetedPosts.Clear();
+                    //PostList = _EventPostTypesService.GetAllPostByEventID(ID).OrderBy(e => e.PostNum).ToList();
+
+                    navigationManager.NavigateTo("/", true);
+                }
+                else
+                {
+                    toastService.ShowError("Fejl Opstod");
+                    // ErrorMessage = $"Fejl opstod";
+                    // await JsRuntime.InvokeVoidAsync("ToastError");
+                }
+            }
+            else
+            {
+                toastService.ShowError("Start og Slut data må ikke være på samme tidspunkt Eller Slut data må ikke være før Start Dato");
+            }
+        }
+        else
+        {
+            toastService.ShowError("Mindst 1 post");
+            // ErrorMessage = $"Mindst 1 post.";
+            // await JsRuntime.InvokeVoidAsync("ToastError");
+        }
+    }
+
+    protected async void AddPost()
+    {
+        if (Distance.ToString().Length <= 5)
+        {
+            var _ = !IsChekced ? Multiplyer = 0 : Multiplyer;
+
+            EditPostDTO post = new EditPostDTO
+                {
+                    EventId = Convert.ToInt32(EventID),
+                    Multiplyer = Multiplyer,
+                    Distance = Distance,
+                    PostNum = (PostList.Count() + 1)
+                };
+
+            PostList.Add(post);
+        }
+        else
+        {
+            Distance = 0;
+            toastService.ShowError("Post afstand må ikke være længere end 5 karakter.");
+            //await JsRuntime.InvokeVoidAsync("ToastDistance");
+        }
+    }
+
+    protected void DeletePost(EditPostDTO post)
+    {
+        DeletetedPosts.Add(post);
+        PostList.Remove(post);
+
+        for (int i = 0; i < PostList.Count(); i++)
+        {
+            PostList[i].PostNum = (i + 1);
+        }
+    }
+}
+
+
