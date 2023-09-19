@@ -30,7 +30,7 @@
                 <div class="col-4 space"></div>
                 <div class="col-4 end">
                     <label for="endDate">Slut Tid <i class="Required">*</i></label>
-                    <input class="form-control" type="datetime-local" id="endDate" min="@StartDate" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-dd HH:mm")" value="@EndDate" @onchange="(async e => {await EndDateValidation((string)e.Value);await InvokeAsync(StateHasChanged);})" />
+                    <input class="form-control" type="datetime-local" id="endDate" min="@StartDate" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-dd HH:mm")" value="@EndDate" @onchange="(async e => {await EndDateValidation((string)e.Value);})" />
                     <label for="TimeOutParamater" class="CooldownLabel">Cooldown <i class="ToolTip">*</i></label>
                     <input class="form-control Cooldown" onkeypress="@NumbersOnly" onpaste="return false;" ondrop="return false;" autocomplete="off" @bind="Cooldown" placeholder="Default er 30 sec" id="TimeOutParamater" />
                 </div>
@@ -99,76 +99,76 @@
 
         @*Toast Notifaction*@
         @* <div aria-live="polite" aria-atomic="true">
-            <div class="toast-container position-absolute top-0 end-0 p-3">
+        <div class="toast-container position-absolute top-0 end-0 p-3">
 
-                <div class="toast align-items-center text-white bg-danger border-0" id="TitleToast" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="d-flex">
-                        <div class="toast-body toast-icon">
-                            <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                        </div>
-                        <div class="toast-body toast-text">
-                            Title skal udfyles.
-                        </div>
-                    </div>
-                </div>
+        <div class="toast align-items-center text-white bg-danger border-0" id="TitleToast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+        <div class="toast-body toast-icon">
+        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
+        </div>
+        <div class="toast-body toast-text">
+        Title skal udfyles.
+        </div>
+        </div>
+        </div>
 
-                <div class="toast align-items-center text-white bg-danger border-0" id="TypeToast" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="d-flex">
-                        <div class="toast-body toast-icon">
-                            <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                        </div>
-                        <div class="toast-body toast-text">
-                            Vælg en type.
-                        </div>
-                    </div>
-                </div>
+        <div class="toast align-items-center text-white bg-danger border-0" id="TypeToast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+        <div class="toast-body toast-icon">
+        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
+        </div>
+        <div class="toast-body toast-text">
+        Vælg en type.
+        </div>
+        </div>
+        </div>
 
-                <div class="toast align-items-center text-white bg-danger border-0" id="StartDateToast" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="d-flex">
-                        <div class="toast-body toast-icon">
-                            <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                        </div>
-                        <div class="toast-body toast-text">
-                            Start dato skal udfyles.
-                        </div>
-                    </div>
-                </div>
+        <div class="toast align-items-center text-white bg-danger border-0" id="StartDateToast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+        <div class="toast-body toast-icon">
+        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
+        </div>
+        <div class="toast-body toast-text">
+        Start dato skal udfyles.
+        </div>
+        </div>
+        </div>
 
-                <div class="toast align-items-center text-white bg-danger border-0" id="EndDateToast" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="d-flex">
-                        <div class="toast-body toast-icon">
-                            <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                        </div>
-                        <div class="toast-body toast-text">
-                            Slut dato skal udfyles.
-                        </div>
-                    </div>
-                </div>
+        <div class="toast align-items-center text-white bg-danger border-0" id="EndDateToast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+        <div class="toast-body toast-icon">
+        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
+        </div>
+        <div class="toast-body toast-text">
+        Slut dato skal udfyles.
+        </div>
+        </div>
+        </div>
 
-                <div class="toast align-items-center text-white bg-danger border-0 DateTimeToast" id="DateToast" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="d-flex">
-                        <div class="toast-body toast-icon">
-                            <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                        </div>
-                        <div class="toast-body toast-text">
-                            Slut dato må ikke være før start dato...
-                        </div>
-                    </div>
-                </div>
+        <div class="toast align-items-center text-white bg-danger border-0 DateTimeToast" id="DateToast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+        <div class="toast-body toast-icon">
+        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
+        </div>
+        <div class="toast-body toast-text">
+        Slut dato må ikke være før start dato...
+        </div>
+        </div>
+        </div>
 
 
-                <div class="toast align-items-center text-white bg-danger border-0 DateTimeToast" id="ToastError" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="d-flex">
-                        <div class="toast-body toast-icon">
-                            <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                        </div>
-                        <div class="toast-body toast-text">
-                            @ErrorMessage
-                        </div>
-                    </div>
-                </div>
+        <div class="toast align-items-center text-white bg-danger border-0 DateTimeToast" id="ToastError" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+        <div class="toast-body toast-icon">
+        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
+        </div>
+        <div class="toast-body toast-text">
+        @ErrorMessage
+        </div>
+        </div>
+        </div>
 
-            </div>
+        </div>
         </div> *@
     </div>
 </div>
@@ -272,7 +272,7 @@
         {
             EndDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
             //ErrorMessage = $"Slut dato må senste være {DateTime.Now.AddYears(20).ToString("dd-MM-yyyy")}";
-            toastService.ShowError($"Slut dato må senste være { DateTime.Now.AddYears(20).ToString("dd-MM-yyyy")}");
+            toastService.ShowError($"Slut dato må senste være {DateTime.Now.AddYears(20).ToString("dd-MM-yyyy")}");
 
             //await _jsModule.InvokeVoidAsync("ToastError");
             await _jsModule.InvokeVoidAsync("UpdateEndDate", DateTime.Now.ToString("yyyy-MM-ddTHH:mm"));
@@ -280,7 +280,7 @@
         else
         {
             //await _jsModule.InvokeVoidAsync("OnEndChange");
-           
+
             if (DateTime.Parse(value) > DateTime.Parse(StartDate))
             {
                 EndDate = value;
@@ -290,6 +290,7 @@
             {
                 EndDate = StartDate;
                 toastService.ShowError("Slut dato må ikke være før start dato.");
+                StateHasChanged();
             }
         }
     }
@@ -316,54 +317,61 @@
     {
         if (PostList.Count != 0)
         {
-            var _ = Cooldown != null ? Cooldown : Cooldown = "30";
-            if (!string.IsNullOrWhiteSpace(Title) && Title.Length <= 200 && !string.IsNullOrWhiteSpace(Cooldown) && StartDate != null && EndDate != null && TypesID != 0)
+            if (StartDate != EndDate)
             {
-                var i = Desc == null ? Desc = "" : Desc;
+                var _ = Cooldown != null ? Cooldown : Cooldown = "30";
+                if (!string.IsNullOrWhiteSpace(Title) && Title.Length <= 200 && !string.IsNullOrWhiteSpace(Cooldown) && StartDate != null && EndDate != null && TypesID != 0)
+                {
+                    var i = Desc == null ? Desc = "" : Desc;
 
-                CurrentUser currentUser = await _AuthService.CurrentUserInfo();
+                    CurrentUser currentUser = await _AuthService.CurrentUserInfo();
 
-                
 
-                CreateEventDTO eventDTO = new CreateEventDTO
+
+                    CreateEventDTO eventDTO = new CreateEventDTO
+                        {
+                            EventName = Title.Trim(),
+                            StartDate = DateTime.Parse(StartDate),
+                            EndDate = DateTime.Parse(EndDate),
+                            Description = Desc.Trim(),
+                            TypesID = TypesID,
+                            Username = currentUser.UserName,
+                            CooldownTimer = Convert.ToInt32(Cooldown),
+
+                        };
+                    EventPostsDTO eventPostsDTO = new() { CreateEvent = eventDTO, PostList = PostList };
+
+                    try
                     {
-                        EventName = Title.Trim(),
-                        StartDate = DateTime.Parse(StartDate),
-                        EndDate = DateTime.Parse(EndDate),
-                        Description = Desc.Trim(),
-                        TypesID = TypesID,
-                        Username = currentUser.UserName,
-                        CooldownTimer = Convert.ToInt32(Cooldown),
+                        await _EventCaller.AddEvent(eventPostsDTO);
+                    }
+                    catch (Exception e)
+                    {
+                        toastService.ShowError("Fejl opstod under oprettelse af Event");
+                        //toastService.ShowError(e.Message);
 
-                    };
-                EventPostsDTO eventPostsDTO = new() { CreateEvent = eventDTO, PostList = PostList };
 
-                try
-                {
-                await _EventCaller.AddEvent(eventPostsDTO);
+                    }
+
+
+                    //_EventPostTypesService.AddPostFromList(PostList, eventDTO.EventID);
+
+                    //ClearFields();
+
+                    toastService.ShowSuccess($"{eventDTO.EventName} Oprettet");
+
+                    navigationManager.NavigateTo("/", true);
                 }
-                catch (Exception e)
+                else
                 {
-                    toastService.ShowError("Fejl opstod under oprettelse af Event");
-                    //toastService.ShowError(e.Message);
-
-
+                    toastService.ShowError("Fejl opstod");
+                    // ErrorMessage = $"Fejl opstod";
+                    // await JsRuntime.InvokeVoidAsync("ToastError");
                 }
-
-
-                //_EventPostTypesService.AddPostFromList(PostList, eventDTO.EventID);
-
-                //ClearFields();
-
-                toastService.ShowSuccess($"{eventDTO.EventName} Oprettet");
-
-                navigationManager.NavigateTo("/", true);
             }
             else
             {
-                toastService.ShowError("Fejl opstod");
-                // ErrorMessage = $"Fejl opstod";
-                // await JsRuntime.InvokeVoidAsync("ToastError");
+                toastService.ShowError("Start og Slut data må ikke være på samme tidspunkt Eller Slut data må ikke være før Start Dato");
             }
         }
         else
