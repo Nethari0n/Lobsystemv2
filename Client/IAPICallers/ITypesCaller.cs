@@ -6,9 +6,9 @@ namespace Lobsystem.Client.IAPICallers
     {
         Task<List<Types>> GetAllTypes();
 
-        List<Types> TypesPagination(int page, int totalItem);
+        Task<List<Types>> TypesPagination(int page, int totalItem);
 
-        List<Types> SearchType(int page, int totalItem, string search);
+        Task<List<Types>> SearchType(int page, int totalItem, string search);
 
         Types GetTypeByID(int id);
 
@@ -17,5 +17,11 @@ namespace Lobsystem.Client.IAPICallers
         Task<bool> GetMultiRound(int id);
 
         void DeleteType(int ID);
+
+        public Task<bool> TypeExists(int ID);
+
+
+        public Task<bool> TypeExists(string TypeName);
+
     }
 }

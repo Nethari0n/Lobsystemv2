@@ -8,12 +8,8 @@ using System.Threading.Tasks;
 namespace Lobsystem.Shared.DTO
 {
     public class ChipDTO
-    {
-        
-        public int ChipID { get; set; }
-
-        
-        public string UID { get; set; }
-        
+    {       
+        public int ChipID { get; set; }       
+        public string UID { get; set; }       
     }
 }

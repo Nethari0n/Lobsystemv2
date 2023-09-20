@@ -81,15 +81,7 @@ namespace Lobsystem.Client.APICallers
             throw new NotImplementedException();
         }
 
-        public bool TypeExists(int ID)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool TypeExists(string TypeName)
-        {
-            throw new NotImplementedException();
-        }
+        
 
         public async Task UpdatePost(EditPostDTO post)
         {

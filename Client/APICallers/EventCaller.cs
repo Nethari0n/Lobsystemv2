@@ -46,8 +46,8 @@ namespace Lobsystem.Client.APICallers
 
         public async Task<List<EventTypeDTO>> GetAllEvents()
         {
-            var test = await _httpClient.GetFromJsonAsync<List<EventTypeDTO>>("Event");
-            return test.ToList();
+            var response = await _httpClient.GetFromJsonAsync<List<EventTypeDTO>>("Event");
+            return response.ToList();
         }
 
         public async Task<Event> GetEventByID(int id)

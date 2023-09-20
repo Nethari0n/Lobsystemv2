@@ -1,0 +1,557 @@
+﻿@page "/TypesGroups"
+@using System.Data
+@using Lobsystem.Shared.DTO;
+
+
+<div class="container">
+    <div class="text-center mt-4 TypesGroups">
+        <div class="table-header d-flex btn-res justify-content-between" style="margin-top:2rem;">
+            <div class="d-flex">
+                <h2>Grupper</h2>
+                <button class="btn ml-5 mb-1 logoColor" @onclick='() => OpenModals("opretModalGroup")'>Opret Gruppe</button>
+            </div>
+            <div>
+                <input class="form-control" type="text" id="search" @bind="SearchField" @oninput="(e => SearchField = e.Value.ToString())" @onkeyup="(e => {OnInitializedAsync(); CurrentPage = 1;})" placeholder="Søg på navn.." />
+            </div>
+        </div>
+        <div class="TableScrollable tableContainerChips">
+            <table class="table table-striped" id="groupTable">
+                <thead>
+                    <tr>
+                        <th class="thSorting">Gruppe ID</th>
+                        <th class="thSorting">Gruppe Navn</th>
+                        <th>Handlinger</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in GroupsDTOs.Where(x => x.IsDeleted == false))
+                    {
+                        <tr>
+                            <td>@item.GroupId</td>
+                            <td>@item.GroupName</td>
+                            <td class="d-flex justify-content-center">
+                                <button class="hyperlink" @onclick="() => EditGroup(item)">Rediger</button> |
+                                <button type="button" class="hyperlink" @onclick="() => DeleteGroupConf(item)">Slet</button>
+
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+
+        </div>
+        @if (Count > 0 && TotalPages > 1)
+        {
+            <ul class="pagination">
+                @for (var i = 1; i <= TotalPages; i++)
+                {
+                    int page = i;
+                    <li class="page-item @(i == CurrentPage ? "active" : "")">
+                        <input type="button" @onclick="(e => {CurrentPage = page;OnInitializedAsync();})" class="page-link" value="@i" />
+                    </li>
+                }
+            </ul>
+        }
+
+
+        <div class="table-header d-flex btn-res justify-content-between" style="margin-top:2rem;">
+            <div class="d-flex">
+                <h2>Typer</h2>
+                <button class="btn ml-5 mb-1 logoColor" @onclick='() => OpenModals("opretModalType", "typeTable")'>Opret Type</button>
+            </div>
+            <div>
+                <input class="form-control" type="text" id="search" @bind="SearchFieldTypes" @oninput="(e => SearchFieldTypes = e.Value.ToString())" @onkeyup="(e => {OnInitializedAsync(); CurrentPage = 1;})" placeholder="Søg på navn.." />
+            </div>
+        </div>
+        <div class="TableScrollable tableContainerChips">
+            <table class="table table-striped" id="typeTable">
+                <thead>
+                    <tr>
+                        <th>Type ID</th>
+                        <th>Type Navn</th>
+                        <th>Multiplikator</th>
+                        <th>Flere Runder</th>
+                        <th>Handlinger</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in TypesDTOs.Where(x => x.IsDeleted == false))
+                    {
+                        <tr>
+                            <td>@item.TypesID</td>
+                            <td>@item.TypeName</td>
+                            <td>@item.Multiplyer</td>
+                            @if (item.MultipleRounds)
+                            {
+                                <td>Ja</td>
+                            }
+                            else
+                            {
+                                <td>Nej</td>
+                            }
+                            <td class="d-flex justify-content-center">
+                                <button class="hyperlink" @onclick="() => EditType(item)">Rediger</button> |
+                                <button type="button" class="hyperlink" @onclick="() => DeleteTypeConf(item)">Slet</button>
+
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+
+        </div>
+        @if (Count > 0 && TotalPages > 1)
+        {
+            <ul class="pagination">
+                @for (var i = 1; i <= TotalPagesTypes; i++)
+                {
+                    int page = i;
+                    <li class="page-item @(i == CurrentPageTypes ? "active" : "")">
+                        <input type="button" @onclick="(e => {CurrentPageTypes = page; OnInitializedAsync();})" class="page-link" value="@i" />
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+
+
+    @*Toast Validation*@
+ @*    <div aria-live="polite" aria-atomic="true">
+        <div class="toast-container position-absolute top-0 end-0 p-3">
+
+            <div class="toast align-items-center text-white bg-danger border-0 DateTimeToast" id="GroupNameToast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body toast-icon">
+                        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
+                    </div>
+                    <div class="toast-body toast-text">
+                        Gruppe navn skal udfyles.
+                    </div>
+                </div>
+            </div>
+
+            <div class="toast align-items-center text-white bg-danger border-0" id="TypeNameToast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body toast-icon">
+                        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
+                    </div>
+                    <div class="toast-body toast-text">
+                        Type navn skal udfyles.
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="toast align-items-center text-white bg-success border-0 DateTimeToast" id="SucessToast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body toast-icon">
+                        <i style="font-size: 20px;" class="fa-solid fa-thumbs-up"></i>
+                    </div>
+                    <div class="toast-body toast-text">
+                        @SuccessMessage
+                    </div>
+                </div>
+            </div>
+
+            <div class="toast align-items-center text-white bg-danger border-0 DateTimeToast" id="ErrorToast" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body toast-icon">
+                        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
+                    </div>
+                    <div class="toast-body toast-text">
+                        @ErrorMessage
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div> *@
+
+
+    @*Edit modal*@
+    <form class="modal fade" id="editModalGroup" style="backdrop-filter: brightness(0.5);" tabindex="-1" aria-hidden="true" method="post">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Rediger</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="CloseEditModal('editModalGroup')"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-center">
+                        <p class="w-50">Gruppe Navn: </p>
+                        <input class="form-control w-50 ml-1" id="GroupName" type="text" @bind="GroupName" />
+                        <input type="hidden" @bind="OldGroupName" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="button" value="Opdater gruppe" class="btn logoColor" @onclick="async () => {await UpdateGroup();}" />
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <form class="modal fade" id="editModalType" style="backdrop-filter: brightness(0.5);" tabindex="-1" aria-hidden="true" method="post">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Rediger</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="CloseEditModal('editModalType')"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex">
+                        <p class="w-50">Type Navn: </p>
+                        <input class="form-control w-50 ml-1" type="text" @bind="TypeName" required />
+                    </div>
+                    <div class="d-flex">
+                        <p class="w-50">Multiplier: </p>
+                        <input type="number" onkeypress="@NumbersOnly" id="MultiTetxt" @bind="Multiplyer" class="form-control ml-1" style="width: 12%!important;" placeholder="2x" />
+                    </div>
+                    <div class="d-flex">
+                        <p class="w-50">Flere omgange: </p>
+                        <input class="form-check-input" type="checkbox" @bind="MultipleRounds" style="margin-left: 15rem;" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="button" value="Opdater type" class="btn logoColor" @onclick="async () => {await UpdateType();}" />
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+    @*Create modal*@
+    <div class="modal modalBackdrop fade" id="opretModalType" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Opret Type</h5>
+                    <button type="button" class="btn-close" onclick="CloseEditModal('opretModalType')" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex">
+                        <p class="w-50">Type Navn: </p>
+                        <input class="form-control w-50 ml-1" type="text" @bind="TypeName" required />
+                    </div>
+                    <div class="d-flex">
+                        <p class="w-50">Multiplier: </p>
+                        <input type="number" onkeypress="@NumbersOnly" id="MultiTetxt" @bind="Multiplyer" class="form-control ml-1" style="width: 12%!important;" placeholder="2x" />
+                    </div>
+                    <div class="d-flex">
+                        <p class="w-50">Flere omgange: </p>
+                        <input class="form-check-input" type="checkbox" @bind="MultipleRounds" style="margin-left: 15rem;" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input id="submitCreate" type="button" value="Opret Typen" class="btn logoColor" @onclick="async () => {await CreateType();}" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal modalBackdrop fade" id="opretModalGroup" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Opret Gruppe</h5>
+                    <button type="button" class="btn-close" onclick="CloseEditModal('opretModalGroup')" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex">
+                        <p class="w-50">Gruppe Navn: </p>
+                        <input class="form-control w-50 ml-1" type="text" @bind="GroupName" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input id="submitCreate" type="button" value="Opret Gruppen" class="btn logoColor" @onclick="async () => {await CreateGroup();}" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+@code {
+    //------------------------ Properties ------------------------//
+
+    #region Propertiers
+
+    private List<ShowGroupDTO> GroupsDTOs { get; set; } = new();
+
+    private List<Types> TypesDTOs { get; set; } = new();
+
+
+    private string GroupName { get; set; }
+    private string OldGroupName { get; set; }
+
+    private string TypeName { get; set; }
+
+    private int GroupID { get; set; }
+
+    private int TypeID { get; set; }
+
+
+    private int Multiplyer { get; set; }
+
+
+    private bool MultipleRounds { get; set; }
+
+
+    private string SuccessMessage { get; set; }
+
+    private string ErrorMessage { get; set; }
+
+    private string NumbersOnly { get; set; } = "return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))";
+
+    private string SearchField { get; set; }
+
+    private string SearchFieldTypes { get; set; }
+
+    #endregion
+
+
+    #region Pagination Group
+
+    private int CurrentPage { get; set; } = 1;
+    private int Count { get; set; } = 0;
+    private int TotalPages { get; set; }
+    private int PageCount { get; set; } = 6;
+
+    #endregion
+
+    #region Pagination Types
+
+    private int CurrentPageTypes { get; set; } = 1;
+    private int CountTypes { get; set; } = 0;
+    private int TotalPagesTypes { get; set; }
+    private int PageCountTypes { get; set; } = 6;
+
+    #endregion
+
+    private IJSObjectReference _jsModule;
+
+
+    //------------------------- Methods --------------------------//
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/TypesGroups.js");
+
+        if (SearchField != null)
+            await SearchGroup();
+        else if (SearchFieldTypes != null)
+            await SearchTypes();
+        else
+            await GetList();
+
+        TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageCount));
+        TotalPagesTypes = (int)Math.Ceiling(decimal.Divide(CountTypes, PageCountTypes));
+    }
+
+
+
+    protected async Task SearchGroup()
+    {
+        GroupsDTOs = await _GroupCaller.SearchGroup(CurrentPage, PageCount, SearchField);
+        var tempCountGroups = await _GroupCaller.GetAllGroups();
+        Count = tempCountGroups.Where(x => x.GroupName.Contains(SearchField) || x.GroupId.ToString().Contains(SearchField) && x.IsDeleted == false).ToList().Count();
+    }
+
+    protected async Task SearchTypes()
+    {
+        TypesDTOs = await _TypesCaller.SearchType(CurrentPageTypes, PageCountTypes, SearchFieldTypes);
+        var tempCountTypes = await _TypesCaller.GetAllTypes();
+        CountTypes = tempCountTypes.Where(x => x.TypeName.Contains(SearchFieldTypes) || x.TypesID.ToString().Contains(SearchFieldTypes) && x.IsDeleted == false).ToList().Count();
+    }
+
+    protected async Task GetList()
+    {
+        TypesDTOs = await _TypesCaller.TypesPagination(CurrentPageTypes, PageCountTypes);
+        GroupsDTOs = await _GroupCaller.GroupPagination(CurrentPage, PageCount);
+        var typestemp = await _TypesCaller.GetAllTypes();
+        CountTypes = typestemp.Count();
+        var groupstemp = await _GroupCaller.GetAllGroups();
+        Count = groupstemp.Count();
+
+        TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageCount));
+        TotalPagesTypes = (int)Math.Ceiling(decimal.Divide(CountTypes, PageCountTypes));
+
+    }
+
+    #region Group
+    protected async Task CreateGroup()
+    {
+        if (!IsNull(GroupName))
+            if (!await _GroupCaller.GroupExists(GroupName))
+            {
+                CreateGroupDTO groupsDTO = new()
+                    {
+                        GroupName = GroupName,
+                    };
+
+                await _GroupCaller.CreateGroup(groupsDTO);
+                toastService.ShowSuccess($"Gruppen '{GroupName}' blev oprettet.");
+
+                await JsRuntime.InvokeVoidAsync("CloseEditModal", "opretModalGroup");
+                await GetList();
+            }
+            else
+                toastService.ShowError("Gruppen findes allerede.");
+        else
+            await ToastValidationGroup();
+
+    }
+
+    protected async Task EditGroup(ShowGroupDTO group)
+    {
+        GroupID = group.GroupId;
+        GroupName = group.GroupName;
+        OldGroupName = group.GroupName;
+
+        await JsRuntime.InvokeVoidAsync("ShowEditModal", "editModalGroup");
+    }
+
+    protected async Task UpdateGroup()
+    {
+        if (!IsNull(GroupName))
+            if (!await _GroupCaller.GroupExists(GroupName))
+            {
+                ShowGroupDTO groupDTO = new()
+                    {
+                        GroupId = GroupID,
+                        GroupName = GroupName,
+                        IsDeleted = false
+                    };
+
+                await _GroupCaller.UpdateGroup(groupDTO);
+
+                toastService.ShowSuccess($"Gruppen '{OldGroupName}' blev opdateret til '{GroupName}'.");
+                await JsRuntime.InvokeVoidAsync("CloseEditModal", "editModalGroup");
+                await GetList();
+            }
+            else
+                toastService.ShowError("Gruppen findes allerede.");
+        else
+            await ToastValidationGroup();
+
+    }
+
+    protected async Task DeleteGroupConf(ShowGroupDTO group)
+    {
+        if (!await JsRuntime.InvokeAsync<bool>("confirm", $"Er du sikker på du ville slette denne gruppen? \n ID: {group.GroupId} \n Navn: {group.GroupName}"))
+            return;
+        else
+        {
+            await _GroupCaller.DeleteGroup(group.GroupId); 
+            await GetList();
+        }
+    }
+
+    #endregion
+
+    #region Types
+
+    protected async Task CreateType()
+    {
+        if (!IsNull(TypeName))
+            if (await _TypesCaller.TypeExists(TypeName))
+            {
+                Types typeDTO = new()
+                    {
+                        TypeName = TypeName,
+                        Multiplyer = Multiplyer,
+                        MultipleRounds = MultipleRounds
+                    };
+
+                //await _CreateService.CreateEntity(typeDTO);
+                toastService.ShowSuccess($"Typen '{TypeName}' blev oprettet.");
+
+                await JsRuntime.InvokeVoidAsync("CloseEditModal", "opretModalType");
+                await GetList();
+            }
+            else
+                toastService.ShowError("Typen findes allerede.");
+        else
+            await ToastValidationType();
+    }
+
+    protected async Task EditType(Types type)
+    {
+        TypeName = type.TypeName;
+        MultipleRounds = type.MultipleRounds;
+        Multiplyer = type.Multiplyer;
+        TypeID = type.TypesID;
+
+        await JsRuntime.InvokeVoidAsync("ShowEditModal", "editModalType");
+    }
+
+    protected async Task UpdateType()
+    {
+        if (!IsNull(TypeName))
+            if (await _TypesCaller.TypeExists(TypeName))
+            {
+                Types typeDTO = new()
+                    {
+                        TypesID = TypeID,
+                        TypeName = TypeName,
+                        Multiplyer = Multiplyer,
+                        MultipleRounds = MultipleRounds
+                    };
+
+                //await _CreateService.UpdateEntity(typeDTO);
+
+                toastService.ShowSuccess($"Type '{TypeName}' blev opdateret.");
+
+                await JsRuntime.InvokeVoidAsync("CloseEditModal", "editModalType");
+                await GetList();
+            }
+            else
+                toastService.ShowError("Type'en findes allerede.");
+
+        else
+            await ToastValidationType();
+
+    }
+
+    protected async Task DeleteTypeConf(Types type)
+    {
+        if (!await JsRuntime.InvokeAsync<bool>("confirm", $"Er du sikker på du ville slette denne type? \n ID: {type.TypesID} \n Navn: {type.TypeName} \n Multiplyer: {type.Multiplyer} \n MultipleRounds: {type.MultipleRounds}"))
+            return;
+        else
+        {
+            _TypesCaller.DeleteType(type.TypesID);
+            await GetList();
+        }
+    }
+    #endregion
+
+
+    protected bool IsNull(string value) => string.IsNullOrWhiteSpace(value);
+
+    //------------------------- Javascript --------------------------//
+
+    protected async Task OpenModals(string modal)
+    {
+        await _jsModule.InvokeVoidAsync("ShowEditModal", modal);
+    }
+
+    protected async Task OpenModals(string modal, string type)
+    {
+        await _jsModule.InvokeVoidAsync("ShowEditModal", modal,type);
+    }
+
+    protected async Task ToastValidationGroup()
+    {
+        if (string.IsNullOrWhiteSpace(GroupName))
+            toastService.ShowError("gruppe navn skal udfyldes");
+
+    }
+    protected async Task ToastValidationType()
+    {
+        if (string.IsNullOrWhiteSpace(TypeName))
+            toastService.ShowError("Type navn skal udfyldes");
+    }
+}

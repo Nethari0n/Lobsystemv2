@@ -7,11 +7,7 @@ namespace Lobsystem.Client.IAPICallers
     {
         Task OnScan(Scanning scan);
 
-        List<Chip> GetAllChips();
-
-        List<Group> GroupPagination(int page, int totalItem);
-
-        List<Group> SearchGroup(int page, int totalItem, string search);
+        List<Chip> GetAllChips();  
 
         List<Chip> ChipPagination(int page, int totalItem);
 

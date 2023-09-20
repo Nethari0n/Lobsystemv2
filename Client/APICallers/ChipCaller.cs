@@ -57,10 +57,7 @@ namespace Lobsystem.Client.APICallers
             throw new NotImplementedException();
         }
 
-        public List<Group> GroupPagination(int page, int totalItem)
-        {
-            throw new NotImplementedException();
-        }
+
 
         public async Task OnScan(Scanning scan)
         {
@@ -72,10 +69,6 @@ namespace Lobsystem.Client.APICallers
             throw new NotImplementedException();
         }
 
-        public List<Group> SearchGroup(int page, int totalItem, string search)
-        {
-            throw new NotImplementedException();
-        }
 
         public Task ToggleAktiveChip(int ID)
         {

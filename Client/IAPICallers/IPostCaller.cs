@@ -17,9 +17,6 @@ namespace Lobsystem.Client.IAPICallers
 
         void SortDeletedPosts(List<Post> list);
 
-        bool TypeExists(int ID);
-        bool TypeExists(string TypeName);
-
         Task UpdatePost(EditPostDTO post);
 
         Task CreatePost(EditPostDTO post);

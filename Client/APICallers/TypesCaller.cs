@@ -55,12 +55,49 @@ namespace Lobsystem.Client.APICallers
             throw new NotImplementedException();
         }
 
-        public List<Types> SearchType(int page, int totalItem, string search)
+        public async Task<List<Types>> SearchType(int page, int totalItem, string search)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<List<Types>>($"Types/{page}/{totalItem}/{search}");
+                return response;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
-        public List<Types> TypesPagination(int page, int totalItem)
+        public Task<List<Types>> TypesPagination(int page, int totalItem)
+        {
+            try
+            {
+                var response = _httpClient.GetFromJsonAsync<List<Types>>($"Types/{page}/{totalItem}");
+                return response;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<bool> TypeExists(int ID)
+        {
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<bool>($"Types/{ID}");
+                return response;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<bool> TypeExists(string TypeName)
         {
             throw new NotImplementedException();
         }
