@@ -400,7 +400,7 @@
         // PassSalt = user.PassSalt;
         // HiddenPass = user.Password;
 
-        await JsRuntime.InvokeVoidAsync("ShowEditModal");
+        await _jsModule.InvokeVoidAsync("ShowEditModal");
     }
 
     protected async Task CloseEditModal()
@@ -413,7 +413,7 @@
         Password = null;
         PassRepeat = null;
 
-        await JsRuntime.InvokeVoidAsync("CloseEditModal");
+        await _jsModule.InvokeVoidAsync("CloseEditModal");
     }
 
     protected async Task CloseCreateModal()
@@ -426,7 +426,7 @@
         Password = null;
         PassRepeat = null;
 
-        await JsRuntime.InvokeVoidAsync("CloseCreateModal");
+        await _jsModule.InvokeVoidAsync("CloseCreateModal");
     }
 
     protected string GetRoleByRoleID(int id)
@@ -511,7 +511,7 @@
                             };
                         //await _CreateService.UpdateEntity(userDTO);
                         SuccessField = $"Bruger '{userDTO.UserName}' blev opdateret";
-                        await JsRuntime.InvokeVoidAsync("SucessToast");
+                        await _jsModule.InvokeVoidAsync("SucessToast");
                         await CloseEditModal();
                         await GetLists();
                     }
@@ -541,8 +541,6 @@
                         }
                         else
                             toastService.ShowError("Gentag adgangskode skal være korrekt.");
-
-
                     }
                 }
                 else
