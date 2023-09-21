@@ -24,9 +24,9 @@ namespace Lobsystem.Client.APICallers
                 var response = await _httpClient.PostAsJsonAsync<CreateGroupDTO>("Groups/CreateGroup",group);
                 response.EnsureSuccessStatusCode(); ;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw;
+                throw e.InnerException;
             }
         }
 
@@ -37,9 +37,9 @@ namespace Lobsystem.Client.APICallers
                 var response = await _httpClient.PostAsJsonAsync<ShowGroupDTO>("Groups/UpdateGroup", group);
                 response.EnsureSuccessStatusCode(); ;
             }
-            catch (Exception)
+            catch (Exception e )
             {
-                throw;
+                throw e.InnerException;
             }
         }
 
@@ -50,9 +50,9 @@ namespace Lobsystem.Client.APICallers
                 var response = await _httpClient.DeleteAsync($"Groups/DeleteGroup/{id}");
                 response.EnsureSuccessStatusCode(); ;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw;
+                throw e.InnerException;
             }
         }
 
@@ -63,10 +63,10 @@ namespace Lobsystem.Client.APICallers
                 var response = await _httpClient.GetFromJsonAsync<List<ShowGroupDTO>>("Groups");
                 return response;
             }
-            catch (Exception)
+            catch (Exception e)
             {
 
-                throw;
+                throw e.InnerException;
             }
         }
 
@@ -77,10 +77,10 @@ namespace Lobsystem.Client.APICallers
                 var response = await _httpClient.GetFromJsonAsync<bool>($"Groups/{id}");
                 return response;
             }
-            catch (Exception)
+            catch (Exception e)
             {
 
-                throw;
+                throw e.InnerException;
             }
         }
 
@@ -91,10 +91,10 @@ namespace Lobsystem.Client.APICallers
                 var response = await _httpClient.GetFromJsonAsync<bool>($"Groups/{navn}");
                 return response;
             }
-            catch (Exception)
+            catch (Exception e)
             {
 
-                throw;
+                throw e.InnerException;
             }
         }
 
@@ -105,10 +105,10 @@ namespace Lobsystem.Client.APICallers
                 var response = await _httpClient.GetFromJsonAsync<List<ShowGroupDTO>>($"Groups/GroupPage/{pages}/{totalItem}");
                 return response;
             }
-            catch (Exception)
+            catch (Exception e)
             {
 
-                throw;
+                throw e.InnerException;
             }
         }
 
@@ -119,10 +119,10 @@ namespace Lobsystem.Client.APICallers
                 var response = await _httpClient.GetFromJsonAsync<List<ShowGroupDTO>>($"Groups/GrouppageSearch/{page}/{totalItem}/{search}");
                 return response;
             }
-            catch (Exception)
+            catch (Exception e)
             {
 
-                throw;
+                throw e.InnerException;
             }
         }
 

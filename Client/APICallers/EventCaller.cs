@@ -28,10 +28,10 @@ namespace Lobsystem.Client.APICallers
                 response2.EnsureSuccessStatusCode();
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
 
-                throw;
+                throw e.InnerException;
             }
 
 
@@ -80,10 +80,10 @@ namespace Lobsystem.Client.APICallers
                 var response = await _httpClient.PostAsJsonAsync<EditEventDTO>("Event/UpdateEvent", editEventDTO);
                 response.EnsureSuccessStatusCode();
             }
-            catch (Exception)
+            catch (Exception e)
             {
 
-                throw;
+                throw e.InnerException;
             }
         }
     }

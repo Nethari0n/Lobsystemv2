@@ -118,55 +118,55 @@
 
 
     @*Toast Validation*@
- @*    <div aria-live="polite" aria-atomic="true">
-        <div class="toast-container position-absolute top-0 end-0 p-3">
+    @*    <div aria-live="polite" aria-atomic="true">
+    <div class="toast-container position-absolute top-0 end-0 p-3">
 
-            <div class="toast align-items-center text-white bg-danger border-0 DateTimeToast" id="GroupNameToast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body toast-icon">
-                        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                    </div>
-                    <div class="toast-body toast-text">
-                        Gruppe navn skal udfyles.
-                    </div>
-                </div>
-            </div>
+    <div class="toast align-items-center text-white bg-danger border-0 DateTimeToast" id="GroupNameToast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+    <div class="toast-body toast-icon">
+    <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
+    </div>
+    <div class="toast-body toast-text">
+    Gruppe navn skal udfyles.
+    </div>
+    </div>
+    </div>
 
-            <div class="toast align-items-center text-white bg-danger border-0" id="TypeNameToast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body toast-icon">
-                        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                    </div>
-                    <div class="toast-body toast-text">
-                        Type navn skal udfyles.
-                    </div>
-                </div>
-            </div>
+    <div class="toast align-items-center text-white bg-danger border-0" id="TypeNameToast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+    <div class="toast-body toast-icon">
+    <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
+    </div>
+    <div class="toast-body toast-text">
+    Type navn skal udfyles.
+    </div>
+    </div>
+    </div>
 
 
-            <div class="toast align-items-center text-white bg-success border-0 DateTimeToast" id="SucessToast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body toast-icon">
-                        <i style="font-size: 20px;" class="fa-solid fa-thumbs-up"></i>
-                    </div>
-                    <div class="toast-body toast-text">
-                        @SuccessMessage
-                    </div>
-                </div>
-            </div>
+    <div class="toast align-items-center text-white bg-success border-0 DateTimeToast" id="SucessToast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+    <div class="toast-body toast-icon">
+    <i style="font-size: 20px;" class="fa-solid fa-thumbs-up"></i>
+    </div>
+    <div class="toast-body toast-text">
+    @SuccessMessage
+    </div>
+    </div>
+    </div>
 
-            <div class="toast align-items-center text-white bg-danger border-0 DateTimeToast" id="ErrorToast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body toast-icon">
-                        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                    </div>
-                    <div class="toast-body toast-text">
-                        @ErrorMessage
-                    </div>
-                </div>
-            </div>
+    <div class="toast align-items-center text-white bg-danger border-0 DateTimeToast" id="ErrorToast" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+    <div class="toast-body toast-icon">
+    <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
+    </div>
+    <div class="toast-body toast-text">
+    @ErrorMessage
+    </div>
+    </div>
+    </div>
 
-        </div>
+    </div>
     </div> *@
 
 
@@ -176,7 +176,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Rediger</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="CloseEditModal('editModalGroup')"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick='() => CloseEditGroupModals("editModalGroup")'></button>
                 </div>
                 <div class="modal-body">
                     <div class="d-flex justify-content-center">
@@ -197,7 +197,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Rediger</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="CloseEditModal('editModalType')"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick='() => CloseEditTypesModals("editModalType")'></button>
                 </div>
                 <div class="modal-body">
                     <div class="d-flex">
@@ -227,7 +227,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Opret Type</h5>
-                    <button type="button" class="btn-close" onclick="CloseEditModal('opretModalType')" aria-label="Close"></button>
+                    <button type="button" class="btn-close" @onclick='() => CloseTypesModals("opretModalType")' aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="d-flex">
@@ -255,7 +255,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Opret Gruppe</h5>
-                    <button type="button" class="btn-close" onclick="CloseEditModal('opretModalGroup')" aria-label="Close"></button>
+                    <button type="button" class="btn-close" @onclick='() => CloseGroupModals("opretModalGroup")' aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="d-flex">
@@ -287,6 +287,7 @@
     private string OldGroupName { get; set; }
 
     private string TypeName { get; set; }
+    private string OldTypeName { get; set; }
 
     private int GroupID { get; set; }
 
@@ -378,7 +379,7 @@
 
         TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageCount));
         TotalPagesTypes = (int)Math.Ceiling(decimal.Divide(CountTypes, PageCountTypes));
-
+        StateHasChanged();
     }
 
     #region Group
@@ -391,11 +392,19 @@
                     {
                         GroupName = GroupName,
                     };
+                try
+                {
+                    await _GroupCaller.CreateGroup(groupsDTO);
+                }
+                catch (Exception)
+                {
 
-                await _GroupCaller.CreateGroup(groupsDTO);
+                    toastService.ShowError("Noget gik galt under oprettelsen af Gruppe");
+                }
+
                 toastService.ShowSuccess($"Gruppen '{GroupName}' blev oprettet.");
 
-                await JsRuntime.InvokeVoidAsync("CloseEditModal", "opretModalGroup");
+                await _jsModule.InvokeVoidAsync("CloseEditModal", "opretModalGroup");
                 await GetList();
             }
             else
@@ -411,13 +420,13 @@
         GroupName = group.GroupName;
         OldGroupName = group.GroupName;
 
-        await JsRuntime.InvokeVoidAsync("ShowEditModal", "editModalGroup");
+        await _jsModule.InvokeVoidAsync("ShowEditModal", "editModalGroup");
     }
 
     protected async Task UpdateGroup()
     {
         if (!IsNull(GroupName))
-            if (!await _GroupCaller.GroupExists(GroupName))
+            if (!await _GroupCaller.GroupExists(GroupName) || GroupName == OldGroupName)
             {
                 ShowGroupDTO groupDTO = new()
                     {
@@ -426,10 +435,19 @@
                         IsDeleted = false
                     };
 
-                await _GroupCaller.UpdateGroup(groupDTO);
+                try
+                {
+                    await _GroupCaller.UpdateGroup(groupDTO);
+                }
+                catch (Exception)
+                {
+
+                    toastService.ShowError("Noget gik galt under opdateringen af Gruppen");
+                }
+
 
                 toastService.ShowSuccess($"Gruppen '{OldGroupName}' blev opdateret til '{GroupName}'.");
-                await JsRuntime.InvokeVoidAsync("CloseEditModal", "editModalGroup");
+                await _jsModule.InvokeVoidAsync("CloseEditModal", "editModalGroup");
                 await GetList();
             }
             else
@@ -445,7 +463,7 @@
             return;
         else
         {
-            await _GroupCaller.DeleteGroup(group.GroupId); 
+            await _GroupCaller.DeleteGroup(group.GroupId);
             await GetList();
         }
     }
@@ -457,19 +475,26 @@
     protected async Task CreateType()
     {
         if (!IsNull(TypeName))
-            if (await _TypesCaller.TypeExists(TypeName))
+            if (!await _TypesCaller.TypeExists(TypeName))
             {
-                Types typeDTO = new()
+                CreateTypeDTO typeDTO = new()
                     {
-                        TypeName = TypeName,
+                        Name = TypeName,
                         Multiplyer = Multiplyer,
                         MultipleRounds = MultipleRounds
                     };
+                try
+                {
+                    await _TypesCaller.CreatTypes(typeDTO);
+                }
+                catch (Exception)
+                {
+                    toastService.ShowError("Noget gik galt under Oprettelsen af Typen");
+                }
 
-                //await _CreateService.CreateEntity(typeDTO);
                 toastService.ShowSuccess($"Typen '{TypeName}' blev oprettet.");
 
-                await JsRuntime.InvokeVoidAsync("CloseEditModal", "opretModalType");
+                await _jsModule.InvokeVoidAsync("CloseEditModal", "opretModalType");
                 await GetList();
             }
             else
@@ -484,28 +509,38 @@
         MultipleRounds = type.MultipleRounds;
         Multiplyer = type.Multiplyer;
         TypeID = type.TypesID;
+        OldTypeName = type.TypeName;
 
-        await JsRuntime.InvokeVoidAsync("ShowEditModal", "editModalType");
+        await _jsModule.InvokeVoidAsync("ShowEditModal", "editModalType");
     }
 
     protected async Task UpdateType()
     {
         if (!IsNull(TypeName))
-            if (await _TypesCaller.TypeExists(TypeName))
+            if (!await _TypesCaller.TypeExists(TypeName) || TypeName == OldTypeName)
             {
-                Types typeDTO = new()
+                EditTypeDTO typeDTO = new()
                     {
-                        TypesID = TypeID,
-                        TypeName = TypeName,
+                        Id = TypeID,
+                        Name = TypeName,
                         Multiplyer = Multiplyer,
                         MultipleRounds = MultipleRounds
                     };
 
-                //await _CreateService.UpdateEntity(typeDTO);
+                try
+                {
+                    await _TypesCaller.UpdateTypes(typeDTO);
+                }
+                catch (Exception)
+                {
+                    toastService.ShowError("Noget gik galt under Opdateringen af Typen");
+                    throw;
+                }
+
 
                 toastService.ShowSuccess($"Type '{TypeName}' blev opdateret.");
 
-                await JsRuntime.InvokeVoidAsync("CloseEditModal", "editModalType");
+                await _jsModule.InvokeVoidAsync("CloseEditModal", "editModalType");
                 await GetList();
             }
             else
@@ -522,7 +557,7 @@
             return;
         else
         {
-            _TypesCaller.DeleteType(type.TypesID);
+            await _TypesCaller.DeleteType(type.TypesID);
             await GetList();
         }
     }
@@ -540,7 +575,27 @@
 
     protected async Task OpenModals(string modal, string type)
     {
-        await _jsModule.InvokeVoidAsync("ShowEditModal", modal,type);
+        await _jsModule.InvokeVoidAsync("ShowEditModal", modal, type);
+    }
+
+    protected async Task CloseTypesModals(string modal)
+    {
+        await _jsModule.InvokeVoidAsync("CloseEditModal", modal);
+    }
+
+    protected async Task CloseGroupModals(string modal)
+    {
+        await _jsModule.InvokeVoidAsync("CloseEditModal", modal);
+    }
+
+    protected async Task CloseEditTypesModals(string modal)
+    {
+        await _jsModule.InvokeVoidAsync("CloseEditModal", modal);
+    }
+
+    protected async Task CloseEditGroupModals(string modal)
+    {
+        await _jsModule.InvokeVoidAsync("CloseEditModal", modal);
     }
 
     protected async Task ToastValidationGroup()

@@ -26,7 +26,8 @@ namespace Lobsystem.Server.Controllers
             try
             {
                 Group group = new() { GroupName = createGroupDTO.GroupName, IsDeleted = false };
-                return Ok(_crudService.CreateEntity(group));
+                _crudService.CreateEntity(group);
+                return Ok();
             }
             catch (Exception)
             {
@@ -43,7 +44,8 @@ namespace Lobsystem.Server.Controllers
                 Group group = _chipGroupRegistrationService.GetAllGroups().Where(x => x.GroupID == showGroupDTO.GroupId).SingleOrDefault();
                 group.GroupName = showGroupDTO.GroupName;
                 group.IsDeleted = showGroupDTO.IsDeleted;
-                return Ok(_crudService.UpdateEntity(group));
+                _crudService.UpdateEntity(group);
+                return Ok();
             }
             catch (Exception)
             {
@@ -58,7 +60,8 @@ namespace Lobsystem.Server.Controllers
             try
             {
                 Group group = _chipGroupRegistrationService.GetAllGroups().Where(x => x.GroupID == id).FirstOrDefault();
-                return Ok(_crudService.DeleteEntity(group));
+                _crudService.DeleteEntity(group);
+                return Ok();
             }
             catch (Exception)
             {
@@ -112,7 +115,6 @@ namespace Lobsystem.Server.Controllers
         {
             try
             {
-
                 List<Group> groups = _chipGroupRegistrationService.GroupPagination(Pages, totalItem);
 
                 List<ShowGroupDTO> showGroupDTOs = new List<ShowGroupDTO>();

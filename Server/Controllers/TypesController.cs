@@ -1,4 +1,5 @@
-﻿using Lobsystem.Shared.Models;
+﻿using Lobsystem.Shared.DTO;
+using Lobsystem.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using SBO.LobSystem.Services.Interface;
 using System.Diagnostics.CodeAnalysis;
@@ -21,11 +22,13 @@ namespace Lobsystem.Server.Controllers
 
         [HttpPost]
         [Route("CreateType")]
-        public IActionResult CreateType(Types types)
+        public IActionResult CreateType(CreateTypeDTO createTypeDTO)
         {
             try
             {
-                return Ok(_crudService.CreateEntity(types));
+                Types types = new() { MultipleRounds = createTypeDTO.MultipleRounds, Multiplyer = createTypeDTO.Multiplyer, TypeName = createTypeDTO.Name };
+                _crudService.CreateEntity(types);
+                return Ok();
             }
             catch (Exception)
             {
@@ -35,11 +38,16 @@ namespace Lobsystem.Server.Controllers
 
         [HttpPost]
         [Route("UpdateType")]
-        public IActionResult UpdateTypes(Types types)
+        public IActionResult UpdateTypes(EditTypeDTO editTypeDTO)
         {
             try
             {
-                return Ok(_crudService.UpdateEntity(types));
+                Types types = _eventPostTypesService.GetTypeByID(editTypeDTO.Id);
+                types.TypeName = editTypeDTO.Name;
+                types.Multiplyer = editTypeDTO.Multiplyer;
+                types.MultipleRounds = editTypeDTO.MultipleRounds;
+                _crudService.UpdateEntity(types);
+                return Ok();
             }
             catch (Exception)
             {
@@ -125,7 +133,7 @@ namespace Lobsystem.Server.Controllers
         {
             try
             {
-                return Ok(_eventPostTypesService.GetAllTypes().Any(x=> x.TypesID == id));
+                return Ok(_eventPostTypesService.GetAllTypes().Any(x => x.TypesID == id));
             }
             catch (Exception)
             {
@@ -134,7 +142,7 @@ namespace Lobsystem.Server.Controllers
         }
 
         [HttpGet]
-        [Route("Exists/{typename}")]
+        [Route("ExistsName/{typename}")]
         public IActionResult TypeExists(string typeName)
         {
             try

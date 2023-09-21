@@ -1,9 +1,12 @@
-﻿using Lobsystem.Shared.Models;
+﻿using Lobsystem.Shared.DTO;
+using Lobsystem.Shared.Models;
 
 namespace Lobsystem.Client.IAPICallers
 {
     public interface ITypesCaller
     {
+        Task CreatTypes(CreateTypeDTO type);
+        Task UpdateTypes(EditTypeDTO type);
         Task<List<Types>> GetAllTypes();
 
         Task<List<Types>> TypesPagination(int page, int totalItem);
@@ -16,12 +19,15 @@ namespace Lobsystem.Client.IAPICallers
 
         Task<bool> GetMultiRound(int id);
 
-        void DeleteType(int ID);
+        Task DeleteType(int id);
 
-        public Task<bool> TypeExists(int ID);
+        public Task<bool> TypeExists(int id);
 
 
         public Task<bool> TypeExists(string TypeName);
+
+
+
 
     }
 }
