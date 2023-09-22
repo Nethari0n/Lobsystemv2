@@ -1,5 +1,6 @@
 ﻿@page "/Chips"
 
+@using IronXL;
 @using Lobsystem.Shared.DTO;
 @using System.Data
 @using System.ComponentModel.DataAnnotations;
@@ -13,7 +14,7 @@
             <div class="d-flex">
                 <h2>Chips</h2>
                 <button class="btn ml-5 mb-1 logoColor" data-bs-toggle="modal" data-bs-target="#opretModal">Opret</button>
-                <button type="button" id="exportBtn" class="btn ml-1 mb-1 logoColor" onclick="ExportToExcel('xlsx')">Export tabel til Excel</button>
+                <button type="button" id="exportBtn" class="btn ml-1 mb-1 logoColor" @onclick="ExportCSVFile">Export tabel til Excel</button>
                 <a id="exportTemplateBtn" class="btn ml-1 mb-1 logoColor" href="/templates/skabelonchip.xlsx" download="skabelonchip.xlsx">Export Skabelon til Excel</a>
                 <input type="button" class="btn ml-1 mb-1 logoColor" value="Upload Excel til tabel" onclick="document.getElementById('ExcelFileUpload').click()">
                 <InputFile hidden id="ExcelFileUpload" OnChange="ImportExcelFile" />
@@ -332,6 +333,7 @@
     #region Properties
 
     private List<Chip> Chip { get; set; } = new();
+    private List<Chip> AllChips { get; set; } = new();
 
     private List<ChipUploadInfo> ChipUploadInfos { get; set; } = new();
     private List<ChipUploadInfo> AlreadyExistingChips { get; set; } = new();
@@ -392,8 +394,8 @@
     protected async Task GetChip()
     {
         Chip = await _ChipCaller.ChipPagination(CurrentPage, PageCount);
-        var temp = await _ChipCaller.GetAllChips();
-        Count = temp.Count();
+        AllChips = await _ChipCaller.GetAllChips();
+        Count = AllChips.Count();
         TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageCount));
         StateHasChanged();
     }
@@ -581,6 +583,31 @@
 
         }
         StateHasChanged();
+    }
+
+    protected async Task ExportCSVFile()
+    {
+        DataTable table = new DataTable();
+        table.Columns.Add("UID", typeof(string));
+        table.Columns.Add("Laaner ID", typeof(string));
+
+        foreach (var chip in AllChips)
+        {
+            table.Rows.Add(chip.UID);
+            table.Rows.Add(chip.LaanerID);
+        }
+        WorkBook wb = new WorkBook();
+        wb = WorkBook.Create(ExcelFileFormat.XLSX);
+        var temp = await _AuthService.CurrentUserInfo();
+        wb.Metadata.Author = temp.UserName;
+        WorkSheet ws = wb.DefaultWorkSheet;
+        int rowCount = 1; //We disregard the header and start on 1
+        foreach (DataRow row in table.Rows)
+        {
+            ws["A" + (rowCount)].Value = row[0].ToString();
+            rowCount++;
+        }
+        wb.SaveAsCsv("Chips.csv", ";"); // Saved as : Save_DataTable_CSV.Sheet1.csv
     }
 
     protected async Task ShowEditModal(int id, string uid, string laanerID)
