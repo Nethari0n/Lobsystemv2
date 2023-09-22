@@ -12,25 +12,14 @@ namespace Lobsystem.Client.APICallers
         {
             _httpClient = httpClient;
         }
-        public bool CheckUID(string uid)
-        {
-            throw new NotImplementedException();
-        }
 
-        public bool ChipExists(string UID)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<bool> ChipExists(string UID) => await _httpClient.GetFromJsonAsync<bool>($"Chip/{UID}/exists");
 
-        public List<Chip> ChipPagination(int page, int totalItem)
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<List<Chip>> ChipPagination(int page, int totalItem) =>await _httpClient.GetFromJsonAsync<List<Chip>>($"Chip/{page}/{totalItem}");
 
-        public List<Chip> GetAllChips()
-        {
-            throw new NotImplementedException();
-        }
+        public async Task<List<Chip>> GetAllChips() => await _httpClient.GetFromJsonAsync<List<Chip>>("Chip");
+
+        public async Task<List<Chip>> GetAllChipsSearch(string search) => await _httpClient.GetFromJsonAsync<List<Chip>>($"Chip/{search}/Search");
 
         public async Task<List<ChipDTO>> GetAllChipsFromEvent(int id)
         {
@@ -47,39 +36,53 @@ namespace Lobsystem.Client.APICallers
             }
         }
 
-        public int GetChipIDByChipUID(string UID)
+        public async Task<int> GetChipIDByChipUID(string UID) => await _httpClient.GetFromJsonAsync<int>($"Chip/{UID}/chipuid");
+
+        public async Task<int> GetChipIDByUID(string UID) => await _httpClient.GetFromJsonAsync<int>($"Chip/{UID}/uid");
+
+        public async Task<List<Chip>> SearchChip(int page, int totalItem, string search)
         {
             throw new NotImplementedException();
         }
 
-        public int GetChipIDByUID(string uid)
+        public async Task ToggleActiveChip(int ID)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync($"Chip", ID);
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception e)
+            {
+                throw e.GetBaseException();
+            }
         }
 
-        public List<Group> GroupPagination(int page, int totalItem)
+        public async Task CreateChip(ChipHandlingDTO chip)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync($"Chip/Create", chip);
+            }
+            catch (Exception e)
+            {
+
+                throw e.GetBaseException();
+            }
         }
 
-        public async Task OnScan(Scanning scan)
+        public async Task CreateChips(List<ChipHandlingDTO> chips)
         {
-            throw new NotImplementedException();
-        }
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync("Chip/CreateList", chips);
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception e)
+            {
 
-        public List<Chip> SearchChip(int page, int totalItem, string search)
-        {
-            throw new NotImplementedException();
-        }
-
-        public List<Group> SearchGroup(int page, int totalItem, string search)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task ToggleAktiveChip(int ID)
-        {
-            throw new NotImplementedException();
+                throw e.GetBaseException();
+            }
         }
     }
 }

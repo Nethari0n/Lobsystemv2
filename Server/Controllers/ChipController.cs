@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Lobsystem.Shared.DTO;
+using Lobsystem.Shared.Models;
+using Microsoft.AspNetCore.Mvc;
 using SBO.LobSystem.Services.Interface;
 
 namespace Lobsystem.Server.Controllers
@@ -8,18 +10,35 @@ namespace Lobsystem.Server.Controllers
     public class ChipController : ControllerBase
     {
         private readonly IChipGroupRegistrationService _chipGroupRegistrationService;
+        private readonly ICreateService _createService;
 
-        public ChipController(IChipGroupRegistrationService chipGroupRegistrationService)
+        public ChipController(IChipGroupRegistrationService chipGroupRegistrationService, ICreateService createService)
         {
             _chipGroupRegistrationService = chipGroupRegistrationService;
+            _createService = createService;
         }
 
+        #region Get
         [HttpGet]
         public IActionResult GetAllChips()
         {
             try
             {
                 return Ok(_chipGroupRegistrationService.GetAllChips());
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
+        [HttpGet]
+        [Route("{search}/Search")]
+        public IActionResult GetAllChipsSearch(string search)
+        {
+            try
+            {
+                return Ok(_chipGroupRegistrationService.GetAllChips().Where(x => x.UID.Contains(search) ||x.LaanerID.Contains(search)));
             }
             catch (Exception)
             {
@@ -48,21 +67,6 @@ namespace Lobsystem.Server.Controllers
             try
             {
                 return Ok(_chipGroupRegistrationService.SearchChip(page, totalItem, search));
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest);
-            }
-        }
-
-        [HttpPost]
-        [Route("{id}")]
-        public async Task<IActionResult> ToggleAktiveChip(int id)
-        {
-            try
-            {
-                await _chipGroupRegistrationService.ToggleAktiveChip(id);
-                return Ok();
             }
             catch (Exception)
             {
@@ -122,6 +126,60 @@ namespace Lobsystem.Server.Controllers
             }
             catch (Exception)
             {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
+        #endregion
+        
+        [HttpPost]
+        [Route("{id}")]
+        public async Task<IActionResult> ToggleAktiveChip(int id)
+        {
+            try
+            {
+                await _chipGroupRegistrationService.ToggleAktiveChip(id);
+                return Ok();
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
+        [HttpPost]
+        [Route("Create")]
+        public async Task<IActionResult> CreateChip(ChipHandlingDTO chip)
+        {
+            try
+            {
+                Chip chipObj = new() { LaanerID = chip.LaanerID, UID = chip.UID };
+                await _createService.CreateEntity(chipObj);
+                return Ok();
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
+        [HttpPost]
+        [Route("CreateList")]
+        public async Task<IActionResult> CreateChip(List<ChipHandlingDTO> chips)
+        {
+            try
+            {
+                foreach (var chip in chips)
+                {
+                    Chip chipObj = new() { LaanerID = chip.LaanerID, UID = chip.UID };
+                    await _createService.CreateEntity(chipObj);
+                }
+                return Ok();
+            }
+            catch (Exception)
+            {
+
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
