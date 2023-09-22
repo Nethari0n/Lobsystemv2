@@ -1,4 +1,4 @@
-﻿@page "/User"
+﻿@page "/Users"
 @using System.ComponentModel.DataAnnotations;
 
 <div class="container">
@@ -7,7 +7,7 @@
         <div class="table-header d-flex btn-res justify-content-between" style="margin-top:2rem;">
             <div class="d-flex">
                 <h2>Bruger</h2>
-                <button class="btn ml-5 mb-1 logoColor" onclick="ShowCreateModal()">Opret</button>
+                <button class="btn ml-5 mb-1 logoColor" @onclick='() => OpenCreateModal("ShowCreateModal")'>Opret</button>
                 <button type="button" id="exportBtn" class="btn ml-1 mb-1 logoColor" @onclick="async () => await ExportToExcel(xls)">Export tabel til Excel</button>
             </div>
             <div>
@@ -22,7 +22,7 @@
                         <th>Brugernavn</th>
                         <th>Navn</th>
                         <th>Mail</th>
-                        <th>Rolle</th>
+                        @*  <th>Rolle</th> *@
                         <th>Handlinger</th>
                     </tr>
                 </thead>
@@ -42,7 +42,6 @@
                             </td>
                         </tr>
                     }
-
                 </tbody>
                 <tfoot>
                     @if (Count > 0 && TotalPages > 1)
@@ -124,16 +123,16 @@
                         <p class="w-50">Mail: </p>
                         <input class="form-control w-50 ml-1" type="email" @bind="Mail" required />
                     </div>
-                    <div class="d-flex justify-content-center">
-                        <p class="w-50">Rolle: </p>
-                        <select class="form-control w-50" id="role" name="RoleID" value="@RoleID" @onchange="async e => {await RoleChange();RoleID = Convert.ToInt32((string)e.Value);}">
-                            <option value="0">Vælg en role &#9660;</option>
-                            @*  @foreach (var item in Roles)
-                            {
-                            <option value="@item.RoleID">@item.RoleName</option>
-                            } *@
-                        </select>
-                    </div>
+                    @* <div class="d-flex justify-content-center">
+                    <p class="w-50">Rolle: </p>
+                    <select class="form-control w-50" id="role" name="RoleID" value="@RoleID" @onchange="async e => {await RoleChange();RoleID = Convert.ToInt32((string)e.Value);}">
+                    <option value="0">Vælg en role &#9660;</option>
+                    @foreach (var item in Roles)
+                    {
+                    <option value="@item.RoleID">@item.RoleName</option>
+                    }
+                    </select>
+                    </div> *@
 
 
                 </div>
@@ -176,16 +175,16 @@
                         <p class="w-50">Mail: </p>
                         <input class="form-control w-50 ml-1" id="mail" type="email" @bind="Mail" />
                     </div>
-                    <div class="d-flex justify-content-center">
-                        <p class="w-50">Rolle: </p>
-                        <select class="form-control w-50" id="role" name="RoleID" @bind="RoleID">
+                    @*  <div class="d-flex justify-content-center">
+                    <p class="w-50">Rolle: </p>
+                    <select class="form-control w-50" id="role" name="RoleID" @bind="RoleID">
 
-                            @* @foreach (var item in Roles)
-                            {
-                            <option class="options" value="@item.RoleID">@item.RoleName</option>
-                            } *@
-                        </select>
-                    </div>
+                    @* @foreach (var item in Roles)
+                    {
+                    <option class="options" value="@item.RoleID">@item.RoleName</option>
+                    }
+                    </select>
+                    </div> *@
                 </div>
                 <div class="modal-footer">
                     <input type="button" value="Opdater bruger" class="btn logoColor" @onclick="async () => {await ToastValidationEdit(); await UpdateUser();}" />
@@ -293,9 +292,11 @@
 @code {
     #region Properties
 
-    private List<User> UsersDTO { get; set; }
-    private List<User> UsersFull { get; set; }
+    private List<User> UsersDTO { get; set; } = new();
+    private List<User> UsersFull { get; set; } = new();
     // private List<Role> Roles { get; set; }
+
+
 
     private string xls = "xlsx";
 
@@ -343,11 +344,11 @@
     protected override async Task OnInitializedAsync()
     {
 
-        _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/User.js");
+        _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/Users.js");
 
         // Roles = _UserService.GetAllRoles();
         if (SearchField != null)
-            Search();
+            await Search();
         else
             await GetLists();
 
@@ -355,12 +356,13 @@
         TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageCount));
     }
 
-    protected async void Search()
+    protected async Task Search()
     {
         if (!string.IsNullOrWhiteSpace(SearchField))
         {
-            UsersDTO = _UserCaller.SearchUser(CurrentPage, PageCount, SearchField);
-            Count = _UserCaller.GetAllUsers().Where(x => x.UserName.Contains(SearchField) || x.Name.Contains(SearchField)).ToList().Count();
+            UsersDTO = await _UserCaller.SearchUser(CurrentPage, PageCount, SearchField);
+            var tempUsers = await _UserCaller.GetAllUsers();
+            Count = tempUsers.Where(x => x.UserName.Contains(SearchField) || x.Name.Contains(SearchField)).ToList().Count();
         }
         else
         {
@@ -371,16 +373,17 @@
 
     protected async Task GetLists()
     {
-        Count = _UserCaller.GetAllUsers().Count();
-        UsersFull = _UserCaller.GetAllUsers();
+        var TempUsers = await _UserCaller.GetAllUsers();
+        Count = TempUsers.Count();
+        UsersFull = await _UserCaller.GetAllUsers();
         if (PageCount >= Count)
         {
-            UsersDTO = _UserCaller.UserPagination(1, PageCount);
+            UsersDTO = await _UserCaller.UserPagination(1, PageCount);
 
         }
         else
         {
-            UsersDTO = _UserCaller.UserPagination(CurrentPage, PageCount);
+            UsersDTO = await _UserCaller.UserPagination(CurrentPage, PageCount);
         }
 
         TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageCount));
@@ -451,22 +454,22 @@
 
                 if (!IsNull(UserName) && !IsNull(Name) && !IsNull(Mail) && !IsNull(Password) && !IsNull(PassRepeat) && PassRepeat == Password)
                 {
-                    if (!_UserCaller.UserExists(UserName.ToLower(), Name))
+                    if (!await _UserCaller.UserExists(UserName.ToLower(), Name))
                     {
                         // string passSalt = _UserService.CreateSalt();
 
-                        User userDTO = new User
+                        RegisterRequest registerRequest = new RegisterRequest
                             {
                                 UserName = UserName.ToLower(),
                                 Name = Name,
-                                // Password = _UserService.GenerateHash(Password, passSalt),
-                                // PassSalt = passSalt,
+                                Password = Password,
+                                PasswordConfirm = PassRepeat,
                                 Email = Mail.ToLower(),
-                                // RoleID = RoleID,
+                                RoleId = "8e9f3987-e4d9-47c2-b465-9919e0c206c7",
                             };
 
-                        // await _CreateService.CreateEntity(userDTO);
-                        toastService.ShowSuccess($"Bruger '{userDTO.UserName}' blev oprettet");
+                        await _AuthService.Register(registerRequest);
+                        toastService.ShowSuccess($"Bruger '{registerRequest.UserName}' blev oprettet");
 
                         await GetLists();
                         await CloseCreateModal();
@@ -494,24 +497,23 @@
 
             if (!IsNull(UserName) && !IsNull(Name) && !IsNull(Mail))
             {
-                if (!_UserCaller.UserExists(UserName, Name, OldUserName, OldName))
+                if (!await _UserCaller.UserExists(UserName, Name, OldUserName, OldName))
                 {
                     if (!IsNull(Password)) { Password = Password.Trim(); }
                     if (IsNull(Password))
                     {
 
-                        User userDTO = new User
+                        RegisterRequest registerRequest = new RegisterRequest
                             {
                                 Id = UserID,
                                 UserName = UserName.ToLower(),
                                 Name = Name,
                                 Email = Mail,
-                                // RoleID = RoleID,
+                                RoleId = "8e9f3987-e4d9-47c2-b465-9919e0c206c7",
                                 // PassSalt = PassSalt
                             };
                         //await _CreateService.UpdateEntity(userDTO);
-                        SuccessField = $"Bruger '{userDTO.UserName}' blev opdateret";
-                        await _jsModule.InvokeVoidAsync("SucessToast");
+                        toastService.ShowSuccess($"Bruger '{registerRequest.UserName}' blev opdateret");
                         await CloseEditModal();
                         await GetLists();
                     }
@@ -522,19 +524,19 @@
                             Password = Password.Trim();
                             PassRepeat = PassRepeat.Trim();
                             //string passSalt = _UserCaller.CreateSalt();
-                            User userDTO = new User
+                            RegisterRequest registerRequest = new RegisterRequest
                                 {
                                     Id = UserID,
                                     UserName = UserName,
                                     Name = Name,
                                     Email = Mail,
-                                    // RoleID = RoleID,
-                                    // PassSalt = passSalt,
-                                    // Password = _UserService.GenerateHash(Password.ToLower(), passSalt)
+                                    RoleId = "8e9f3987-e4d9-47c2-b465-9919e0c206c7",
+                                    Password = Password,
+                                    PasswordConfirm = PassRepeat
 
                                 };
                             // await _CreateService.UpdateEntity(userDTO);
-                            toastService.ShowSuccess($"Bruger '{userDTO.UserName}' blev opdateret");
+                            toastService.ShowSuccess($"Bruger '{registerRequest.UserName}' blev opdateret");
 
                             await CloseEditModal();
                             await GetLists();
@@ -589,18 +591,43 @@
 
     #region Javascript
 
-    protected async Task ExportToExcel(string value) => await JsRuntime.InvokeVoidAsync("ExportToExcel", value);
-    protected async Task SearchTable() => await JsRuntime.InvokeVoidAsync("SearchTable");
+    protected async Task OpenCreateModal(string modalName)
+    {
+        await _jsModule.InvokeVoidAsync("ShowCreateModal", modalName);
+    }
 
-    protected async Task IsAlphabetKey(KeyboardEventArgs e) => await JsRuntime.InvokeVoidAsync("isAlphabetKey", e.Code);
-    protected async Task RoleChange() => await JsRuntime.InvokeVoidAsync("roleChange");
+    protected async Task ExportToExcel(string value) => await _jsModule.InvokeVoidAsync("ExportToExcel", value);
+    protected async Task SearchTable() => await _jsModule.InvokeVoidAsync("SearchTable");
+
+    protected async Task IsAlphabetKey(KeyboardEventArgs e) => await _jsModule.InvokeVoidAsync("isAlphabetKey", e.Code);
+    //protected async Task RoleChange() => await _jsModule.InvokeVoidAsync("roleChange");
 
     protected async Task ToastValidation()
     {
-        await JsRuntime.InvokeVoidAsync("ToastValidation");
+        if (string.IsNullOrWhiteSpace(UserName))
+            toastService.ShowError("Bruger navn skal udfyldes");
+        if (string.IsNullOrWhiteSpace(Name))
+            toastService.ShowError("Navn skal udfyldes");
+        if (string.IsNullOrWhiteSpace(Mail))
+            toastService.ShowError("Mail skal udfyldes");
+        if (string.IsNullOrWhiteSpace(Password))
+            toastService.ShowError("Adgangskode skal udfyldes");
+
+
     }
-    
-    protected async Task ToastValidationEdit() => await JsRuntime.InvokeVoidAsync("ToastValidationEdit");
+
+    protected async Task ToastValidationEdit()
+    {
+        if (string.IsNullOrWhiteSpace(UserName))
+            toastService.ShowError("Bruger navn skal udfyldes");
+        if (string.IsNullOrWhiteSpace(Name))
+            toastService.ShowError("Navn skal udfyldes");
+        if (string.IsNullOrWhiteSpace(Mail))
+            toastService.ShowError("Mail skal udfyldes");
+        if (string.IsNullOrWhiteSpace(Password))
+            toastService.ShowError("Adgangskode skal udfyldes");
+    }
+
 
     #endregion
 }

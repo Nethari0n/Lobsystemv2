@@ -39,7 +39,7 @@ export function ShowCreateModal() {
     modal.style.display = "block";
     modal.classList.add("show");
 
-    roleChange();
+   /* roleChange();*/
 }
 
 export function CloseCreateModal() {
@@ -68,13 +68,13 @@ export function SearchTable() {
     }
 }
 
-export function roleChange() {
-    if (document.getElementById("role").value == 0) {
-        document.getElementById("submitCreate").setAttribute("disabled", "");
-    } else {
-        document.getElementById("submitCreate").removeAttribute("disabled");
-    }
-}
+//export function roleChange() {
+//    if (document.getElementById("role").value == 0) {
+//        document.getElementById("submitCreate").setAttribute("disabled", "");
+//    } else {
+//        document.getElementById("submitCreate").removeAttribute("disabled");
+//    }
+//}
 
 //Toast Validation
 export function SucessToast() {

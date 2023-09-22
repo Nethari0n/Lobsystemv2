@@ -4,16 +4,16 @@ namespace Lobsystem.Client.IAPICallers
 {
     public interface IUserCaller
     {
-        List<User> UserPagination(int page, int totalItem);
+        Task<List<User>> UserPagination(int page, int totalItem);
 
-        List<User> GetAllUsers();
+        Task<List<User>> GetAllUsers();
 
-        List<User> SearchUser(int page, int totalItem, string search);
+        Task<List<User>> SearchUser(int page, int totalItem, string search);
 
-        string GetUsernameByID(string id);
+        Task<string> GetUsernameByID(string id);
 
-        bool UserExists(string username, string name, string oldUsername, string oldName);
+        Task<bool> UserExists(string username, string name, string oldUsername, string oldName);
 
-        bool UserExists(string username, string name);
+        Task<bool> UserExists(string username, string name);
     }
 }

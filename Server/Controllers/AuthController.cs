@@ -37,11 +37,10 @@ namespace Lobsystem.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(RegisterRequest parameters)
         {
-            var user = new User();
-            user.UserName = parameters.UserName;
-            user.EmailConfirmed = true;
+            var user = new User() { UserName = parameters.UserName, Email = parameters.Email, IsDeleted = false, EmailConfirmed = true, Name = parameters.Name };
             var result = await _userManager.CreateAsync(user, parameters.Password);
-            if (!result.Succeeded) return BadRequest(result.Errors.FirstOrDefault()?.Description);
+            if (!result.Succeeded) 
+                return BadRequest(result.Errors.FirstOrDefault()?.Description);
             //return await Login(new LoginRequest
             //{
             //    UserName = parameters.UserName,
