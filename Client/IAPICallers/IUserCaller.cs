@@ -11,6 +11,7 @@ namespace Lobsystem.Client.IAPICallers
         Task<List<User>> SearchUser(int page, int totalItem, string search);
 
         Task<string> GetUsernameByID(string id);
+        Task UpdateUser(RegisterRequest registerRequest);
 
         Task<bool> UserExists(string username, string name, string oldUsername, string oldName);
 

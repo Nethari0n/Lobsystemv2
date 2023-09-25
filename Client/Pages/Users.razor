@@ -512,8 +512,18 @@
                                 RoleId = "8e9f3987-e4d9-47c2-b465-9919e0c206c7",
                                 // PassSalt = PassSalt
                             };
-                        //await _CreateService.UpdateEntity(userDTO);
-                        toastService.ShowSuccess($"Bruger '{registerRequest.UserName}' blev opdateret");
+                        try
+                        {
+                            await _UserCaller.UpdateUser(registerRequest);
+                            toastService.ShowSuccess($"Bruger '{registerRequest.UserName}' blev opdateret");
+                        }
+                        catch (Exception)
+                        {
+
+                            throw;
+                        }
+
+
                         await CloseEditModal();
                         await GetLists();
                     }
@@ -535,9 +545,17 @@
                                     PasswordConfirm = PassRepeat
 
                                 };
-                            // await _CreateService.UpdateEntity(userDTO);
-                            toastService.ShowSuccess($"Bruger '{registerRequest.UserName}' blev opdateret");
 
+                            try
+                            {
+                                await _UserCaller.UpdateUser(registerRequest);
+                                toastService.ShowSuccess($"Bruger '{registerRequest.UserName}' blev opdateret");
+                            }
+                            catch (Exception)
+                            {
+
+                                throw;
+                            }
                             await CloseEditModal();
                             await GetLists();
                         }

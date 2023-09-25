@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SBO.LobSystem.Services.Interface;
+using SBO.LobSystem.Services.Services;
 using System.Security.Claims;
 
 namespace Lobsystem.Server.Controllers
@@ -12,19 +14,23 @@ namespace Lobsystem.Server.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
-        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager)
+        private readonly IUserService _userService;
+        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, IUserService userService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _userService = userService;
         }
 
         [HttpPost]
         public async Task<IActionResult> Login(LoginRequest request)
         {
             var user = await _userManager.FindByNameAsync(request.UserName);
-            if (user == null) return BadRequest("User does not exist");
+            if (user == null)
+                return BadRequest("User does not exist");
             var singInResult = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
-            if (!singInResult.Succeeded) return BadRequest("Invalid password");
+            if (!singInResult.Succeeded)
+                return BadRequest("Invalid password");
             await _signInManager.SignInAsync(user, request.RememberMe);
 
             var IsAuthenticated = User.Identity.IsAuthenticated;
@@ -39,7 +45,7 @@ namespace Lobsystem.Server.Controllers
         {
             var user = new User() { UserName = parameters.UserName, Email = parameters.Email, IsDeleted = false, EmailConfirmed = true, Name = parameters.Name };
             var result = await _userManager.CreateAsync(user, parameters.Password);
-            if (!result.Succeeded) 
+            if (!result.Succeeded)
                 return BadRequest(result.Errors.FirstOrDefault()?.Description);
             //return await Login(new LoginRequest
             //{
@@ -48,6 +54,43 @@ namespace Lobsystem.Server.Controllers
             //});
             return Ok();
         }
+
+        //[Authorize]
+        [HttpPost]
+        public async Task<IActionResult> UpdateUser(RegisterRequest parameters)
+        {
+            try
+            {
+
+                var user = _userService.GetAllUsers().Where(x => x.Id == parameters.Id).FirstOrDefault();
+
+                if (user == null)
+                    return BadRequest("User not Found");
+                user.Email = parameters.Email;
+
+                user.Name = parameters.Name;
+
+
+                user.UserName = parameters.UserName;
+                if (parameters.Password != null)
+                {
+                    var hasher = new PasswordHasher<User>();
+                    user.PasswordHash = hasher.HashPassword(user, parameters.Password);
+                }
+
+                await _userManager.UpdateAsync(user);
+                user = new();
+                return Ok();
+
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
 
         [Authorize]
         [HttpPost]

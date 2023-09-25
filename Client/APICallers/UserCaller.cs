@@ -54,6 +54,22 @@ namespace Lobsystem.Client.APICallers
             }
         }
 
+        public async Task UpdateUser(RegisterRequest registerRequest)
+        {
+            try
+            {
+
+                //TODO send user object and not register request
+                var response = await _httpClient.PostAsJsonAsync("api/auth/UpdateUser", registerRequest);
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
         public async Task<bool> UserExists(string username, string name, string oldUsername, string oldName)
         {
             try

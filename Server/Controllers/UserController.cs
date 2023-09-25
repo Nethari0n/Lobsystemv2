@@ -15,6 +15,8 @@ namespace Lobsystem.Server.Controllers
             _userService = userService;
         }
 
+       
+
         [HttpGet]
         public IActionResult GetAllUsers()
         {
