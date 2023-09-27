@@ -9,7 +9,7 @@
     <div>
         <h1 class="text-center">Afsluttende Rapport for @EventName</h1>
     </div>
-    <button type="button" id="exportBtn" class="btn ml-1 mb-1 logoColor" @onclick="async () => await ExportToExcel(xls)">Export tabel til Excel</button>
+    <button type="button" id="exportBtn" class="btn ml-1 mb-1 logoColor" @onclick="async () => await ExportCSVFile()">Export tabel til Excel</button>
     <div class="table-responsive">
         <div class="TableScrollable rapport">
             <table id="table" class="table table-striped">
@@ -114,7 +114,7 @@
     public List<EndRapport> Rapports { get; set; } = new();
     public List<Scanning> Scannings { get; set; } = new();
 
-    private string xls = "xlsx";
+    private IJSObjectReference _jsModule;
 
     #endregion
 
@@ -123,7 +123,7 @@
     {
 
         Counter = 1;
-
+        _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/ExportCSV.js");
 
         var uri = navigationManager.ToAbsoluteUri(navigationManager.Uri);
         var test = HttpUtility.ParseQueryString(uri.Query)["id"];
@@ -133,7 +133,8 @@
             Value = result;
             Event @event = await _EventCaller.GetEventByID(Value);
             EventName = @event.EventName;
-
+            await GetRapport(Value);
+            StateHasChanged();
         }
         else
         {
@@ -144,10 +145,9 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (!firstRender)
         {
-            await GetRapport(Value);
-            StateHasChanged();
+            
         }
     }
 
@@ -179,10 +179,6 @@
 
 
     #region Javascript
-    protected async Task ExportToExcel(string value)
-    {
-
-        await JsRuntime.InvokeVoidAsync("ExportToExcel", value);
-    }
+    protected async Task ExportCSVFile() => await _jsModule.InvokeVoidAsync("export_table_to_csv", "#table", EventName);
     #endregion
 }

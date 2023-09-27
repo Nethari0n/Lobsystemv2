@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Lobsystem.Shared.DTO;
+using Microsoft.AspNetCore.Mvc;
 using SBO.LobSystem.Services.Classes;
 using SBO.LobSystem.Services.Interface;
 using System.Net;
@@ -36,7 +37,8 @@ namespace Lobsystem.Server.Controllers
         {
             try
             {
-                return Ok(_rapportService.GetRapports(id));
+                var temp = _rapportService.GetRapports(id).ToList();
+                return Ok(temp);
             }
             catch (Exception)
             {
