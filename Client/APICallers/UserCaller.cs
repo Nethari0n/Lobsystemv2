@@ -12,6 +12,19 @@ namespace Lobsystem.Client.APICallers
             _httpClient = httpClient;
         }
 
+        public async Task DeleteUser(string id)
+        {
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"User/DeleteUser/{id}");
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception e)
+            {
+                throw e.InnerException;
+            }
+        }
+
         public async Task<List<User>> GetAllUsers()
         {
             try
@@ -19,10 +32,9 @@ namespace Lobsystem.Client.APICallers
                 var response = await _httpClient.GetFromJsonAsync<List<User>>("User");
                 return response;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
-                throw;
+                throw e.InnerException;
             }
         }
 
@@ -33,10 +45,9 @@ namespace Lobsystem.Client.APICallers
                 var response = await _httpClient.GetFromJsonAsync<string>($"User/{id}");
                 return response;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
-                throw;
+                throw e.InnerException;
             }
         }
 
@@ -47,10 +58,9 @@ namespace Lobsystem.Client.APICallers
                 var response = await _httpClient.GetFromJsonAsync<List<User>>($"User/{page}/{totalItem}/{search}");
                 return response;
              }
-            catch (Exception)
+            catch (Exception e)
             {
-
-                throw;
+                throw e.InnerException;
             }
         }
 
@@ -58,15 +68,12 @@ namespace Lobsystem.Client.APICallers
         {
             try
             {
-
-                //TODO send user object and not register request
-                var response = await _httpClient.PostAsJsonAsync("api/auth/UpdateUser", registerRequest);
+                var response = await _httpClient.PutAsJsonAsync("User/UpdateUser", registerRequest);
                 response.EnsureSuccessStatusCode();
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
-                throw;
+                throw e.InnerException;
             }
         }
 
@@ -77,10 +84,9 @@ namespace Lobsystem.Client.APICallers
                 var response = await _httpClient.GetFromJsonAsync<bool>($"User/{username}/{name}/{oldUsername}/{oldName}/exists");
                 return response;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
-                throw;
+                throw e.InnerException;
             }
         }
 
@@ -91,10 +97,9 @@ namespace Lobsystem.Client.APICallers
                 var response = await _httpClient.GetFromJsonAsync<bool>($"User/{username}/{name}/exists");
                 return response;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
-                throw;
+                throw e.InnerException;
             }
         }
 
@@ -105,10 +110,9 @@ namespace Lobsystem.Client.APICallers
                 var response = await _httpClient.GetFromJsonAsync<List<User>>($"User/{page}/{totalItem}");
                 return response;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
-                throw;
+                throw e.InnerException;
             }
         }
     }

@@ -429,7 +429,6 @@
 
     protected async Task RemoveFocusSelect() => await _jsModule.InvokeVoidAsync("RemoveFocusSelect");
 
-    //TODO: dont use result
     protected async void CheckStartDate(int result) => StartDate = await _EventCaller.GetEventByIDStartDate(result);
     protected async void CheckEndDate(int result) => EndDate = await _EventCaller.GetEventByIDEndDate(result);
 

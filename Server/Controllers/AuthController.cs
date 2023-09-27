@@ -15,11 +15,13 @@ namespace Lobsystem.Server.Controllers
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly IUserService _userService;
-        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, IUserService userService)
+        private readonly ICRUDService _crudService;
+        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, IUserService userService, ICRUDService crudService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _userService = userService;
+            _crudService = crudService;
         }
 
         [HttpPost]
@@ -56,40 +58,7 @@ namespace Lobsystem.Server.Controllers
         }
 
         //[Authorize]
-        [HttpPost]
-        public async Task<IActionResult> UpdateUser(RegisterRequest parameters)
-        {
-            try
-            {
-
-                var user = _userService.GetAllUsers().Where(x => x.Id == parameters.Id).FirstOrDefault();
-
-                if (user == null)
-                    return BadRequest("User not Found");
-                user.Email = parameters.Email;
-
-                user.Name = parameters.Name;
-
-
-                user.UserName = parameters.UserName;
-                if (parameters.Password != null)
-                {
-                    var hasher = new PasswordHasher<User>();
-                    user.PasswordHash = hasher.HashPassword(user, parameters.Password);
-                }
-
-                await _userManager.UpdateAsync(user);
-                user = new();
-                return Ok();
-
-
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
+        
 
 
         [Authorize]

@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Lobsystem.Shared.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using SBO.LobSystem.Services.Interface;
+using SBO.LobSystem.Services.Services;
 
 namespace Lobsystem.Server.Controllers
 {
@@ -9,13 +12,15 @@ namespace Lobsystem.Server.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly ICRUDService _crudService;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, ICRUDService crudService)
         {
             _userService = userService;
+            _crudService = crudService;
         }
 
-       
+
 
         [HttpGet]
         public IActionResult GetAllUsers()
@@ -99,5 +104,61 @@ namespace Lobsystem.Server.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
+
+        [HttpDelete]
+        [Route("DeleteUser/{id}")]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            try
+            {
+                var user = _userService.GetAllUsers().Where(x => x.Id == id).FirstOrDefault();
+                user.IsDeleted = true;
+
+                await _crudService.UpdateEntity(user);
+                return Ok();
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
+        [HttpPut]
+        [Route("UpdateUser")]
+        public async Task<IActionResult> UpdateUser(RegisterRequest parameters)
+        {
+            try
+            {
+
+                var user = _userService.GetAllUsers().Where(x => x.Id == parameters.Id).FirstOrDefault();
+
+                if (user == null)
+                    return BadRequest("User not Found");
+                user.Email = parameters.Email;
+
+                user.Name = parameters.Name;
+
+                user.NormalizedEmail = user.Email.ToUpper();
+
+                user.UserName = parameters.UserName;
+                user.NormalizedUserName = user.UserName.ToUpper();
+                if (parameters.Password != null)
+                {
+                    var hasher = new PasswordHasher<User>();
+                    user.PasswordHash = hasher.HashPassword(user, parameters.Password);
+                }
+
+                await _crudService.UpdateEntity(user);
+
+                return Ok();
+
+
+            }
+            catch (Exception e)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
     }
 }

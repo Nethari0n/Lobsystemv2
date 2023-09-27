@@ -109,7 +109,7 @@ namespace Lobsystem.Client.APICallers
 
                 response.EnsureSuccessStatusCode();
             }
-            catch (Exception)
+            catch (Exception e)
             {
 
                 throw;
