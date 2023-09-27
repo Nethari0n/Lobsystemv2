@@ -15,7 +15,7 @@ namespace Lobsystem.Client.APICallers
 
         public async Task<bool> ChipExists(string UID) => await _httpClient.GetFromJsonAsync<bool>($"Chip/{UID}/exists");
 
-        public async Task<List<Chip>> ChipPagination(int page, int totalItem) =>await _httpClient.GetFromJsonAsync<List<Chip>>($"Chip/{page}/{totalItem}");
+        public async Task<List<Chip>> ChipPagination(int page, int totalItem) => await _httpClient.GetFromJsonAsync<List<Chip>>($"Chip/{page}/{totalItem}");
 
         public async Task<List<Chip>> GetAllChips() => await _httpClient.GetFromJsonAsync<List<Chip>>("Chip");
 
@@ -42,14 +42,23 @@ namespace Lobsystem.Client.APICallers
 
         public async Task<List<Chip>> SearchChip(int page, int totalItem, string search)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<List<Chip>>($"Chip/{page}/{totalItem}/{search}");
+                return response;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         public async Task ToggleActiveChip(int ID)
         {
             try
             {
-                var response = await _httpClient.PostAsJsonAsync($"Chip", ID);
+                var response = await _httpClient.PutAsJsonAsync($"Chip/ToggleActive", ID);
                 response.EnsureSuccessStatusCode();
             }
             catch (Exception e)
@@ -63,6 +72,7 @@ namespace Lobsystem.Client.APICallers
             try
             {
                 var response = await _httpClient.PostAsJsonAsync($"Chip/Create", chip);
+                response.EnsureSuccessStatusCode();
             }
             catch (Exception e)
             {
@@ -76,6 +86,20 @@ namespace Lobsystem.Client.APICallers
             try
             {
                 var response = await _httpClient.PostAsJsonAsync("Chip/CreateList", chips);
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception e)
+            {
+
+                throw e.GetBaseException();
+            }
+        }
+
+        public async Task UpdateChip(ChipHandlingDTO chip)
+        {
+            try
+            {
+                var response = await _httpClient.PutAsJsonAsync("Chip", chip);
                 response.EnsureSuccessStatusCode();
             }
             catch (Exception e)

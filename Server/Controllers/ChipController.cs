@@ -131,21 +131,9 @@ namespace Lobsystem.Server.Controllers
         }
 
         #endregion
+
+        #region Post
         
-        [HttpPost]
-        [Route("{id}")]
-        public async Task<IActionResult> ToggleAktiveChip(int id)
-        {
-            try
-            {
-                await _chipGroupRegistrationService.ToggleAktiveChip(id);
-                return Ok();
-            }
-            catch (Exception)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest);
-            }
-        }
 
         [HttpPost]
         [Route("Create")]
@@ -175,6 +163,26 @@ namespace Lobsystem.Server.Controllers
                     Chip chipObj = new() { LaanerID = chip.LaanerID, UID = chip.UID };
                     await _createService.CreateEntity(chipObj);
                 }
+                return Ok();
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
+        #endregion
+        [HttpPut]
+        public async Task<IActionResult> UpdateChip(ChipHandlingDTO chip)
+        {
+            try
+            {
+                Chip chipObj = _chipGroupRegistrationService.GetChipByID((int)chip.ChipID);
+                chipObj.UID = chip.UID;
+                chipObj.LaanerID = chip.LaanerID;
+                chipObj.Aktive = chip.Aktive;
+                await _createService.UpdateEntity(chipObj);
                 return Ok();
             }
             catch (Exception)

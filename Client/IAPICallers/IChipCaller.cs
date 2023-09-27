@@ -26,5 +26,6 @@ namespace Lobsystem.Client.IAPICallers
 
         Task CreateChip(ChipHandlingDTO chip);
         Task CreateChips(List<ChipHandlingDTO> chips);
+        Task UpdateChip(ChipHandlingDTO chip);
     }
 }
