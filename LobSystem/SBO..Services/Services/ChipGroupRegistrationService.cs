@@ -60,23 +60,6 @@ namespace SBO.LobSystem.Services.Services
             return list;
         }
 
-        public async Task ToggleAktiveChip(int ID)
-        {
-            Chip chip = _lobsContext.Chips.Where(c => c.ChipID == ID).AsNoTracking().FirstOrDefault();
-
-            if ( chip.Aktive == true )
-            {
-                chip.Aktive = false;
-            }
-            else
-            {
-                chip.Aktive = true;
-            }
-
-
-            await _create.UpdateEntity(chip);
-        }
-
         public bool ChipExists(string UID)
         {
             bool exists = false;
@@ -91,6 +74,8 @@ namespace SBO.LobSystem.Services.Services
         }
 
         public int GetChipIDByChipUID(string UID) => _lobsContext.Chips?.Where(c => c.UID == UID).AsNoTracking().FirstOrDefault()?.ChipID ?? 0;
+
+        public Chip GetChipByID(int id) => _lobsContext.Chips.Where(x => x.ChipID == id).AsNoTracking().FirstOrDefault();
 
         #endregion
 

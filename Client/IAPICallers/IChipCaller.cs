@@ -5,24 +5,27 @@ namespace Lobsystem.Client.IAPICallers
 {
     public interface IChipCaller
     {
-        Task OnScan(Scanning scan);
+        //Task OnScan(Scanning scan);
 
-        List<Chip> GetAllChips();  
+        Task<List<Chip>> GetAllChips();
+        Task<List<Chip>> GetAllChipsSearch(string search);
 
-        List<Chip> ChipPagination(int page, int totalItem);
+        Task<List<Chip>> ChipPagination(int page, int totalItem);
 
-        List<Chip> SearchChip(int page, int totalItem, string search);
+        Task<List<Chip>> SearchChip(int page, int totalItem, string search);
 
-        Task ToggleAktiveChip(int ID);
+        Task ToggleActiveChip(int ID);
 
-        bool CheckUID(string uid);
-
-        int GetChipIDByUID(string uid);
+        Task<int> GetChipIDByUID(string uid);
 
         Task<List<ChipDTO>> GetAllChipsFromEvent(int id);
 
-        bool ChipExists(string UID);
+        Task<bool> ChipExists(string UID);
 
-        int GetChipIDByChipUID(string UID);
+        Task<int> GetChipIDByChipUID(string UID);
+
+        Task CreateChip(ChipHandlingDTO chip);
+        Task CreateChips(List<ChipHandlingDTO> chips);
+        Task UpdateChip(ChipHandlingDTO chip);
     }
 }

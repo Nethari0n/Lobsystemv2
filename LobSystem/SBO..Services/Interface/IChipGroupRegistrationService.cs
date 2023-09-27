@@ -24,8 +24,6 @@ namespace SBO.LobSystem.Services.Interface
 
         List<Chip> SearchChip(int page, int totalItem, string search);
 
-        Task ToggleAktiveChip(int ID);
-
         bool CheckUID(string uid);
 
         int GetChipIDByUID(string uid);
@@ -35,6 +33,7 @@ namespace SBO.LobSystem.Services.Interface
         bool ChipExists(string UID);
 
         int GetChipIDByChipUID(string UID);
+        Chip GetChipByID(int id);
 
         #endregion
 
