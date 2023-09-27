@@ -1,0 +1,136 @@
+﻿@page "/Live-Rapport"
+
+@using Lobsystem.Shared.DTO;
+@using System.Threading
+@using System.Web;
+@inject IJSRuntime JsRuntime
+@implements IDisposable
+
+<div class="container Live-con">
+    <div class="Live-rapport">
+        <div>
+            <h1 class="text-center">Live Rapport af @EventName</h1>
+        </div>
+        <div class="TableScrollable">
+            <table class="table table-striped">
+                <thead>
+                    <tr class="text-center">
+                        <th scope="col">Rangering</th>
+                        <th scope="col">Låner</th>
+                        <th scope="col">Gr 1</th>
+                        <th scope="col">Gr 2</th>
+                        <th scope="col">Seneste Reg.</th>
+                        <th scope="col">Reg.</th>
+                        <th scope="col">Tot. Tid</th>
+                        <th scope="col" class="thTooltipTS">T.S.S.</th>
+                        <th scope="col" class="thTooltipTSS">T.S.S.S.</th>
+                        <th scope="col">Distance</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    @if (Liverapports != null)
+                    {
+                        foreach (var item in Liverapports)
+                        {
+                            <tr class="text-center">
+                                @{
+                                    Counter = Liverapports.IndexOf(item) + 1;
+                                    <td scope="row">@Counter</td>
+                                }
+                                <td>@item.LaanerID</td>
+                                <td>@item.Group1</td>
+                                <td>@item.Group2</td>
+                                <td>@item.LatestRecord.ToString("HH:mm:ss")</td>
+                                <td>@item.Recordings</td>
+                                <td>@item.TimeBetweenStartAndLatestScan.Duration().ToString(@"dd\:hh\:mm\:ss")</td>
+                                <td>@item.TimeSinceStart.Duration().ToString(@"dd\:hh\:mm\:ss")</td>
+                                <td>@item.TimeSinceLatestScan.Duration().ToString(@"dd\:hh\:mm\:ss")</td>
+                                <td>@item.DistanceRun</td>
+                            </tr>
+                            Counter++;
+                        }
+                    }
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@code {
+
+
+    //------------------------ Properties ------------------------//
+    #region
+    private System.Threading.Timer? timer;
+    public int Value { get; set; }
+    public int Counter { get; set; }
+    public string EventName { get; set; }
+
+    public List<LiveRapport> Liverapports { get; set; } = new();
+    #endregion
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        Counter = 1;
+
+        var uri = navigationManager.ToAbsoluteUri(navigationManager.Uri);
+        var test = HttpUtility.ParseQueryString(uri.Query)["id"];
+        if (int.TryParse(test, out int result))
+        {
+
+            //Int32.TryParse(value, out int result);
+            Value = result;
+            Event @event = await _EventCaller.GetEventByID(Value);
+            EventName = @event.EventName;
+
+
+        }
+        else
+        {
+            navigationManager.NavigateTo("/", true);    //Returns to index site if no ID was submitted
+        }
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+
+            await GetLiveRapport(Value);
+            StateHasChanged();
+
+            //Timer to get Data after a set amount of time
+            timer = new System.Threading.Timer(async (object? stateInfo) =>
+            {
+                try
+                {
+                    await GetLiveRapport(Value);
+                    await InvokeAsync(StateHasChanged); //MUST CALL StateHasChanged() BECAUSE THIS IS TRIGGERED BY A TIMER INSTEAD OF A USER EVENT
+                }
+                catch (Exception)
+                {
+
+                    Dispose();
+                }
+
+            }, new System.Threading.AutoResetEvent(false), 2000, 2000); //TODO: might change fire timer: fires every 2000 milliseconds
+        }
+    }
+
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="result"></param>
+    public async Task GetLiveRapport(int result) => Liverapports = await _RapportCaller.GetLiveRapport(result);
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+}

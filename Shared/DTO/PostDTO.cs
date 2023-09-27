@@ -7,9 +7,13 @@ using System.Threading.Tasks;
 
 namespace Lobsystem.Shared.DTO
 {
-    public class ChipDTO
-    {       
-        public int ChipID { get; set; }       
-        public string UID { get; set; }       
+    public class PostDTO
+    {
+        
+        public int Multiplyer { get; set; }
+
+        public int Distance { get; set; }
+
+        public int PostNum { get; set; }
     }
 }

@@ -1,0 +1,188 @@
+﻿@page "/Rapport"
+@using Lobsystem.Shared.DTO;
+@using System.Threading
+@using System.Web;
+@inject IJSRuntime JsRuntime
+
+
+<div class="container End-rapport">
+    <div>
+        <h1 class="text-center">Afsluttende Rapport for @EventName</h1>
+    </div>
+    <button type="button" id="exportBtn" class="btn ml-1 mb-1 logoColor" @onclick="async () => await ExportToExcel(xls)">Export tabel til Excel</button>
+    <div class="table-responsive">
+        <div class="TableScrollable rapport">
+            <table id="table" class="table table-striped">
+                <thead>
+                    <tr class="text-center">
+                        <th scope="col">Rangering</th>
+                        <th scope="col">Låner Nummer</th>
+                        <th scope="col">Gruppe 1</th>
+                        <th scope="col">Gruppe 2</th>
+                        <th scope="col">Seneste Registrering</th>
+                        <th scope="col">Registeringer</th>
+                        <th scope="col">Tid siden Start og seneste skan</th>
+                        <th scope="col">Hurtigste Skan</th>
+                        <th scope="col">Distance</th>
+                        <th scope="col">Handling</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Rapports != null)
+                    {
+                        foreach (EndRapport item in Rapports)
+                        {
+                            <tr class="text-center">
+                                @{
+                                    Counter = Rapports.IndexOf(item) + 1;
+                                    <td scope="row">@Counter</td>
+                                }
+                                <td>@item.LaanerID</td>
+                                <td>@item.Group1</td>
+                                <td>@item.Group2</td>
+                                <td>@item.LatestRecord.ToString("HH:mm:ss")</td>
+                                <td>@item.Recordings</td>
+                                <td>@item.TimeBetweenStartAndLatestScan.Duration().ToString(@"dd\:hh\:mm\:ss")</td>
+                                <td>@item.FastestScan.Duration().ToString(@"dd\:hh\:mm\:ss")</td>
+                                <td>@item.DistanceRun</td>
+                                <td>
+                                    <a type="button" @onclick="() => GetScans(item.ChipID)" class="hyperlink" data-bs-toggle="modal" data-bs-target="#exampleModal">Se Skanninger</a>
+                                </td>
+                            </tr>
+
+
+
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Chip Nummer: @ChipId </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="TableScrollable Rapport-Table-Height">
+                    <div class="modal-body">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr class="text-center">
+                                    <th scope="col">Scanning Id</th>
+                                    <th scope="col">Tid på scanning</th>
+                                    <th scope="col">Handling</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (Scannings != null)
+                                {
+                                    @foreach (var item in Scannings)
+                                    {
+                                        <tr class="text-center">
+                                            <th scope="row">@item.ScanningID</th>
+                                            <td>@item.TimeStamp</td>
+                                            <td><button @onclick="() => DeleteScan(item,Value)" class="btn btn-danger">Slet Skanning</button></td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
+
+@code {
+
+    #region Proberties
+    public int Value { get; set; }
+    public int Counter { get; set; } = 1;
+    public int ChipId { get; set; }
+    public string EventName { get; set; }
+
+    public List<EndRapport> Rapports { get; set; } = new();
+    public List<Scanning> Scannings { get; set; } = new();
+
+    private string xls = "xlsx";
+
+    #endregion
+
+
+    protected override async void OnInitialized()
+    {
+
+        Counter = 1;
+
+
+        var uri = navigationManager.ToAbsoluteUri(navigationManager.Uri);
+        var test = HttpUtility.ParseQueryString(uri.Query)["id"];
+        if (int.TryParse(test, out int result))
+        {
+            //Int32.TryParse(value, out int result);
+            Value = result;
+            Event @event = await _EventCaller.GetEventByID(Value);
+            EventName = @event.EventName;
+
+        }
+        else
+        {
+            navigationManager.NavigateTo("/", true);    //Returns to index site if no ID was submitted
+        }
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetRapport(Value);
+            StateHasChanged();
+        }
+    }
+
+    public async Task GetRapport(int result)
+    {
+        Rapports = await _RapportCaller.GetRapports(result);
+        var _ = Rapports;
+    } 
+
+    public async Task DeleteScan(Scanning scan, int eventId)
+    {
+
+        if (!await JsRuntime.InvokeAsync<bool>("confirm", $"Er du sikker på du ville slette denne Skanning? \n\nDETTE KAN IKKE FORTRYDES ELLER GENDANNES."))
+            return;
+
+        await _ScanCaller.DeleteScan(scan.ScanningID);
+        Scannings.Remove(Scannings.SingleOrDefault(i => i.ScanningID == scan.ScanningID));
+        GetRapport(eventId);
+        StateHasChanged();
+
+    }
+
+    public async void GetScans(int id)
+    {
+        ChipId = id;
+        Scannings = await _ScanCaller.GetAllScanningsPerUser(id, Value);
+        StateHasChanged();
+    }
+
+
+    #region Javascript
+    protected async Task ExportToExcel(string value)
+    {
+
+        await JsRuntime.InvokeVoidAsync("ExportToExcel", value);
+    }
+    #endregion
+}

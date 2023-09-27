@@ -19,7 +19,7 @@ namespace SBO.LobSystem.Services.Interface
 
         bool CheckPostScan(int id, int postID);
 
-
+        Scanning GetScanById(int id);
 
 
 

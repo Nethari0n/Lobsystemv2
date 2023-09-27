@@ -10,9 +10,9 @@ namespace Lobsystem.Server.Controllers
     public class ChipController : ControllerBase
     {
         private readonly IChipGroupRegistrationService _chipGroupRegistrationService;
-        private readonly ICreateService _createService;
+        private readonly ICRUDService _createService;
 
-        public ChipController(IChipGroupRegistrationService chipGroupRegistrationService, ICreateService createService)
+        public ChipController(IChipGroupRegistrationService chipGroupRegistrationService, ICRUDService createService)
         {
             _chipGroupRegistrationService = chipGroupRegistrationService;
             _createService = createService;

@@ -1,4 +1,5 @@
 ﻿using Lobsystem.Client.IAPICallers;
+using Lobsystem.Shared.DTO;
 using Lobsystem.Shared.Models;
 using System.Net.Http.Json;
 
@@ -16,9 +17,34 @@ namespace Lobsystem.Client.APICallers
             throw new NotImplementedException();
         }
 
-        public void DeletePost(int ID)
+        public async Task CreatePost(EditPostDTO post)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync("Post/CreatePost",post);
+                response.EnsureSuccessStatusCode();
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async void DeletePost(int ID)
+        {
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"Post/{ID}");
+                response.EnsureSuccessStatusCode();
+                
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         public async Task<List<Post>> GetAllPostByEventID(int id)
@@ -35,7 +61,12 @@ namespace Lobsystem.Client.APICallers
             }
         }
 
-        public List<Post> GetAllPosts()
+        public List<PostDTO> GetAllPosts()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<EditEventPostDTO> GetEventPostsForEdit(int id)
         {
             throw new NotImplementedException();
         }
@@ -50,14 +81,21 @@ namespace Lobsystem.Client.APICallers
             throw new NotImplementedException();
         }
 
-        public bool TypeExists(int ID)
-        {
-            throw new NotImplementedException();
-        }
+        
 
-        public bool TypeExists(string TypeName)
+        public async Task UpdatePost(EditPostDTO post)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync("Post/UpdatePost", post);
+                response.EnsureSuccessStatusCode();
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 }

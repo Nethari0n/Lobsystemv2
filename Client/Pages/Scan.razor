@@ -150,10 +150,6 @@
     /// <returns></returns>
     protected override async Task OnInitializedAsync()
     {
-        // if (HttpContextAccessor.HttpContext.Session.GetInt32("id") == null)
-        // {
-        //     NavManager.NavigateTo("/Index", true);
-        // }
 
         var uri = navigationManager.ToAbsoluteUri(navigationManager.Uri);
         var test = HttpUtility.ParseQueryString(uri.Query)["id"];
@@ -231,7 +227,6 @@
         //Int32.TryParse(value, out int result);
 
         Event eventDTO = new();
-        //TODO: HER BENJAMIN
         eventDTO = await _EventCaller.GetEventByID(value);
         Title = eventDTO.EventName;
         StartDate = eventDTO.StartDate;

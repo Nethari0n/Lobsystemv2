@@ -1,7 +1,11 @@
-﻿using Lobsystem.Client.IAPICallers;
+﻿using Blazored.Toast;
+using Blazored.Toast.Services;
+using Lobsystem.Client.IAPICallers;
 using Lobsystem.Shared.DTO;
 using Lobsystem.Shared.Models;
 using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
 
 namespace Lobsystem.Client.APICallers
 {
@@ -12,14 +16,28 @@ namespace Lobsystem.Client.APICallers
 
         public EventCaller(HttpClient httpClient)
         {
-            _httpClient = httpClient;   
+            _httpClient = httpClient;
         }
 
-        public async void AddEvent(Event events)
+        public async Task AddEvent(EventPostsDTO events)
         {
-            await _httpClient.PostAsJsonAsync("Event",events);
+            try
+            {
+                var jsoncontet = JsonSerializer.Serialize(events);
+                var response2 = await _httpClient.PostAsync("Event", new StringContent(jsoncontet, Encoding.UTF8, "application/json"));
+                response2.EnsureSuccessStatusCode();
+
+            }
+            catch (Exception e)
+            {
+
+                throw e.InnerException;
+            }
+
 
         }
+
+
 
         //public async Event FindEvent(DateTime time, string name)
         //{
@@ -28,8 +46,8 @@ namespace Lobsystem.Client.APICallers
 
         public async Task<List<EventTypeDTO>> GetAllEvents()
         {
-            var test = await _httpClient.GetFromJsonAsync<List<EventTypeDTO>>("Event");
-            return test.ToList();
+            var response = await _httpClient.GetFromJsonAsync<List<EventTypeDTO>>("Event");
+            return response.ToList();
         }
 
         public async Task<Event> GetEventByID(int id)
@@ -47,6 +65,26 @@ namespace Lobsystem.Client.APICallers
         {
             var response = await _httpClient.GetFromJsonAsync<Event>($"Event/{id}");
             return response.EndDate;
+        }
+
+        public async Task<EditEventPostDTO> GetEditEventPost(int id)
+        {
+            var response = await _httpClient.GetFromJsonAsync<EditEventPostDTO>($"Event/GetEditEventPost/{id}");
+            return response;
+        }
+
+        public async Task UpdateEventPosts(EditEventDTO editEventDTO)
+        {
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync<EditEventDTO>("Event/UpdateEvent", editEventDTO);
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception e)
+            {
+
+                throw e.InnerException;
+            }
         }
     }
 }

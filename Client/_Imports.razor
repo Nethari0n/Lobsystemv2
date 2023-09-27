@@ -20,6 +20,8 @@
 @using Blazored.Modal
 @using Blazored.Modal.Services
 
+@inject IGroupCaller _GroupCaller
+@inject IRapportAPICaller _RapportCaller
 @inject IChipCaller _ChipCaller
 @inject IPostCaller _PostCaller
 @inject ITypesCaller _TypesCaller
@@ -32,3 +34,4 @@
 @inject IJSRuntime JsRuntime
 @inject Blazored.LocalStorage.ILocalStorageService localStore
 @inject IToastService toastService
+@inject IAuthService _AuthService

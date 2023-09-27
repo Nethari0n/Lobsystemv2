@@ -10,9 +10,9 @@ namespace Lobsystem.Server.Controllers
     public class ScanController : ControllerBase
     {
         private readonly IScanService _scanService;
-        private readonly ICreateService _createService;
+        private readonly ICRUDService _createService;
 
-        public ScanController(IScanService scanService, ICreateService createService)
+        public ScanController(IScanService scanService, ICRUDService createService)
         {
             _scanService = scanService;
             _createService = createService;
@@ -98,6 +98,22 @@ namespace Lobsystem.Server.Controllers
             try
             {
                 return Ok(_scanService.GetScan(uid, postID));
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
+        [HttpDelete]
+        [Route("Delete/{id}")]
+        public async Task<IActionResult> DeleteScan(int id)
+        {
+            try
+            {
+                Scanning scanning = _scanService.GetScanById(id);
+                await _createService.DeleteEntity(scanning);
+                return Ok();
             }
             catch (Exception)
             {

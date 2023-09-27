@@ -1,4 +1,5 @@
-﻿using Lobsystem.Shared.Models;
+﻿using Lobsystem.Shared.DTO;
+using Lobsystem.Shared.Models;
 
 namespace Lobsystem.Client.IAPICallers
 {
@@ -8,7 +9,7 @@ namespace Lobsystem.Client.IAPICallers
 
         Task<List<Post>> GetAllPostByEventID(int id);
 
-        List<Post> GetAllPosts();
+        List<PostDTO> GetAllPosts();
 
         void DeletePost(int ID);
 
@@ -16,7 +17,9 @@ namespace Lobsystem.Client.IAPICallers
 
         void SortDeletedPosts(List<Post> list);
 
-        bool TypeExists(int ID);
-        bool TypeExists(string TypeName);
+        Task UpdatePost(EditPostDTO post);
+
+        Task CreatePost(EditPostDTO post);
+        
     }
 }

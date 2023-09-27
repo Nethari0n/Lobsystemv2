@@ -15,8 +15,8 @@ namespace SBO.LobSystem.Services.Services
     public class EventPostTypesService : IEventPostTypesService
     {
         readonly ApplicationDBContext _lobsContext;
-        readonly ICreateService _iCreateService;
-        public EventPostTypesService(ApplicationDBContext lobsContext, ICreateService iCreateService)
+        readonly ICRUDService _iCreateService;
+        public EventPostTypesService(ApplicationDBContext lobsContext, ICRUDService iCreateService)
         {
             _lobsContext = lobsContext;
             _iCreateService = iCreateService;
