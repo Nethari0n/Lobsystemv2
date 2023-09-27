@@ -8,7 +8,7 @@
             <div class="d-flex">
                 <h2>Bruger</h2>
                 <button class="btn ml-5 mb-1 logoColor" @onclick='() => OpenCreateModal("ShowCreateModal")'>Opret</button>
-                <button type="button" id="exportBtn" class="btn ml-1 mb-1 logoColor" @onclick="async () => await ExportToExcel(xls)">Export tabel til Excel</button>
+                <button type="button" id="exportBtn" class="btn ml-1 mb-1 logoColor" @onclick="async () => await ExportToExcel()">Export tabel til Excel</button>
             </div>
             <div>
                 <input class="form-control" type="text" id="search" @bind="SearchField" @oninput="(e => SearchField = e.Value.ToString())" @onkeyup="(e => {OnInitializedAsync(); CurrentPage = 1;})" placeholder="Søg på navn.." />
@@ -330,6 +330,7 @@
 
 
     private IJSObjectReference _jsModule;
+    private IJSObjectReference _jsExcel;
 
     #endregion
 
@@ -337,7 +338,7 @@
     {
 
         _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/Users.js");
-
+        _jsExcel = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/ExportCSV.js");
         // Roles = _UserService.GetAllRoles();
         if (SearchField != null)
             await Search();
@@ -607,7 +608,7 @@
         await _jsModule.InvokeVoidAsync("ShowCreateModal", modalName);
     }
 
-    protected async Task ExportToExcel(string value) => await _jsModule.InvokeVoidAsync("ExportToExcel", value);
+    protected async Task ExportToExcel() => await _jsExcel.InvokeVoidAsync("export_table_to_csv", "#tableFull", "Brugere");
     protected async Task SearchTable() => await _jsModule.InvokeVoidAsync("SearchTable");
 
     protected async Task IsAlphabetKey(KeyboardEventArgs e) => await _jsModule.InvokeVoidAsync("isAlphabetKey", e.Code);

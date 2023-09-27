@@ -439,7 +439,7 @@
                 await _ChipCaller.CreateChip(chip);
                 toastService.ShowSuccess("Chip blev oprettet.");
 
-                ReloadChipList();
+               await GetChip();
             }
             else
             {
@@ -459,8 +459,8 @@
         UID = chipUploadInfo.UID;
         LaanerID = chipUploadInfo.BorrowID;
         await CreateChip();
-        dt.Rows.Remove(row);
-        ReloadChipList();
+        dt.Rows.Remove(row); 
+        await GetChip();
         StateHasChanged();
 
         //Reset list and btnCounter after upload.
@@ -468,12 +468,7 @@
         btnCounter = 0;
     }
 
-    protected void ReloadChipList()
-    {
-        Chip.Clear();
-        GetChip();
 
-    }
 
     protected async Task UploadAllChips()
     {
@@ -507,7 +502,7 @@
             throw;
         }
 
-        ReloadChipList();
+        await GetChip();
         StateHasChanged();
         dt.Clear();
 
@@ -531,7 +526,7 @@
                 await _ChipCaller.UpdateChip(chipDTO);
                 toastService.ShowSuccess("Chip blev opdateret.");
 
-                ReloadChipList();
+                await GetChip();
             }
             else
                 toastService.ShowError("Chip UID eksistere allerede.");
