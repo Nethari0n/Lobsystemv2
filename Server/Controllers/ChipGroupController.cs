@@ -9,10 +9,12 @@ namespace Lobsystem.Server.Controllers
     public class ChipGroupController : ControllerBase
     {
         private readonly IChipGroupRegistrationService _chipGroupRegistrationService;
+        private readonly ICRUDService _CRUDService;
 
-        public ChipGroupController(IChipGroupRegistrationService chipGroupRegistrationService)
+        public ChipGroupController(IChipGroupRegistrationService chipGroupRegistrationService, ICRUDService crudService)
         {
             _chipGroupRegistrationService = chipGroupRegistrationService;
+            _CRUDService = crudService;
         }
 
         [HttpGet]
@@ -55,5 +57,51 @@ namespace Lobsystem.Server.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
+
+        [HttpPost]
+        public IActionResult CreateChipGroup(ChipGroup chipGroup)
+        {
+            try
+            {
+                _CRUDService.CreateEntity(chipGroup);
+                return Ok();
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
+        [HttpPost]
+        [Route("Remove")]
+        public IActionResult DeleteChipGroup(ChipGroup chipGroup)
+        {
+            try
+            {
+                _chipGroupRegistrationService.RemoveChipGroup(chipGroup);
+                return Ok();
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+        [HttpPut]
+        public IActionResult UpdateChipGroup(ChipGroup chipGroup)
+        {
+            try
+            {
+                _CRUDService.UpdateEntity(chipGroup);
+                return Ok();
+            }
+            catch (Exception)
+            {
+
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+        
     }
 }

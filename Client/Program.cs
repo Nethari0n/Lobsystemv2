@@ -33,6 +33,8 @@ namespace Lobsystem.Client
             builder.Services.AddScoped<IRapportAPICaller, RapportAPICaller>();
             builder.Services.AddScoped<IGroupCaller, GroupCaller>();
             builder.Services.AddScoped<IUserCaller, UserCaller>();
+            builder.Services.AddScoped<IChipGroupCaller, ChipGroupCaller>();
+            builder.Services.AddScoped<IRegistrationCaller, RegistrationCaller>();
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
             
