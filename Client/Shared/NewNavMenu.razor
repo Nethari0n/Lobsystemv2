@@ -1,33 +1,4 @@
-﻿@*<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-    <div class="container">
-        <a class="navbar-brand" href="">blazornav</a>
-        <button class="navbar-toggler" type="button" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-            <ul class="navbar-nav flex-grow-1">
-                <li class="nav-item">
-                    <NavLink class="nav-link text-dark" href="" Match="NavLinkMatch.All">
-                        <span class="oi oi-home" aria-hidden="true"></span> Home
-                    </NavLink>
-                </li>
-                <li class="nav-item">
-                    <NavLink class="nav-link text-dark" href="counter">
-                        <span class="oi oi-plus" aria-hidden="true"></span> Counter
-                    </NavLink>
-                </li>
-                <li class="nav-item">
-                    <NavLink class="nav-link text-dark" href="fetchdata">
-                        <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
-                    </NavLink>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>*@
-
-
-<nav class="navbar navbar-expand-md navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+﻿<nav class="navbar navbar-expand-md navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
     <div class="logoBox" id="LogoBox">
         <a class="navbar-brand" id="BoxImg" href="/">
             <img src="Img/Sonderborg_Logo.png" alt="" width="30" height="24" class="d-inline-block align-text-top">
@@ -36,7 +7,7 @@
     <button class="navbar-toggler" @onclick="ToggleNavMenu" type="button" id="togglerBTN" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="@NavMenuCssClass" @onclick="ToggleNavMenu" id="navbarSupportedContent">
+    <div class="@NavMenuCssClass navbartoprow" @onclick="ToggleNavMenu" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
                 <NavLink class="nav-link navbar-btn" href="/">Begivenheder <span class="sr-only"></span></NavLink>
@@ -51,10 +22,10 @@
                     Admin
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <li> <NavLink class="dropdown-item" href="/users">Bruger Administration</NavLink></li>
-                    <li> <NavLink class="dropdown-item" href="/Chips">Chips Administration</NavLink> </li>
-                    <li> <NavLink class="dropdown-item" href="/TypesGroups">Types/Grupper Administration</NavLink> </li>
-                    <li> <NavLink class="dropdown-item" href="/CreateEvent">Tilføj Begivenhed</NavLink></li>
+                    <li> <NavLink class="dropdown-item text-black" href="/users">Bruger Administration</NavLink></li>
+                    <li> <NavLink class="dropdown-item text-black" href="/Chips">Chips Administration</NavLink> </li>
+                    <li> <NavLink class="dropdown-item text-black" href="/TypesGroups">Types/Grupper Administration</NavLink> </li>
+                    <li> <NavLink class="dropdown-item text-black" href="/CreateEvent">Tilføj Begivenhed</NavLink></li>
                 </ul>
             </div>
             @*}*@
@@ -66,7 +37,7 @@
 @code {
     bool collapseNavMenu = true;
 
-    string baseMenuClass = "navbar-collapse d-sm-inline-flex flex-sm-row-reverse";
+    string baseMenuClass = "navbar-collapse d-md-inline-flex flex-md-row-reverse";
 
     string NavMenuCssClass => baseMenuClass + (collapseNavMenu ? " collapse" : "");
 
