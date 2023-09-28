@@ -26,9 +26,9 @@
             <table class="table searchTable table-striped paginated" id="table">
                 <thead>
                     <tr>
-                        <th class="thSorting" onclick="sortTable(1)">UID</th>
-                        <th class="thSorting" onclick="sortTable(2)">Låner ID</th>
-                        <th class="thSorting" onclick="sortTable(3)">Aktiv</th>
+                        <th class="thSorting" @onclick="() => SortTable(1)">UID</th>
+                        <th class="thSorting" @onclick="() => SortTable(2)">Låner ID</th>
+                        <th class="thSorting" @onclick="() => SortTable(3)">Aktiv</th>
                         <th>Handlinger</th>
                     </tr>
                 </thead>
@@ -388,7 +388,7 @@
 
     protected async override Task OnInitializedAsync()
     {
-        if (SearchField != null)
+        if (!string.IsNullOrWhiteSpace(SearchField))
             await Search();
         else
             await GetChip();
@@ -423,6 +423,7 @@
 
         //Count = await _ChipCaller.GetAllChips().Where(x => x.UID.Contains(SearchField) || x.LaanerID.Contains(SearchField)).ToList().Count();
         TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageCount));
+        StateHasChanged();
     }
 
     protected async Task CreateChip()
@@ -631,4 +632,5 @@
             toastService.ShowError("LaanerID skal udfyldes");
     }
 
+    protected async Task SortTable(int col) => _jsChipsModule.InvokeVoidAsync("sortTable", col);
 }
