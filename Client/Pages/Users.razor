@@ -340,7 +340,7 @@
         _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/Users.js");
         _jsExcel = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/ExportCSV.js");
         // Roles = _UserService.GetAllRoles();
-        if (SearchField != null)
+        if (!string.IsNullOrWhiteSpace(SearchField))
             await Search();
         else
             await GetLists();
@@ -351,16 +351,12 @@
 
     protected async Task Search()
     {
-        if (!string.IsNullOrWhiteSpace(SearchField))
-        {
+       
             UsersDTO = await _UserCaller.SearchUser(CurrentPage, PageCount, SearchField);
             var tempUsers = await _UserCaller.GetAllUsers();
             Count = tempUsers.Where(x => x.UserName.Contains(SearchField) || x.Name.Contains(SearchField)).ToList().Count();
-        }
-        else
-        {
-            await GetLists();
-        }
+   
+        StateHasChanged();
 
     }
 

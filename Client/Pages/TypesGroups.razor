@@ -341,9 +341,9 @@
     {
         _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/TypesGroups.js");
 
-        if (SearchField != null)
+        if (!string.IsNullOrWhiteSpace(SearchField))
             await SearchGroup();
-        else if (SearchFieldTypes != null)
+        else if (!string.IsNullOrWhiteSpace(SearchFieldTypes))
             await SearchTypes();
         else
             await GetList();
@@ -359,6 +359,7 @@
         GroupsDTOs = await _GroupCaller.SearchGroup(CurrentPage, PageCount, SearchField);
         var tempCountGroups = await _GroupCaller.GetAllGroups();
         Count = tempCountGroups.Where(x => x.GroupName.Contains(SearchField) || x.GroupId.ToString().Contains(SearchField) && x.IsDeleted == false).ToList().Count();
+        StateHasChanged();
     }
 
     protected async Task SearchTypes()
@@ -366,6 +367,7 @@
         TypesDTOs = await _TypesCaller.SearchType(CurrentPageTypes, PageCountTypes, SearchFieldTypes);
         var tempCountTypes = await _TypesCaller.GetAllTypes();
         CountTypes = tempCountTypes.Where(x => x.TypeName.Contains(SearchFieldTypes) || x.TypesID.ToString().Contains(SearchFieldTypes) && x.IsDeleted == false).ToList().Count();
+        StateHasChanged();
     }
 
     protected async Task GetList()
