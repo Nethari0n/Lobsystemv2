@@ -88,15 +88,13 @@
                             </select>
                         </td>
                         <td class="lineHeight">
-
-                            @if (_RegistrationCaller.GetRegistrationByChipAndEventIdAsync(localChipID, SelectedEventID) != null)
+                            @if (RegistrationDTOs.Any(x => x.ChipID == localChipID && x.EventID == SelectedEventID))
                             {
                                 <button type="button" class="hyperlink" @onclick="() => RemoveRegistration(localChipID)">Fjern</button>
                             }
                             else
                             {
                                 <button type="button" class="hyperlink" @onclick="() => AddRegistrationAsync(localChipID,true)">Tilføj</button>
-                            }
                             }
                         </td>
                     </tr>
@@ -361,16 +359,16 @@
             };
         if (group != "0") //If they return the dropdown to "Vælg en gruppe" then it should be removed instead.
         {
-            if (await _ChipGroupCaller.ChipGroupExistsAsync(chipGroupDTO))
+            if (await _ChipGroupCaller.ChipGroupExistsAsync(chipGroupDTO.ChipGroupID))
             {
                 chipGroupDTO.ChipGroupID = await _ChipGroupCaller.GetChipGroupIDByChipGroupObjectAsync(chipGroupDTO);
                 await _ChipGroupCaller.UpdateChipGroupAsync(chipGroupDTO);
-                toastService.ShowSuccess("Chip grupped blev opdateret.");
+                toastService.ShowSuccess("Chip gruppen blev opdateret.");
             }
             else
             {
                 await _ChipGroupCaller.CreateChipGroupAsync(chipGroupDTO);
-                toastService.ShowSuccess("Chip grupped blev tilføjet.");
+                toastService.ShowSuccess("Chip gruppen blev tilføjet.");
 
             }
         }
@@ -390,7 +388,7 @@
         }
 
 
-        ReloadChipGroupList();
+        await ReloadChipGroupList();
     }
 
     protected async Task ReloadChipGroupList()
@@ -403,21 +401,21 @@
     protected async Task AddRegistrationAsync(int id, bool btnPress)
     {
         _btnPress = btnPress;
-        Registration registrationDTO = new Registration
+        RegistrationDTO registrationDTO = new RegistrationDTO
             {
-                ChipID = id,
-                EventID = SelectedEventID,
-                CreateDate = DateTime.Now
+                ChipId = id,
+                EventId = SelectedEventID,
+
             };
 
-        if (_RegistrationCaller.GetRegistrationByChipAndEventIdAsync(id, SelectedEventID) == null)
+        if (!RegistrationDTOs.Any(x => x.ChipID == id && x.EventID == SelectedEventID))
         {
             await _RegistrationCaller.CreateRegistrationAsync(registrationDTO);
             if (_btnPress)
             {
                 await SuccessToastCallerAsync();
             }
-
+            await GetLists();
         }
 
     }
@@ -426,6 +424,7 @@
     {
         await _RegistrationCaller.DeleteRegistrationAsync(id, SelectedEventID);
         toastService.ShowSuccess("Chip blev fjernet fra event");
+        await GetLists();
 
     }
 

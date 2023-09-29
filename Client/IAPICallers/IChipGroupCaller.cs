@@ -5,7 +5,7 @@ namespace Lobsystem.Client.IAPICallers
     public interface IChipGroupCaller
     {
         Task<List<ChipGroup>> GetChipGroupsAsync();
-        Task<bool> ChipGroupExistsAsync(ChipGroup chipGroup);
+        Task<bool> ChipGroupExistsAsync(int Id);
         Task<int> GetChipGroupIDByChipGroupObjectAsync(ChipGroup chipGroup);
         Task CreateChipGroupAsync(ChipGroup chipGroup);
         Task UpdateChipGroupAsync(ChipGroup chipGroup);

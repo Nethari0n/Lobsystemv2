@@ -31,12 +31,14 @@ namespace Lobsystem.Server.Controllers
         }
 
         [HttpGet]
-        [Route("{chipGroupDTO}/exists")]
-        public IActionResult ChipGroupExists(ChipGroup chipGroupDTO)
+        [Route("{id}/exists")]
+        public async Task<IActionResult> ChipGroupExists(int id)
         {
             try
             {
-                return Ok(_chipGroupRegistrationService.ChipGroupExists(chipGroupDTO));
+                var temp =  _chipGroupRegistrationService.GetAllChipGroups().Where(x => x.ChipGroupID == id).FirstOrDefault();
+
+                return Ok(_chipGroupRegistrationService.ChipGroupExists(temp));
             }
             catch (Exception)
             {

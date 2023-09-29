@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Lobsystem.Shared.Models;
 using SBO.LobSystem.Services.Interface;
+using Lobsystem.Shared.DTO;
 
 namespace Lobsystem.Server.Controllers
 {
@@ -46,11 +47,12 @@ namespace Lobsystem.Server.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateRegistration(Registration registration)
+        public async Task<IActionResult> CreateRegistration(RegistrationDTO registrationDTO)
         {
             try
             {
-                _CRUDService.CreateEntity(registration);
+                var newRegistration = new Registration() { ChipID = registrationDTO.ChipId, EventID = registrationDTO.EventId, CreateDate = DateTime.Now };
+                await _CRUDService.CreateEntity(newRegistration);
                 return Ok();
             }
             catch (Exception)
@@ -59,12 +61,17 @@ namespace Lobsystem.Server.Controllers
             }
         }
 
+        //TODO: WHAT IS THIS FOR?!
         [HttpPut]
-        public IActionResult UpdateRegistration(Registration registration)
+        public async Task<IActionResult> UpdateRegistration(RegistrationDTO registrationDTO)
         {
             try
             {
-                _CRUDService.UpdateEntity(registration);
+                var editRegistration = await _chipGroupRegistrationService.GetRegistrationById((int)registrationDTO.RegistrationId);
+                editRegistration.EventID = registrationDTO.EventId;
+                editRegistration.CreateDate = DateTime.Now;
+                editRegistration.ChipID = registrationDTO.ChipId;
+                await _CRUDService.UpdateEntity(editRegistration);
                 return Ok();
             }
             catch (Exception)
@@ -75,12 +82,12 @@ namespace Lobsystem.Server.Controllers
 
         [HttpDelete]
         [Route("ChipId/{id}/EventId/{eventId}")]
-        public IActionResult DeleteRegistration(int id, int eventId)
+        public async Task<IActionResult> DeleteRegistration(int id, int eventId)
         {
             try
             {
                 Registration registration = _chipGroupRegistrationService.GetRegistrationByChipAndEventId(id, eventId);
-                _CRUDService.DeleteEntity(registration);
+                await _CRUDService.DeleteEntity(registration);
 
                 return Ok();
             }

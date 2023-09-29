@@ -1,4 +1,5 @@
-﻿using Lobsystem.Shared.Models;
+﻿using Lobsystem.Shared.DTO;
+using Lobsystem.Shared.Models;
 
 namespace Lobsystem.Client.IAPICallers
 {
@@ -6,8 +7,8 @@ namespace Lobsystem.Client.IAPICallers
     {
         Task<List<Registration>> GetAllRegistrationsAsync();
         Task<Registration> GetRegistrationByChipAndEventIdAsync(int id, int eventId);
-        Task CreateRegistrationAsync(Registration registration);
-        Task UpdateRegistrationAsync(Registration registration);
+        Task CreateRegistrationAsync(RegistrationDTO registration);
+        Task UpdateRegistrationAsync(RegistrationDTO registration);
         Task DeleteRegistrationAsync(int id, int eventId);
     }
 }

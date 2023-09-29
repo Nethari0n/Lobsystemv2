@@ -1,4 +1,5 @@
 ﻿using Lobsystem.Client.IAPICallers;
+using Lobsystem.Shared.DTO;
 using Lobsystem.Shared.Models;
 using System.Net.Http.Json;
 
@@ -41,7 +42,7 @@ namespace Lobsystem.Client.APICallers
             }
         }
 
-        public async Task CreateRegistrationAsync(Registration registration)
+        public async Task CreateRegistrationAsync(RegistrationDTO registration)
         {
             try
             {
@@ -55,7 +56,7 @@ namespace Lobsystem.Client.APICallers
             }
         }
 
-        public async Task UpdateRegistrationAsync(Registration registration)
+        public async Task UpdateRegistrationAsync(RegistrationDTO registration)
         {
             try
             {
