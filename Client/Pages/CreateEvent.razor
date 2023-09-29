@@ -344,8 +344,8 @@
                     try
                     {
                         await _EventCaller.AddEvent(eventPostsDTO);
-                        toastService.ShowSuccess($"{eventDTO.EventName} Oprettet");
-
+                        //toastService.ShowSuccess($"{eventDTO.EventName} Oprettet");
+                        await localStore.SetItemAsync("EventToastName", eventDTO.EventName);
                         navigationManager.NavigateTo("/", true);
                     }
                     catch (Exception e)

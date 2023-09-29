@@ -168,17 +168,18 @@
 
     public string EventID { get; set; }
 
+    public bool MyProperty { get; set; }
+
     //------------------------- Methods --------------------------//
 
     protected override async Task OnInitializedAsync()
     {
-        // if (HttpContextAccessor.HttpContext.Session.GetInt32("id") == null)
-        // {
-        // // navigationManager.NavigateTo("/Index", true);
-        //}
+        var toast = await localStore.GetItemAsStringAsync("EventToastName");
+        await localStore.RemoveItemAsync("EventToastName");
+        if (!string.IsNullOrEmpty(toast))
+            toastService.ShowSuccess($"Event: {toast} blev oprettet");
 
 
-        //EventList =  _EventPostTypesService.GetAllEvents().OrderBy(e => e.StartDate).ToList();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

@@ -476,7 +476,7 @@
 
     protected async Task CreateType()
     {
-        if (!IsNull(TypeName))
+        if (!IsNull(TypeName) && Multiplyer > 0)
             if (!await _TypesCaller.TypeExists(TypeName))
             {
                 CreateTypeDTO typeDTO = new()
@@ -518,7 +518,7 @@
 
     protected async Task UpdateType()
     {
-        if (!IsNull(TypeName))
+        if (!IsNull(TypeName) && Multiplyer > 0)
             if (!await _TypesCaller.TypeExists(TypeName) || TypeName == OldTypeName)
             {
                 EditTypeDTO typeDTO = new()
@@ -573,31 +573,52 @@
     protected async Task OpenModals(string modal)
     {
         await _jsModule.InvokeVoidAsync("ShowEditModal", modal);
+        GroupName = string.Empty;
     }
 
     protected async Task OpenModals(string modal, string type)
     {
         await _jsModule.InvokeVoidAsync("ShowEditModal", modal, type);
+        TypeName = string.Empty;
+        MultipleRounds = false;
+        Multiplyer = 0;
     }
 
     protected async Task CloseTypesModals(string modal)
     {
         await _jsModule.InvokeVoidAsync("CloseEditModal", modal);
+        TypeName = string.Empty;
+        MultipleRounds = false;
+        Multiplyer = 0;
+        TypeID = 0;
+        OldTypeName = string.Empty;
     }
 
     protected async Task CloseGroupModals(string modal)
     {
         await _jsModule.InvokeVoidAsync("CloseEditModal", modal);
+
+       
+        GroupName = string.Empty;
+        OldGroupName = string.Empty;
     }
 
     protected async Task CloseEditTypesModals(string modal)
     {
         await _jsModule.InvokeVoidAsync("CloseEditModal", modal);
+        TypeName = string.Empty;
+        MultipleRounds = false;
+        Multiplyer = 0;
+        TypeID = 0;
+        OldTypeName = string.Empty;
     }
 
     protected async Task CloseEditGroupModals(string modal)
     {
         await _jsModule.InvokeVoidAsync("CloseEditModal", modal);
+        GroupID = 0;
+        GroupName = string.Empty;
+        OldGroupName = string.Empty;
     }
 
     protected async Task ToastValidationGroup()
@@ -610,5 +631,8 @@
     {
         if (string.IsNullOrWhiteSpace(TypeName))
             toastService.ShowError("Type navn skal udfyldes");
+        if (Multiplyer <= 0)
+            toastService.ShowError("Multiplier skal være over 0");
+        
     }
 }

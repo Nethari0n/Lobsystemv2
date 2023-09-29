@@ -490,7 +490,7 @@
                 {
                     if (!IsNull(Password))
                         Password = Password.Trim();
-                    if (IsNull(Password))
+                    if (IsNull(Password) && IsNull(PassRepeat))
                     {
 
                         RegisterRequest registerRequest = new RegisterRequest
