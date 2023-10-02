@@ -21,7 +21,7 @@
                 <div class="col-4 space"></div>
                 <div class="col-4 end">
                     <label for="startDate">Start Tid <i class="Required RightSideReq">*</i></label>
-                    <input class="form-control" type="datetime-local" id="startDate" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-dd HH:mm")" min="@DateTime.Parse(OldStartDate).ToString("yyyy-MM-dd HH:mm")" value="@StartDate" @onchange="(async e => {await StartDateValidation((string)e.Value);StateHasChanged();})" />
+                    <input class="form-control" type="datetime-local" id="startDate" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-dd HH:mm")" min="@DateTime.Parse(DateTime.Now.ToString("yyyy-MM-dd HH:mm")).ToString("yyyy-MM-dd HH:mm")" value="@StartDate" @onchange="(async e => {await StartDateValidation((string)e.Value);StateHasChanged();})" />
                 </div>
             </div>
             <br />
