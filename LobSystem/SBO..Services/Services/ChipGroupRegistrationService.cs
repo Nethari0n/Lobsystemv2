@@ -83,13 +83,13 @@ namespace SBO.LobSystem.Services.Services
 
 
 
-        public int GetChipGroupIDByChipGroupObject(ChipGroup chipGroups) { return _lobsContext.ChipGroups.Where(c => c.ChipID == chipGroups.ChipID).Where(c => c.EventID == chipGroups.EventID).Where(c => c.GroupNumber == chipGroups.GroupNumber).AsNoTracking().FirstOrDefault().ChipGroupID; }
+        public int GetChipGroupIDByChipGroupObject(int chipId, int eventId, int groupNumber) { return _lobsContext.ChipGroups.Where(c => c.ChipID == chipId).Where(c => c.EventID == eventId).Where(c => c.GroupNumber == groupNumber).AsNoTracking().FirstOrDefault().ChipGroupID; }
 
         public List<ChipGroup> GetAllChipGroups() => _lobsContext.ChipGroups.ToList();
-        public bool ChipGroupExists(ChipGroup chipGroup)
+        public bool ChipGroupExists(int chipId, int eventId, int groupNumber)
         {
             bool exists = false;
-            ChipGroup chipGroupObj = _lobsContext.ChipGroups.Where(c => c.ChipID == chipGroup.ChipID).Where(c => c.EventID == chipGroup.EventID).Where(c => c.GroupNumber == chipGroup.GroupNumber).AsNoTracking().FirstOrDefault();
+            ChipGroup chipGroupObj = _lobsContext.ChipGroups.Where(c => c.ChipID == chipId).Where(c => c.EventID == eventId).Where(c => c.GroupNumber == groupNumber).AsNoTracking().FirstOrDefault();
 
             if ( chipGroupObj != null )
             {

@@ -14,11 +14,11 @@ namespace Lobsystem.Client.APICallers
         }
 
         //TODO: have to send more parameters than only ID, Can't send a whole object so gotta send multiple Id's
-        public async Task<bool> ChipGroupExistsAsync(int Id)
+        public async Task<bool> ChipGroupExistsAsync(int chipId, int eventId, int groupNumber)
         {
             try
             {
-                return await _httpClient.GetFromJsonAsync<bool>($"ChipGroup/{Id}/exists");
+                return await _httpClient.GetFromJsonAsync<bool>($"ChipGroup/ChipId/{chipId}/EventId/{eventId}/GroupNumber/{groupNumber}/exists");
             }
             catch (Exception e)
             {
@@ -27,11 +27,11 @@ namespace Lobsystem.Client.APICallers
             }
         }
         //TODO: look previous TODO
-        public async Task<int> GetChipGroupIDByChipGroupObjectAsync(ChipGroup chipGroup)
+        public async Task<int> GetChipGroupIDByChipGroupObjectAsync(int chipId, int eventId, int groupNumber)
         {
             try
             {
-                return await _httpClient.GetFromJsonAsync<int>($"ChipGroup/{chipGroup}");
+                return await _httpClient.GetFromJsonAsync<int>($"ChipGroup/ChipId/{chipId}/EventId/{eventId}/GroupNumber/{groupNumber}");
             }
             catch (Exception e)
             {
@@ -54,11 +54,11 @@ namespace Lobsystem.Client.APICallers
             }
         }
 
-        public async Task CreateChipGroupAsync(ChipGroup chipGroup)
+        public async Task CreateChipGroupAsync(CreateChipGroupDTO chipGroup)
         {
             try
             {
-                var response = await _httpClient.PostAsJsonAsync("ChipGroup", chipGroup);
+                var response = await _httpClient.PostAsJsonAsync("ChipGroup/CreateChipGroup", chipGroup);
                 response.EnsureSuccessStatusCode();
             }
             catch (Exception e)
@@ -68,11 +68,11 @@ namespace Lobsystem.Client.APICallers
             }
         }
 
-        public async Task UpdateChipGroupAsync(ChipGroup chipGroup)
+        public async Task UpdateChipGroupAsync(EditChipGroupDTO editChipGroupDTO)
         {
             try
             {
-                var response = await _httpClient.PutAsJsonAsync("ChipGroup", chipGroup);
+                var response = await _httpClient.PutAsJsonAsync("ChipGroup", editChipGroupDTO);
                 response.EnsureSuccessStatusCode();
             }
             catch (Exception e)
@@ -81,11 +81,11 @@ namespace Lobsystem.Client.APICallers
             }
         }
 
-        public async Task DeleteChipGroupAsync(ChipGroup chipGroup)
+        public async Task DeleteChipGroupAsync(EditChipGroupDTO editChipGroupDTO)
         {
             try
             {
-                var response = await _httpClient.PostAsJsonAsync("ChipGroup/Remove", chipGroup);
+                var response = await _httpClient.PostAsJsonAsync("ChipGroup/Remove", editChipGroupDTO);
                 response.EnsureSuccessStatusCode();
             }
             catch (Exception e)

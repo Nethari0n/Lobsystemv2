@@ -350,19 +350,26 @@
     /// <param name="groupNumber"></param>
     protected async Task GroupChange(string group, int id, int groupNumber)
     {
-        ChipGroup chipGroupDTO = new ChipGroup
+        CreateChipGroupDTO chipGroupDTO = new CreateChipGroupDTO
             {
-                ChipID = id,
-                GroupID = Convert.ToInt32(group),
-                EventID = SelectedEventID,
+                ChipId = id,
+                GroupId = Convert.ToInt32(group),
+                EventId = SelectedEventID,
                 GroupNumber = groupNumber
+            };
+        EditChipGroupDTO editChipGroupDTO = new()
+            {
+                ChipId = chipGroupDTO.ChipId,
+                EventId = chipGroupDTO.EventId,
+                GroupId = chipGroupDTO.GroupId,
+                GroupNumber = chipGroupDTO.GroupNumber
             };
         if (group != "0") //If they return the dropdown to "Vælg en gruppe" then it should be removed instead.
         {
-            if (await _ChipGroupCaller.ChipGroupExistsAsync(chipGroupDTO.ChipGroupID))
+            if (await _ChipGroupCaller.ChipGroupExistsAsync(chipGroupDTO.ChipId, chipGroupDTO.EventId, chipGroupDTO.GroupNumber))
             {
-                chipGroupDTO.ChipGroupID = await _ChipGroupCaller.GetChipGroupIDByChipGroupObjectAsync(chipGroupDTO);
-                await _ChipGroupCaller.UpdateChipGroupAsync(chipGroupDTO);
+                editChipGroupDTO.ChipGroupId = await _ChipGroupCaller.GetChipGroupIDByChipGroupObjectAsync(editChipGroupDTO.ChipId, editChipGroupDTO.EventId, editChipGroupDTO.GroupNumber);
+                await _ChipGroupCaller.UpdateChipGroupAsync(editChipGroupDTO);
                 toastService.ShowSuccess("Chip gruppen blev opdateret.");
             }
             else
@@ -374,7 +381,8 @@
         }
         else
         {
-            await _ChipGroupCaller.DeleteChipGroupAsync(chipGroupDTO);
+            editChipGroupDTO.ChipGroupId = await _ChipGroupCaller.GetChipGroupIDByChipGroupObjectAsync(editChipGroupDTO.ChipId, editChipGroupDTO.EventId, editChipGroupDTO.GroupNumber);
+            await _ChipGroupCaller.DeleteChipGroupAsync(editChipGroupDTO);
             toastService.ShowSuccess("Chip grupped blev fjernet.");
 
         }

@@ -1,4 +1,5 @@
-﻿using Lobsystem.Shared.Models;
+﻿using Lobsystem.Shared.DTO;
+using Lobsystem.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 using SBO.LobSystem.Services.Interface;
 
@@ -31,14 +32,14 @@ namespace Lobsystem.Server.Controllers
         }
 
         [HttpGet]
-        [Route("{id}/exists")]
-        public async Task<IActionResult> ChipGroupExists(int id)
+        [Route("ChipId/{chipid}/EventId/{eventId}/GroupNumber/{Groupnumber}/exists")]
+        public async Task<IActionResult> ChipGroupExists(int chipId, int eventId, int groupNumber)
         {
             try
             {
-                var temp =  _chipGroupRegistrationService.GetAllChipGroups().Where(x => x.ChipGroupID == id).FirstOrDefault();
+                //var temp =  _chipGroupRegistrationService.GetAllChipGroups().Where(x => x.ChipGroupID == chipId).Where(x => x.EventID == eventId).Where(x => x.GroupNumber == groupNumber).FirstOrDefault();
 
-                return Ok(_chipGroupRegistrationService.ChipGroupExists(temp));
+                return Ok(_chipGroupRegistrationService.ChipGroupExists(chipId, eventId, groupNumber));
             }
             catch (Exception)
             {
@@ -47,12 +48,13 @@ namespace Lobsystem.Server.Controllers
         }
 
         [HttpGet]
-        [Route("{chipGroups}")]
-        public IActionResult GetChipGroupIDByChipGroupObject(ChipGroup chipGroups)
+        [Route("ChipId/{chipid}/EventId/{eventId}/GroupNumber/{groupnumber}")]
+        public IActionResult GetChipGroupIDByChipGroupObject(int chipId, int eventId, int groupNumber)
         {
             try
             {
-                return Ok(_chipGroupRegistrationService.GetChipGroupIDByChipGroupObject(chipGroups));
+                //var temp = _chipGroupRegistrationService.GetAllChipGroups().Where(x => x.ChipGroupID == chipId).Where(x => x.EventID == eventId).Where(x => x.GroupNumber == groupNumber).FirstOrDefault();
+                return Ok(_chipGroupRegistrationService.GetChipGroupIDByChipGroupObject(chipId, eventId, groupNumber));
             }
             catch (Exception)
             {
@@ -61,11 +63,13 @@ namespace Lobsystem.Server.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateChipGroup(ChipGroup chipGroup)
+        [Route("CreateChipGroup")]
+        public async Task<IActionResult> CreateChipGroup(CreateChipGroupDTO createChipGroupDTO)
         {
             try
             {
-                _CRUDService.CreateEntity(chipGroup);
+                ChipGroup chipGroup1 = new() { ChipID = createChipGroupDTO.ChipId, EventID = createChipGroupDTO.EventId, GroupNumber = createChipGroupDTO.GroupNumber, GroupID = createChipGroupDTO.GroupId };
+                await _CRUDService.CreateEntity(chipGroup1);
                 return Ok();
             }
             catch (Exception)
@@ -77,11 +81,12 @@ namespace Lobsystem.Server.Controllers
 
         [HttpPost]
         [Route("Remove")]
-        public IActionResult DeleteChipGroup(ChipGroup chipGroup)
+        public async Task<IActionResult> DeleteChipGroup(EditChipGroupDTO editChipGroupDTO)
         {
             try
             {
-                _chipGroupRegistrationService.RemoveChipGroup(chipGroup);
+                var editChipgroupDTO1 = _chipGroupRegistrationService.GetAllChipGroups().Where(x => x.ChipGroupID == editChipGroupDTO.ChipGroupId).SingleOrDefault();
+                await _CRUDService.DeleteEntity(editChipgroupDTO1);
                 return Ok();
             }
             catch (Exception)
@@ -91,11 +96,15 @@ namespace Lobsystem.Server.Controllers
             }
         }
         [HttpPut]
-        public IActionResult UpdateChipGroup(ChipGroup chipGroup)
+        public async Task<IActionResult> UpdateChipGroup(EditChipGroupDTO editChipGroupDTO)
         {
             try
             {
-                _CRUDService.UpdateEntity(chipGroup);
+                var editChipgroupDTO1 = _chipGroupRegistrationService.GetAllChipGroups().Where(x => x.ChipGroupID == editChipGroupDTO.ChipGroupId).SingleOrDefault();
+                editChipgroupDTO1.GroupNumber = editChipGroupDTO.GroupNumber;
+                editChipgroupDTO1.GroupID = editChipGroupDTO.GroupId;
+                editChipgroupDTO1.ChipID = editChipGroupDTO.ChipId;
+                await _CRUDService.UpdateEntity(editChipgroupDTO1);
                 return Ok();
             }
             catch (Exception)
@@ -104,6 +113,6 @@ namespace Lobsystem.Server.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
-        
+
     }
 }
