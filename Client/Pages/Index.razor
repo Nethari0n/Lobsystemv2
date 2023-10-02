@@ -190,14 +190,35 @@
 
     protected async Task StartEvent(EventTypeDTO eventDTO)
     {
+        EditEventDTO editEventDTO = new()
+            {
+                CooldownTimer = eventDTO.CooldownTimer,
+                Description = eventDTO.Description,
+                StartDate = DateTime.Now,
+                EndDate = eventDTO.EndDate,
+                Username = eventDTO.Username,
+                EventId = eventDTO.EventID,
+                TypesID = eventDTO.TypesID,
+                EventName = eventDTO.EventName
+            };
         eventDTO.StartDate = DateTime.Now;
-        //await _CreateService.UpdateEntity(eventDTO);
+        await _EventCaller.UpdateEventPosts(editEventDTO);
     }
 
     protected async Task EndEvent(EventTypeDTO eventDTO)
     {
-        eventDTO.EndDate = DateTime.Now;
-        //await _CreateService.UpdateEntity(eventDTO);
+        EditEventDTO editEventDTO = new()
+            {
+                CooldownTimer = eventDTO.CooldownTimer,
+                Description = eventDTO.Description,
+                StartDate = eventDTO.StartDate,
+                EndDate = DateTime.Now,
+                Username = eventDTO.Username,
+                EventId = eventDTO.EventID,
+                TypesID = eventDTO.TypesID,
+                EventName = eventDTO.EventName
+            };
+        await _EventCaller.UpdateEventPosts(editEventDTO);
     }
 
     protected async Task DeleteEvent(EventTypeDTO events)
