@@ -12,8 +12,7 @@
         <div class="d-flex">
             <div>
                 <p>Importer/exporter et excel ark med chips.</p>
-                @*<button type="button" id="exportBtn" class="btn ml-1 mb-1 logoColor" onclick="ExportToExcel('xlsx')">Export tabel til Excel</button>*@
-                @*<button type="button" id="exportBtn" class="btn ml-1 mb-1 logoColor" @onclick="ExportToExcel">Export tabel til Excel</button>*@
+                <button type="button" id="exportBtn" class="btn ml-1 mb-1 logoColor" @onclick="ExportToExcel">Export tabel til Excel</button>
                 <input type="button" class="btn ml-1 mb-1 logoColor" value="Auto tilføj med Excel" onclick="document.getElementById('ExcelFileUpload').click()">
                 <a id="exportTemplateBtn" class="btn ml-1 mb-1 logoColor" href="/templates/TilføjChipSkabelon.xlsx" download="TilføjChipSkabelon.xlsx">Export Skabelon til Excel</a>
                 <InputFile hidden id="ExcelFileUpload" OnChange="ImportExcelFile" />
@@ -151,84 +150,73 @@
             </tfoot>
         </table>
     </div>
-
-    <table hidden class="table searchTable table-striped paginated text-center" id="tableExport">
-        <thead>
-            <tr>
-                <th>Lokal ID</th>
-                <th>UID</th>
-                <th>Låner ID</th>
-                <th>Gruppe 1</th>
-                <th>Gruppe 2</th>
-                <th class="thSorting">Handlinger</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Chip)
-            {
-
-                int localChipID = item.ChipID;
+    @if (AllChips != null)
+    {
+        <table hidden class="table searchTable table-striped paginated text-center" id="tableExport">
+            <thead>
                 <tr>
-                    <td class="lineHeight">@item.ChipID</td>
-                    <td class="lineHeight">@item.UID</td>
-                    <td class="lineHeight">@item.LaanerID</td>
-                    @if (chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault() != null)
-                    {
-                        @if (chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault().GroupNumber == 1)
-                        {
-                            ChipGroup chipGroupDTO = chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault();
-                            ShowGroupDTO groupsDTO = Groups.Where(x => x.GroupId == chipGroupDTO.GroupID).FirstOrDefault();
-                            @if (groupsDTO != null)
-                            {
-                                <td>@groupsDTO.GroupName</td>
-                            }
-
-                        }
-                        else
-                        {
-                            <td>Ingen gruppe</td>
-                        }
-                    }
-                    else
-                    {
-                        <td>Ingen gruppe</td>
-                    }
-                    @if (chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault() != null)
-                    {
-                        @if (chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault().GroupNumber == 2)
-                        {
-                            ChipGroup chipGroupDTO = chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault();
-                            ShowGroupDTO groupsDTO = Groups.Where(x => x.GroupId == chipGroupDTO.GroupID).FirstOrDefault();
-                            @if (groupsDTO != null)
-                            {
-                                <td>@groupsDTO.GroupName</td>
-                            }
-                        }
-                        else
-                        {
-                            <td>Ingen gruppe</td>
-                        }
-                    }
-                    else
-                    {
-                        <td>Ingen gruppe</td>
-                    }
-
-                    <td class="lineHeight">
-                        @registration = _ChipGroupRegistrationService.GetRegistrationByChipAndEventId(localChipID, SelectedEventID);
-                        @if (registration != null)
-                        {
-                            <button type="button" class="hyperlink" @onclick="() => RemoveRegistration(localChipID)">Fjern</button>
-                        }
-                        else
-                        {
-                            <button type="button" class="hyperlink" @onclick="() => AddRegistrationAsync(localChipID,true)">Tilføj</button>
-                        }
-                    </td>
+                    <th>Lokal ID</th>
+                    <th>UID</th>
+                    <th>Låner ID</th>
+                    <th>Gruppe 1</th>
+                    <th>Gruppe 2</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var item in AllChips)
+                {
+
+                    int localChipID = item.ChipID;
+                    <tr>
+                        <td class="lineHeight">@item.ChipID</td>
+                        <td class="lineHeight">@item.UID</td>
+                        <td class="lineHeight">@item.LaanerID</td>
+                        @if (chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault() != null)
+                        {
+                            @if (chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault().GroupNumber == 1)
+                            {
+                                ChipGroup chipGroupDTO = chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault();
+                                ShowGroupDTO groupsDTO = Groups.Where(x => x.GroupId == chipGroupDTO.GroupID).FirstOrDefault();
+                                @if (groupsDTO != null)
+                                {
+                                    <td>@groupsDTO.GroupName</td>
+                                }
+                            }
+                            else
+                            {
+                                <td>Ingen gruppe</td>
+                            }
+                        }
+                        else
+                        {
+                            <td>Ingen gruppe</td>
+                        }
+                        @if (chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault() != null)
+                        {
+                            @if (chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault().GroupNumber == 2)
+                            {
+                                ChipGroup chipGroupDTO = chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault();
+                                ShowGroupDTO groupsDTO = Groups.Where(x => x.GroupId == chipGroupDTO.GroupID).FirstOrDefault();
+                                @if (groupsDTO != null)
+                                {
+                                    <td>@groupsDTO.GroupName</td>
+                                }
+                            }
+                            else
+                            {
+                                <td>Ingen gruppe</td>
+                            }
+                        }
+                        else
+                        {
+                            <td>Ingen gruppe</td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    
 
 
     @* Toast validation*@
@@ -272,6 +260,7 @@
     DataTable dt = new DataTable();
 
     private List<Chip> Chip { get; set; } = new();
+    private List<Chip> AllChips { get; set; } = new();
     private List<ShowGroupDTO> Groups { get; set; }
     private List<ChipGroup> chipGroupDTOs { get; set; }
     private List<Registration> RegistrationDTOs { get; set; }
@@ -302,6 +291,9 @@
 
     #endregion
 
+    private IJSObjectReference _jsModule;
+    private IJSObjectReference _jsEventChips;
+
     protected async override Task OnInitializedAsync()
     {
 
@@ -322,6 +314,10 @@
             await GetLists();
 
         TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageCount));
+        _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/ExportCSV.js");
+        _jsEventChips = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/EventChips.js");
+        //toastService.ShowToast<Test>(settings => { settings.Timeout = 1; });
+
     }
 
     protected async Task GetLists()
@@ -480,15 +476,25 @@
 
 
             int chipID = await _ChipCaller.GetChipIDByChipUID(chipUID);
-            if (chipID > 0)
+            if (!RegistrationDTOs.Any(x => x.ChipID == chipID && x.EventID == SelectedEventID))
             {
-                await AddRegistrationAsync(chipID, false);
-                successCounter++;
+                if (chipID > 0)
+                {
+                    await AddRegistrationAsync(chipID, false);
+                    successCounter++;
+                    toastService.ShowToast<Test>(
+                        new ToastParameters()
+                        .Add(nameof(Test.SuccessCount), successCounter)
+                        .Add(nameof(Test.TotalCount), dt.Rows.Count), settings => { settings.Timeout = 1; settings.Position = Blazored.Toast.Configuration.ToastPosition.TopRight; settings.Icon = "IconType.FontAwesome"; settings.ShowCloseButton = true; settings.AdditionalClasses = "tempToast"; });
+                    await _jsEventChips.InvokeVoidAsync("temp");
+                    //toastService.ShowInfo($"Antal chips tilføjet: {successCounter} ud af {dt.Rows.Count}");
+                }
+                else
+                {
+                    errorCounter++;
+                }
             }
-            else
-            {
-                errorCounter++;
-            }
+            
 
         }
         if (errorCounter > 0)
@@ -523,84 +529,10 @@
     }
 
 
-    protected void ExportToExcel()
+    protected async Task ExportToExcel()
     {
-        ////Create the document.
-        //IWorkbook workbook = new XSSFWorkbook();
-        ////Create the sheet inside the document with the corresponding name.
-        //ISheet excelSheet = workbook.CreateSheet("Sheet1");
-        ////Create a new styling which can be applied to cells.
-        //ICellStyle cellStyle = workbook.CreateCellStyle();
-        //cellStyle.DataFormat = workbook.CreateDataFormat().GetFormat("text");
-
-        ////Create the name of the columns in the first row.
-        //IRow headerRow = excelSheet.CreateRow(0);
-        //headerRow.CreateCell(0).SetCellValue("Lokal ID");
-        //headerRow.CreateCell(1).SetCellValue("UID");
-        //headerRow.CreateCell(2).SetCellValue("Låner ID");
-        //headerRow.CreateCell(3).SetCellValue("Gruppe 1");
-        //headerRow.CreateCell(4).SetCellValue("Gruppe 2");
-        //headerRow.CreateCell(5).SetCellValue("Del af event");
-
-        //int rowNumber = 1;
-
-        //foreach (Chip item in Chip) //Creates the excel.
-        //{
-        //    IRow row = excelSheet.CreateRow(rowNumber++);
-
-        //    row.CreateCell(0).SetCellValue(item.ChipID);
-        //    row.GetCell(0).CellStyle = cellStyle;
-        //    row.CreateCell(1).SetCellValue(item.UID);
-        //    row.GetCell(1).CellStyle = cellStyle;
-        //    row.CreateCell(2).SetCellValue(item.LaanerID);
-        //    row.GetCell(2).CellStyle = cellStyle;
-
-        //    if (chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault() != null)
-        //    {
-        //        @if (chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault().GroupNumber == 1)
-        //        {
-        //            ChipGroup chipGroupDTO = chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault();
-        //            Group groupsDTO = Groups.Where(x => x.GroupID == chipGroupDTO.GroupID).FirstOrDefault();
-        //            row.CreateCell(3).SetCellValue(groupsDTO.GroupName);
-        //        }
-        //        else
-        //        {
-        //            row.CreateCell(3).SetCellValue("Ingen gruppe");
-        //        }
-        //    }
-        //    else
-        //    {
-        //        row.CreateCell(3).SetCellValue("Ingen gruppe");
-        //    }
-        //    if (chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault() != null)
-        //    {
-        //        @if (chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault().GroupNumber == 2)
-        //        {
-        //            ChipGroup chipGroupDTO = chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault();
-        //            Group groupsDTO = Groups.Where(x => x.GroupID == chipGroupDTO.GroupID).FirstOrDefault();
-        //            row.CreateCell(4).SetCellValue(groupsDTO.GroupName);
-        //        }
-        //        else
-        //        {
-        //            row.CreateCell(4).SetCellValue("Ingen gruppe");
-        //        }
-        //    }
-        //    else
-        //    {
-        //        row.CreateCell(4).SetCellValue("Ingen gruppe");
-        //    }
-
-        //    if (_ChipGroupRegistrationService.GetRegistrationByChipAndEventId(item.ChipID, SelectedEventID) != null)
-        //    {
-        //        row.CreateCell(5).SetCellValue("Del af dette event");
-        //    }
-        //    else
-        //    {
-        //        row.CreateCell(5).SetCellValue("Ikke del af dette event");
-        //    }
-        //}
-
-
-
+        AllChips = await _ChipCaller.GetAllChips();
+        StateHasChanged();
+        await _jsModule.InvokeVoidAsync("export_table_to_csv", "#tableExport", "EventChips.csv");
     }
 }
