@@ -18,8 +18,10 @@
                 <div class="col-4 space"></div>
                 <div class="col-4 end">
                     <label for="startDate">Start Tid <i class="Required">*</i></label>
-                    <input class="form-control" type="datetime-local" id="startDate" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-ddTHH:mm")" value="@StartDate" @onchange="(async e => {await StartDateValidation((string)e.Value);await InvokeAsync(StateHasChanged);})" />
+                    <input class="form-control" type="datetime-local" id="startDate" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-ddTHH:mm")" @bind="SelectedStartDateTime" @oninput="StartDateValidation" />
                 </div>
+
+
             </div>
             <br />
             <div class="row col-row">
@@ -30,7 +32,7 @@
                 <div class="col-4 space"></div>
                 <div class="col-4 end">
                     <label for="endDate">Slut Tid <i class="Required">*</i></label>
-                    <input class="form-control" type="datetime-local" id="endDate" min="@StartDate" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-ddTHH:mm")" value="@EndDate" @onchange="(async e => {await EndDateValidation((string)e.Value);})" />
+                    <input class="form-control" type="datetime-local" id="endDate" min="@SelectedStartDateTime.ToString("yyyy-MM-ddTHH:mm")" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-ddTHH:mm")" @bind="SelectedEndDateTime" @oninput="EndDateValidation" />
                     <label for="TimeOutParamater" class="CooldownLabel">Cooldown <i class="ToolTip">*</i></label>
                     <input class="form-control Cooldown" onkeypress="@NumbersOnly" onpaste="return false;" ondrop="return false;" autocomplete="off" @bind="Cooldown" placeholder="Default er 30 sec" id="TimeOutParamater" />
                 </div>
@@ -209,9 +211,15 @@
 
     private string Cooldown { get; set; }
 
+    private DateTime SelectedStartDateTime { get; set; } = DateTime.Now; // Initialize with the current date and time.
+
+    private DateTime SelectedEndDateTime { get; set; } = DateTime.Now.AddHours(1); // Initialize with the current date and time.
+
+
+
     public DateTime StarttimeEvent;
 
-    public DateTime EndtimeEvent; 
+    public DateTime EndtimeEvent;
 
     private IJSObjectReference _jsModule;
 
@@ -249,58 +257,43 @@
         await _jsModule.InvokeVoidAsync("AddDisableEventAdd");
     }
 
-    protected async Task StartDateValidation(string value)
+    protected async Task StartDateValidation(ChangeEventArgs e)
     {
-        if (DateTime.TryParse(value, out StarttimeEvent))
+        if (DateTime.TryParse(e.Value.ToString(), out DateTime selectedStartTime))
         {
-
-            if (value == "" || StarttimeEvent < DateTime.Now)
+            if (selectedStartTime < DateTime.Now)
             {
-                StartDate = DateTime.Now.ToString("yyyy-MM-ddTHH:mm");
-                //ErrorMessage = "Start dato må ikke være tidliger ind idag.";
+                SelectedStartDateTime = DateTime.Now;
                 toastService.ShowError("Start dato må ikke være tidligere end idag.");
-                //await _jsModule.InvokeVoidAsync("ToastError");
-                await _jsModule.InvokeVoidAsync("UpdateStartDate", DateTime.Now.ToString("yyyy-MM-ddTHH:mm"));
             }
-            else if (DateTime.Parse(EndDate) < StarttimeEvent)
+            else if (SelectedEndDateTime < selectedStartTime)
             {
-                await _jsModule.InvokeVoidAsync("OnDateChange");
-                StartDate = DateTime.Parse(value).ToString("yyyy-MM-ddTHH:mm");
-                EndDate = DateTime.Parse(value).ToString("yyyy-MM-ddTHH:mm");
-                await _jsModule.InvokeVoidAsync("UpdateEndDate", DateTime.Parse(value).ToString("yyyy-MM-ddTHH:mm"));
+                SelectedStartDateTime = selectedStartTime;
+                SelectedEndDateTime = selectedStartTime; // Adjust the end time to match the start time
             }
-            await _jsModule.InvokeVoidAsync("OnDateChange");
+            StateHasChanged();
         }
     }
 
-    protected async Task EndDateValidation(string value)
+    protected async Task EndDateValidation(ChangeEventArgs e)
     {
-        if (DateTime.TryParse(value, out EndtimeEvent))
+        if (DateTime.TryParse(e.Value.ToString(), out DateTime selectedEndTime))
         {
-
-            if (value == "" || EndtimeEvent > DateTime.Now.AddYears(20))
+            if (selectedEndTime > DateTime.Now.AddYears(20))
             {
-                EndDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
-                toastService.ShowError($"Slut dato må senste være {DateTime.Now.AddYears(20).ToString("dd-MM-yyyy")}");
-
-                await _jsModule.InvokeVoidAsync("UpdateEndDate", DateTime.Now.ToString("yyyy-MM-ddTHH:mm"));
+                SelectedEndDateTime = DateTime.Now.AddYears(20);
+                toastService.ShowError($"Slut dato må seneste være {DateTime.Now.AddYears(20).ToString("dd-MM-yyyy")}");
             }
-            else
+            else if (selectedEndTime < SelectedStartDateTime)
             {
-
-                if (EndtimeEvent > DateTime.Parse(StartDate))
-                {
-                    EndDate = value;
-                }
-                else
-                {
-                    EndDate = StartDate;
-                    toastService.ShowError("Slut dato må ikke være før start dato.");
-                    StateHasChanged();
-                }
+                SelectedEndDateTime = SelectedStartDateTime;
+                toastService.ShowError("Slut dato må ikke være før start dato.");
             }
+            StateHasChanged();
         }
     }
+
+
 
     protected async Task CheckBoxMulti() => await _jsModule.InvokeVoidAsync("CheckedMulti");
 
@@ -337,8 +330,8 @@
                     CreateEventDTO eventDTO = new CreateEventDTO
                         {
                             EventName = Title.Trim(),
-                            StartDate = DateTime.Parse(StartDate),
-                            EndDate = DateTime.Parse(EndDate),
+                            StartDate = SelectedStartDateTime,
+                            EndDate = SelectedEndDateTime,
                             Description = Desc.Trim(),
                             TypesID = TypesID,
                             Username = currentUser.UserName,
