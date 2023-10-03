@@ -286,7 +286,6 @@
 
     private List<User> UsersDTO { get; set; } = new();
     private List<User> UsersFull { get; set; } = new();
-    // private List<Role> Roles { get; set; }
 
 
 
@@ -339,7 +338,6 @@
 
         _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/Users.js");
         _jsExcel = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/ExportCSV.js");
-        // Roles = _UserService.GetAllRoles();
         if (!string.IsNullOrWhiteSpace(SearchField))
             await Search();
         else
@@ -351,11 +349,11 @@
 
     protected async Task Search()
     {
-       
-            UsersDTO = await _UserCaller.SearchUser(CurrentPage, PageCount, SearchField);
-            var tempUsers = await _UserCaller.GetAllUsers();
-            Count = tempUsers.Where(x => x.UserName.Contains(SearchField) || x.Name.Contains(SearchField)).ToList().Count();
-   
+
+        UsersDTO = await _UserCaller.SearchUser(CurrentPage, PageCount, SearchField);
+        var tempUsers = await _UserCaller.GetAllUsers();
+        Count = tempUsers.Where(x => x.UserName.Contains(SearchField) || x.Name.Contains(SearchField)).ToList().Count();
+
         StateHasChanged();
 
     }
@@ -388,9 +386,6 @@
         Name = user.Name;
         OldName = user.Name;
         Mail = user.Email;
-        // RoleID = user.RoleID;
-        // PassSalt = user.PassSalt;
-        // HiddenPass = user.Password;
 
         await _jsModule.InvokeVoidAsync("ShowEditModal");
     }
@@ -457,8 +452,16 @@
                                 RoleId = "8e9f3987-e4d9-47c2-b465-9919e0c206c7",
                             };
 
-                        await _AuthService.Register(registerRequest);
-                        toastService.ShowSuccess($"Bruger '{registerRequest.UserName}' blev oprettet");
+                        try
+                        {
+
+                            await _AuthService.Register(registerRequest);
+                            toastService.ShowSuccess($"Bruger '{registerRequest.UserName}' blev oprettet");
+                        }
+                        catch (Exception)
+                        {
+                            toastService.ShowError("der gik noget galt med oprettelse af Brugeren");
+                        }
 
                         await GetLists();
                         await CloseCreateModal();
@@ -509,9 +512,9 @@
                         }
                         catch (Exception)
                         {
-
-                            throw;
+                            toastService.ShowError("Noget gik galt under opdateringen af brugeren");
                         }
+
 
 
                         await CloseEditModal();
@@ -543,8 +546,7 @@
                             }
                             catch (Exception)
                             {
-
-                                throw;
+                                toastService.ShowError("Noget gik galt under opdateringen af brugeren");
                             }
                             await CloseEditModal();
                             await GetLists();
@@ -585,7 +587,16 @@
             if (_AuthService.CurrentUserInfo().Id.ToString() != user.Id)
             {
                 user.IsDeleted = true;
-                _UserCaller.DeleteUser(user.Id);
+                try
+                {
+
+                    _UserCaller.DeleteUser(user.Id);
+                    toastService.ShowSuccess("Brugeren er nu slettet");
+                }
+                catch (Exception)
+                {
+                    toastService.ShowError("Noget gik galt under sletning af brugeren");
+                }
             }
             else
                 toastService.ShowError("Bruger kan ikke slette sig selv");

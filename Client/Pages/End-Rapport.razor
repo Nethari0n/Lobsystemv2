@@ -129,7 +129,6 @@
         var test = HttpUtility.ParseQueryString(uri.Query)["id"];
         if (int.TryParse(test, out int result))
         {
-            //Int32.TryParse(value, out int result);
             Value = result;
             Event @event = await _EventCaller.GetEventByID(Value);
             EventName = @event.EventName;

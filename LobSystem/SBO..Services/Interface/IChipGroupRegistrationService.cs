@@ -40,12 +40,12 @@ namespace SBO.LobSystem.Services.Interface
         #region Chip Group
 
 
-        bool ChipGroupExists(ChipGroup chipGroupDTO);
+        bool ChipGroupExists(int chipId, int eventId, int groupNumber);
 
         List<ChipGroup> GetAllChipGroups();
 
 
-        int GetChipGroupIDByChipGroupObject(ChipGroup chipGroups);
+        int GetChipGroupIDByChipGroupObject(int chipId, int eventId, int groupNumber);
 
         void RemoveChipGroup(ChipGroup chipGroupDTO);
 

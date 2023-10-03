@@ -30,11 +30,8 @@ namespace Lobsystem.Client.APICallers
             }
             catch (Exception e)
             {
-
-                throw e.InnerException;
+                throw e.GetBaseException();
             }
-
-
         }
 
 
@@ -46,31 +43,71 @@ namespace Lobsystem.Client.APICallers
 
         public async Task<List<EventTypeDTO>> GetAllEvents()
         {
-            var response = await _httpClient.GetFromJsonAsync<List<EventTypeDTO>>("Event");
-            return response.ToList();
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<List<EventTypeDTO>>("Event");
+                return response.ToList();
+            }
+            catch (Exception e)
+            {
+                throw e.GetBaseException();
+            }
+
         }
 
         public async Task<Event> GetEventByID(int id)
         {
-            var response = await _httpClient.GetFromJsonAsync<Event>($"Event/{id}");
-            return response;
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<Event>($"Event/{id}");
+                return response;
+            }
+            catch (Exception e)
+            {
+                throw e.GetBaseException();
+            }
+
         }
         public async Task<DateTime> GetEventByIDStartDate(int id)
         {
-            var response = await _httpClient.GetFromJsonAsync<Event>($"Event/{id}");
-            return response.StartDate;
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<Event>($"Event/{id}");
+                return response.StartDate;
+            }
+            catch (Exception e)
+            {
+                throw e.GetBaseException();
+            }
+
         }
 
         public async Task<DateTime> GetEventByIDEndDate(int id)
         {
-            var response = await _httpClient.GetFromJsonAsync<Event>($"Event/{id}");
-            return response.EndDate;
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<Event>($"Event/{id}");
+                return response.EndDate;
+            }
+            catch (Exception e)
+            {
+                throw e.GetBaseException();
+            }
+
         }
 
         public async Task<EditEventPostDTO> GetEditEventPost(int id)
         {
-            var response = await _httpClient.GetFromJsonAsync<EditEventPostDTO>($"Event/GetEditEventPost/{id}");
-            return response;
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<EditEventPostDTO>($"Event/GetEditEventPost/{id}");
+                return response;
+            }
+            catch (Exception e)
+            {
+                throw e.GetBaseException();
+            }
+
         }
 
         public async Task UpdateEventPosts(EditEventDTO editEventDTO)
@@ -83,7 +120,20 @@ namespace Lobsystem.Client.APICallers
             catch (Exception e)
             {
 
-                throw e.InnerException;
+                throw e.GetBaseException();
+            }
+        }
+
+        public async Task DeleteEvent(int id)
+        {
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"Event/{id}");
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception e)
+            {
+                throw e.GetBaseException();
             }
         }
     }
