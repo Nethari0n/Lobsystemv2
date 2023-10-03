@@ -191,9 +191,26 @@ namespace Lobsystem.Server.Controllers
             catch (Exception)
             {
 
-                throw;
+                return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
+
+        [HttpDelete]
+        [Route("{id}")]
+        public async Task<IActionResult> DeleteEvent(int id)
+        {
+            try
+            {
+                var temp = _eventPostTypesService.GetEventByID(id);
+                await _createService.DeleteEntity(temp);
+                return Ok(temp);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
     }
 
 }

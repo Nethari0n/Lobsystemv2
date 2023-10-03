@@ -96,6 +96,8 @@
                                                     <li><hr class="dropdown-divider"></li>
                                                     <li><a class="dropdown-item text-decoration-none" type="button" href="@($"/EventScan?id={item.EventID}")">Skan</a> </li>
                                                     <li><a class="dropdown-item text-decoration-none" type="button" href="@($"/EditEvent?id={item.EventID}")">Rediger</a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item text-decoration-none" type="button" href="@($"/EventChips?id={item.EventID}")">Tilføj Chips</a></li>
                                                 </ul>
                                             </div>
                                         </td>
@@ -243,9 +245,18 @@
             return;
         else
         {
-            //TODO NEED delete event
-            //await _CreateService.DeleteEntity(events);
-            EventList.Remove(events);
+            try
+            {
+                await _EventCaller.DeleteEvent(events.EventID);
+                EventList.Remove(events);
+                toastService.ShowSuccess($"Eventen: {events.EventName} blev slettet");
+            }
+            catch (Exception)
+            {
+                throw;
+                //toastService.ShowError("Noget gik galt under sletning af event");
+            }
+            
         }
     }
 
