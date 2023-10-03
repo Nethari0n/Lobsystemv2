@@ -425,8 +425,6 @@
     {
         if (Mail != null)
         {
-
-
             if (ValidateEmail(Mail.ToLower()))
             {
 
@@ -435,43 +433,50 @@
                 Mail = Mail.Trim();
                 Password = Password.Trim();
                 PassRepeat = PassRepeat.Trim();
-
-                if (!IsNull(UserName) && !IsNull(Name) && !IsNull(Mail) && !IsNull(Password) && !IsNull(PassRepeat) && PassRepeat == Password)
+                if (Password.Length > 7)
                 {
-                    if (!await _UserCaller.UserExists(UserName.ToLower(), Name))
+                    if (!IsNull(UserName) && !IsNull(Name) && !IsNull(Mail) && !IsNull(Password) && !IsNull(PassRepeat) && PassRepeat == Password)
                     {
-                        // string passSalt = _UserService.CreateSalt();
+                        if (!await _UserCaller.UserExists(UserName.ToLower(), Name))
+                        {
+                            // string passSalt = _UserService.CreateSalt();
 
-                        RegisterRequest registerRequest = new RegisterRequest
+                            RegisterRequest registerRequest = new RegisterRequest
+                                {
+                                    UserName = UserName.ToLower(),
+                                    Name = Name,
+                                    Password = Password,
+                                    PasswordConfirm = PassRepeat,
+                                    Email = Mail.ToLower(),
+                                    RoleId = "8e9f3987-e4d9-47c2-b465-9919e0c206c7",
+                                };
+
+                            try
                             {
-                                UserName = UserName.ToLower(),
-                                Name = Name,
-                                Password = Password,
-                                PasswordConfirm = PassRepeat,
-                                Email = Mail.ToLower(),
-                                RoleId = "8e9f3987-e4d9-47c2-b465-9919e0c206c7",
-                            };
 
-                        try
-                        {
+                                await _AuthService.Register(registerRequest);
+                                toastService.ShowSuccess($"Bruger '{registerRequest.UserName}' blev oprettet");
+                            }
+                            catch (Exception)
+                            {
+                                toastService.ShowError("der gik noget galt med oprettelse af Brugeren");
+                            }
 
-                            await _AuthService.Register(registerRequest);
-                            toastService.ShowSuccess($"Bruger '{registerRequest.UserName}' blev oprettet");
+                            await GetLists();
+                            await CloseCreateModal();
                         }
-                        catch (Exception)
-                        {
-                            toastService.ShowError("der gik noget galt med oprettelse af Brugeren");
-                        }
-
-                        await GetLists();
-                        await CloseCreateModal();
+                        else
+                            toastService.ShowError("Brugernavn eller Navn eksistere allerede.");
                     }
                     else
-                        toastService.ShowError("Brugernavn eller Navn eksistere allerede.");
+                        toastService.ShowError("Noget gik galt i oprettelse af bruger, tjek de indtastede oplysninger");
                 }
                 else
-                    toastService.ShowError("Noget gik galt i oprettelse af bruger, tjek de indtastede oplysninger");
+                {
+                    toastService.ShowError("Password skal være mere end 8 karaktere");
+                }
             }
+
             else
                 toastService.ShowError("Email er ikke gyldig.");
         }

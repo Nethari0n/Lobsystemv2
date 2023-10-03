@@ -18,7 +18,7 @@
                 <div class="col-4 space"></div>
                 <div class="col-4 end">
                     <label for="startDate">Start Tid <i class="Required">*</i></label>
-                    <input class="form-control" type="datetime-local" id="startDate" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-dd HH:mm")" value="@StartDate" @onchange="(async e => {await StartDateValidation((string)e.Value);await InvokeAsync(StateHasChanged);})" />
+                    <input class="form-control" type="datetime-local" id="startDate" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-ddTHH:mm")" value="@StartDate" @onchange="(async e => {await StartDateValidation((string)e.Value);await InvokeAsync(StateHasChanged);})" />
                 </div>
             </div>
             <br />
@@ -30,7 +30,7 @@
                 <div class="col-4 space"></div>
                 <div class="col-4 end">
                     <label for="endDate">Slut Tid <i class="Required">*</i></label>
-                    <input class="form-control" type="datetime-local" id="endDate" min="@StartDate" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-dd HH:mm")" value="@EndDate" @onchange="(async e => {await EndDateValidation((string)e.Value);})" />
+                    <input class="form-control" type="datetime-local" id="endDate" min="@StartDate" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-ddTHH:mm")" value="@EndDate" @onchange="(async e => {await EndDateValidation((string)e.Value);})" />
                     <label for="TimeOutParamater" class="CooldownLabel">Cooldown <i class="ToolTip">*</i></label>
                     <input class="form-control Cooldown" onkeypress="@NumbersOnly" onpaste="return false;" ondrop="return false;" autocomplete="off" @bind="Cooldown" placeholder="Default er 30 sec" id="TimeOutParamater" />
                 </div>
@@ -209,6 +209,9 @@
 
     private string Cooldown { get; set; }
 
+    public DateTime StarttimeEvent;
+
+    public DateTime EndtimeEvent; 
 
     private IJSObjectReference _jsModule;
 
@@ -248,45 +251,53 @@
 
     protected async Task StartDateValidation(string value)
     {
-        if (value == "" || DateTime.Parse(value) < DateTime.Now)
+        if (DateTime.TryParse(value, out StarttimeEvent))
         {
-            StartDate = DateTime.Now.ToString("yyyy-MM-ddTHH:mm");
-            //ErrorMessage = "Start dato må ikke være tidliger ind idag.";
-            toastService.ShowError("Start dato må ikke være tidligere end idag.");
-            //await _jsModule.InvokeVoidAsync("ToastError");
-            await _jsModule.InvokeVoidAsync("UpdateStartDate", DateTime.Now.ToString("yyyy-MM-ddTHH:mm"));
-        }
-        else if (DateTime.Parse(EndDate) < DateTime.Parse(value))
-        {
+
+            if (value == "" || StarttimeEvent < DateTime.Now)
+            {
+                StartDate = DateTime.Now.ToString("yyyy-MM-ddTHH:mm");
+                //ErrorMessage = "Start dato må ikke være tidliger ind idag.";
+                toastService.ShowError("Start dato må ikke være tidligere end idag.");
+                //await _jsModule.InvokeVoidAsync("ToastError");
+                await _jsModule.InvokeVoidAsync("UpdateStartDate", DateTime.Now.ToString("yyyy-MM-ddTHH:mm"));
+            }
+            else if (DateTime.Parse(EndDate) < StarttimeEvent)
+            {
+                await _jsModule.InvokeVoidAsync("OnDateChange");
+                StartDate = DateTime.Parse(value).ToString("yyyy-MM-ddTHH:mm");
+                EndDate = DateTime.Parse(value).ToString("yyyy-MM-ddTHH:mm");
+                await _jsModule.InvokeVoidAsync("UpdateEndDate", DateTime.Parse(value).ToString("yyyy-MM-ddTHH:mm"));
+            }
             await _jsModule.InvokeVoidAsync("OnDateChange");
-            StartDate = DateTime.Parse(value).ToString("yyyy-MM-ddTHH:mm");
-            EndDate = DateTime.Parse(value).ToString("yyyy-MM-ddTHH:mm");
-            await _jsModule.InvokeVoidAsync("UpdateEndDate", DateTime.Parse(value).ToString("yyyy-MM-ddTHH:mm"));
         }
-        await _jsModule.InvokeVoidAsync("OnDateChange");
     }
 
     protected async Task EndDateValidation(string value)
     {
-        if (value == "" || DateTime.Parse(value) > DateTime.Now.AddYears(20))
-        {
-            EndDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
-            toastService.ShowError($"Slut dato må senste være {DateTime.Now.AddYears(20).ToString("dd-MM-yyyy")}");
-
-            await _jsModule.InvokeVoidAsync("UpdateEndDate", DateTime.Now.ToString("yyyy-MM-ddTHH:mm"));
-        }
-        else
+        if (DateTime.TryParse(value, out EndtimeEvent))
         {
 
-            if (DateTime.Parse(value) > DateTime.Parse(StartDate))
+            if (value == "" || EndtimeEvent > DateTime.Now.AddYears(20))
             {
-                EndDate = value;
+                EndDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+                toastService.ShowError($"Slut dato må senste være {DateTime.Now.AddYears(20).ToString("dd-MM-yyyy")}");
+
+                await _jsModule.InvokeVoidAsync("UpdateEndDate", DateTime.Now.ToString("yyyy-MM-ddTHH:mm"));
             }
             else
             {
-                EndDate = StartDate;
-                toastService.ShowError("Slut dato må ikke være før start dato.");
-                StateHasChanged();
+
+                if (EndtimeEvent > DateTime.Parse(StartDate))
+                {
+                    EndDate = value;
+                }
+                else
+                {
+                    EndDate = StartDate;
+                    toastService.ShowError("Slut dato må ikke være før start dato.");
+                    StateHasChanged();
+                }
             }
         }
     }
@@ -349,7 +360,7 @@
                     }
 
 
-                   
+
                 }
                 else
                 {
