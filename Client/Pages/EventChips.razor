@@ -159,124 +159,63 @@
                 <th>Låner ID</th>
                 <th>Gruppe 1</th>
                 <th>Gruppe 2</th>
-                <th class="thSorting">Handlinger</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var item in Chip)
             {
 
-                    int localChipID = item.ChipID;
-                    <tr>
-                        <td class="lineHeight">@item.ChipID</td>
-                        <td class="lineHeight">@item.UID</td>
-                        <td class="lineHeight">@item.LaanerID</td>
-                        @if (chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault() != null)
+                int localChipID = item.ChipID;
+                <tr>
+                    <td class="lineHeight">@item.ChipID</td>
+                    <td class="lineHeight">@item.UID</td>
+                    <td class="lineHeight">@item.LaanerID</td>
+                    @if (chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault() != null)
+                    {
+                        @if (chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault().GroupNumber == 1)
                         {
-                            @if (chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault().GroupNumber == 1)
+                            ChipGroup chipGroupDTO = chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault();
+                            ShowGroupDTO groupsDTO = Groups.Where(x => x.GroupId == chipGroupDTO.GroupID).FirstOrDefault();
+                            @if (groupsDTO != null)
                             {
-                                ChipGroup chipGroupDTO = chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault();
-                                ShowGroupDTO groupsDTO = Groups.Where(x => x.GroupId == chipGroupDTO.GroupID).FirstOrDefault();
-                                @if (groupsDTO != null)
-                                {
-                                    <td>@groupsDTO.GroupName</td>
-                                }
-                            }
-                            else
-                            {
-                                <td>Ingen gruppe</td>
+                                <td>@groupsDTO.GroupName</td>
                             }
                         }
                         else
                         {
                             <td>Ingen gruppe</td>
                         }
-                        @if (chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault() != null)
+                    }
+                    else
+                    {
+                        <td>Ingen gruppe</td>
+                    }
+                    @if (chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault() != null)
+                    {
+                        @if (chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault().GroupNumber == 2)
                         {
-                            @if (chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault().GroupNumber == 2)
+                            ChipGroup chipGroupDTO = chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault();
+                            ShowGroupDTO groupsDTO = Groups.Where(x => x.GroupId == chipGroupDTO.GroupID).FirstOrDefault();
+                            @if (groupsDTO != null)
                             {
-                                ChipGroup chipGroupDTO = chipGroupDTOs.Where(x => x.ChipID == item.ChipID).FirstOrDefault();
-                                ShowGroupDTO groupsDTO = Groups.Where(x => x.GroupId == chipGroupDTO.GroupID).FirstOrDefault();
-                                @if (groupsDTO != null)
-                                {
-                                    <td>@groupsDTO.GroupName</td>
-                                }
-                            }
-                            else
-                            {
-                                <td>Ingen gruppe</td>
+                                <td>@groupsDTO.GroupName</td>
                             }
                         }
                         else
                         {
                             <td>Ingen gruppe</td>
                         }
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
-    
+                    }
+                    else
+                    {
+                        <td>Ingen gruppe</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
 
 
-    @* Toast validation*@
-    <div aria-live="polite" aria-atomic="true">
-        <div class="toast-container position-absolute top-0 end-0 p-3">
-            <div class="toast align-items-center text-white bg-success border-0" id="ToastSucces" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body toast-icon">
-                        <i style="font-size: 20px;" class="fa-solid fa-thumbs-up"></i>
-                    </div>
-                    <div class="toast-body toast-text">
-                        @SuccesMessage
-                    </div>
-                </div>
-            </div>
-            <div class="toast align-items-center text-white bg-danger border-0" id="ToastError" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body toast-icon">
-                        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                    </div>
-                    <div class="toast-body toast-text">
-                        @FailedMessage
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-                    <div class="toast-body toast-icon">
-                        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                    </div>
-                    <div class="toast-body toast-text">
-                        @FailedMessage
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-                    <div class="toast-body toast-icon">
-                        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                    </div>
-                    <div class="toast-body toast-text">
-                        @FailedMessage
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-                    <div class="toast-body toast-icon">
-                        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                    </div>
-                    <div class="toast-body toast-text">
-                        @FailedMessage
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <table class="table" hidden id="TemplateExcel">
         <thead>
@@ -315,22 +254,14 @@
     private int successCounter = 0;
     private bool _btnPress;
 
-        StateHasChanged();
-        _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/ExportCSV.js");
-        _jsEventChips = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/EventChips.js");
-        //toastService.ShowToast<Test>(settings => { settings.Timeout = 1; });
-
-
     private int CurrentPage { get; set; } = 1;
     private int Count { get; set; } = 0;
     private int TotalPages { get; set; }
     private int PageCount { get; set; } = 9;
 
-    #endregion
 
     private IJSObjectReference _jsModule;
     private IJSObjectReference _jsEventChips;
-        StateHasChanged();
 
     protected async override Task OnInitializedAsync()
     {
@@ -342,6 +273,7 @@
             //Int32.TryParse(value, out int result);
             SelectedEventID = result;
             StateHasChanged();
+        }
         else
             navigationManager.NavigateTo("/", true);    //Returns to index site if no ID was submitted
 
@@ -351,25 +283,44 @@
             await GetLists();
 
 
+        _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/ExportCSV.js");
+        _jsEventChips = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/EventChips.js");
+        //toastService.ShowToast<Test>(settings => { settings.Timeout = 1; });
         TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageCount));
         StateHasChanged();
     }
 
     protected async Task GetLists()
     {
-        Chip = await _ChipCaller.ChipPagination(CurrentPage, PageCount);
-        Groups = await _GroupCaller.GetAllGroups();
-        chipGroupDTOs = await _ChipGroupCaller.GetChipGroupsAsync();
-        RegistrationDTOs = await _RegistrationCaller.GetAllRegistrationsAsync();
-        var temp = await _ChipCaller.GetAllChips();
-        Count = temp.Count();
+        try
+        {
+            Chip = await _ChipCaller.ChipPagination(CurrentPage, PageCount);
+            Groups = await _GroupCaller.GetAllGroups();
+            chipGroupDTOs = await _ChipGroupCaller.GetChipGroupsAsync();
+            RegistrationDTOs = await _RegistrationCaller.GetAllRegistrationsAsync();
+            var temp = await _ChipCaller.GetAllChips();
+            Count = temp.Count();
+        }
+        catch (Exception)
+        {
+
+            toastService.ShowError("Der gik noget galt under indlæsningen");
+        }
+        
     }
 
     protected async Task Search()
     {
-        Chip = await _ChipCaller.SearchChip(CurrentPage, PageCount, SearchField);
-        var temp = await _ChipCaller.GetAllChips();
-        Count = temp.Where(x => x.UID.Contains(SearchField) || x.LaanerID.Contains(SearchField)).ToList().Count();
+        try
+        {
+            Chip = await _ChipCaller.SearchChip(CurrentPage, PageCount, SearchField);
+            var temp = await _ChipCaller.GetAllChips();
+            Count = temp.Where(x => x.UID.Contains(SearchField) || x.LaanerID.Contains(SearchField)).ToList().Count();
+        }
+        catch (Exception)
+        {
+            toastService.ShowError("Der gik noget galt under søgningen");
+        }
     }
 
     /// <summary>
@@ -398,22 +349,44 @@
         {
             if (await _ChipGroupCaller.ChipGroupExistsAsync(chipGroupDTO.ChipId, chipGroupDTO.EventId, chipGroupDTO.GroupNumber))
             {
-                editChipGroupDTO.ChipGroupId = await _ChipGroupCaller.GetChipGroupIDByChipGroupObjectAsync(editChipGroupDTO.ChipId, editChipGroupDTO.EventId, editChipGroupDTO.GroupNumber);
-                await _ChipGroupCaller.UpdateChipGroupAsync(editChipGroupDTO);
-                toastService.ShowSuccess("Chip gruppen blev opdateret.");
+                try
+                {
+                    editChipGroupDTO.ChipGroupId = await _ChipGroupCaller.GetChipGroupIDByChipGroupObjectAsync(editChipGroupDTO.ChipId, editChipGroupDTO.EventId, editChipGroupDTO.GroupNumber);
+                    await _ChipGroupCaller.UpdateChipGroupAsync(editChipGroupDTO);
+                    toastService.ShowSuccess("Chip gruppen blev opdateret.");
+                }
+                catch (Exception)
+                {
+                    toastService.ShowError("Der gik noget galt under opdateringen af gruppen");
+                }
+                
             }
             else
             {
-                await _ChipGroupCaller.CreateChipGroupAsync(chipGroupDTO);
-                toastService.ShowSuccess("Chip gruppen blev tilføjet.");
+                try
+                {
+                    await _ChipGroupCaller.CreateChipGroupAsync(chipGroupDTO);
+                    toastService.ShowSuccess("Chip gruppen blev tilføjet.");
+                }
+                catch (Exception)
+                {
+                    toastService.ShowError("Der gik noget galt under tilføjelse af gruppen");
+                }
 
             }
         }
         else
         {
-            editChipGroupDTO.ChipGroupId = await _ChipGroupCaller.GetChipGroupIDByChipGroupObjectAsync(editChipGroupDTO.ChipId, editChipGroupDTO.EventId, editChipGroupDTO.GroupNumber);
-            await _ChipGroupCaller.DeleteChipGroupAsync(editChipGroupDTO);
-            toastService.ShowSuccess("Chip grupped blev fjernet.");
+            try
+            {
+                editChipGroupDTO.ChipGroupId = await _ChipGroupCaller.GetChipGroupIDByChipGroupObjectAsync(editChipGroupDTO.ChipId, editChipGroupDTO.EventId, editChipGroupDTO.GroupNumber);
+                await _ChipGroupCaller.DeleteChipGroupAsync(editChipGroupDTO);
+                toastService.ShowSuccess("Chip grupped blev fjernet.");
+            }
+            catch (Exception)
+            {
+                toastService.ShowError("Der gik noget galt under fjernelsen af gruppen");
+            }
 
         }
         if (groupNumber == 1)
@@ -431,9 +404,16 @@
 
     protected async Task ReloadChipGroupList()
     {
-        chipGroupDTOs.Clear();
-        chipGroupDTOs = await _ChipGroupCaller.GetChipGroupsAsync();
-        StateHasChanged();
+        try
+        {
+            chipGroupDTOs.Clear();
+            chipGroupDTOs = await _ChipGroupCaller.GetChipGroupsAsync();
+            StateHasChanged();
+        }
+        catch (Exception)
+        {
+            toastService.ShowError("Der gik noget galt under indlæsningen");
+        }
     }
 
     protected async Task AddRegistrationAsync(int id, bool btnPress)
@@ -448,21 +428,35 @@
 
         if (!RegistrationDTOs.Any(x => x.ChipID == id && x.EventID == SelectedEventID))
         {
-            await _RegistrationCaller.CreateRegistrationAsync(registrationDTO);
-            if (_btnPress)
+            try
             {
-                await SuccessToastCallerAsync();
+                await _RegistrationCaller.CreateRegistrationAsync(registrationDTO);
+                if (_btnPress)
+                {
+                    await SuccessToastCallerAsync();
+                }
+                await GetLists();
             }
-            await GetLists();
+            catch (Exception)
+            {
+                toastService.ShowError("Der gik noget galt under tilføjelsen af chip til event");
+            }
         }
 
     }
 
     protected async Task RemoveRegistration(int id)
     {
-        await _RegistrationCaller.DeleteRegistrationAsync(id, SelectedEventID);
-        toastService.ShowSuccess("Chip blev fjernet fra event");
-        await GetLists();
+        try
+        {
+            await _RegistrationCaller.DeleteRegistrationAsync(id, SelectedEventID);
+            toastService.ShowSuccess("Chip blev fjernet fra event");
+            await GetLists();
+        }
+        catch (Exception)
+        {
+            toastService.ShowError("Der gik noget galt under fjernelsen af chip fra event");
+        }
 
     }
 
@@ -522,21 +516,26 @@
             {
                 if (chipID > 0)
                 {
-                    await AddRegistrationAsync(chipID, false);
-                    successCounter++;
-                    toastService.ShowToast<Test>(
-                        new ToastParameters()
-                        .Add(nameof(Test.SuccessCount), successCounter)
-                        .Add(nameof(Test.TotalCount), dt.Rows.Count), settings => { settings.Timeout = 1; settings.Position = Blazored.Toast.Configuration.ToastPosition.TopRight; settings.Icon = "IconType.FontAwesome"; settings.ShowCloseButton = true; settings.AdditionalClasses = "tempToast"; });
-                    await _jsEventChips.InvokeVoidAsync("temp");
-                    //toastService.ShowInfo($"Antal chips tilføjet: {successCounter} ud af {dt.Rows.Count}");
+                    try
+                    {
+                        await AddRegistrationAsync(chipID, false);
+                        successCounter++;
+                        toastService.ShowToast<Test>(
+                            new ToastParameters()
+                            .Add(nameof(Test.SuccessCount), successCounter)
+                            .Add(nameof(Test.TotalCount), dt.Rows.Count), settings => { settings.Timeout = 1; settings.Position = Blazored.Toast.Configuration.ToastPosition.TopRight; settings.Icon = "IconType.FontAwesome"; settings.ShowCloseButton = true; settings.AdditionalClasses = "tempToast"; });
+                        await _jsEventChips.InvokeVoidAsync("SendHelpToFixClass");
+                    }
+                    catch (Exception)
+                    {
+                        toastService.ShowError("Der gik noget galt under tilføjelsen af chips til event");
+                    }
                 }
                 else
                 {
                     errorCounter++;
                 }
             }
-            
 
         }
         if (errorCounter > 0)
@@ -566,15 +565,18 @@
             successCounter = 0;
         }
 
-
-
     }
-
-
     protected async Task ExportToExcel()
     {
-        AllChips = await _ChipCaller.GetAllChips();
-        StateHasChanged();
-        await _jsModule.InvokeVoidAsync("export_table_to_csv", "#tableExport", "EventChips.csv");
+        try
+        {
+            AllChips = await _ChipCaller.GetAllChips();
+            StateHasChanged();
+            await _jsModule.InvokeVoidAsync("export_table_to_csv", "#tableExport", "EventChips.csv");
+        }
+        catch (Exception)
+        {
+            toastService.ShowError("Der gik noget galt under exporteringen af chips");
+        }
     }
 }
