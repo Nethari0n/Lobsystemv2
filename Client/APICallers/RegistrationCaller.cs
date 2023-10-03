@@ -31,7 +31,6 @@ namespace Lobsystem.Client.APICallers
         {
             try
             {
-                //https://localhost:7122/Registration/chipid/1/eventid/1
                 var response = await _httpClient.GetFromJsonAsync<Registration>($"Registration/chipid/{id}/eventid/{eventId}");
                 return response;
             }
