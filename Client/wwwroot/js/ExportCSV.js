@@ -3,7 +3,7 @@
     var downloadLink;
 
     // CSV FILE
-    csvFile = new Blob([csv], { type: "text/csv" });
+    csvFile = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
 
     // Download link
     downloadLink = document.createElement("a");
@@ -40,8 +40,3 @@ export function export_table_to_csv(html, filename) {
     // Download CSV
     download_csv(csv.join("\n"), filename);
 }
-
-//document.querySelector("button").addEventListener("click", function () {
-//    var html = document.querySelector("table").outerHTML;
-//    export_table_to_csv(html, "table.csv");
-//});

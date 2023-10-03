@@ -1,0 +1,14 @@
+﻿    <p class="blazored-toast-message" b-jnm4noxjw5="">Antal chips tilføjet: @SuccessCount ud af @TotalCount</p>
+
+
+
+
+@code {
+
+    [CascadingParameter] private BlazoredToast ToastInstance { get; set; } = default!;
+
+    [Parameter] public int SuccessCount { get; set; }
+    [Parameter] public int TotalCount { get; set; }
+
+
+}
