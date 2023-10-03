@@ -587,6 +587,12 @@
     protected async Task ImportExcelFile(InputFileChangeEventArgs e)
     {
 
+        if (Path.GetExtension(e.File.Name) != ".csv")
+        {
+            toastService.ShowError("Tager kun imod .csv filer");
+            return;
+        }
+
         var fileStream = e.File.OpenReadStream();
         MemoryStream ms = new MemoryStream();
         await fileStream.CopyToAsync(ms);
