@@ -300,13 +300,14 @@
             RegistrationDTOs = await _RegistrationCaller.GetAllRegistrationsAsync();
             var temp = await _ChipCaller.GetAllChips();
             Count = temp.Count();
+            StateHasChanged();
         }
         catch (Exception)
         {
 
             toastService.ShowError("Der gik noget galt under indlæsningen");
         }
-        
+
     }
 
     protected async Task Search()
@@ -314,8 +315,12 @@
         try
         {
             Chip = await _ChipCaller.SearchChip(CurrentPage, PageCount, SearchField);
+            Groups = await _GroupCaller.GetAllGroups();
+            chipGroupDTOs = await _ChipGroupCaller.GetChipGroupsAsync();
+            RegistrationDTOs = await _RegistrationCaller.GetAllRegistrationsAsync();
             var temp = await _ChipCaller.GetAllChips();
             Count = temp.Where(x => x.UID.Contains(SearchField) || x.LaanerID.Contains(SearchField)).ToList().Count();
+            StateHasChanged();
         }
         catch (Exception)
         {
@@ -359,7 +364,7 @@
                 {
                     toastService.ShowError("Der gik noget galt under opdateringen af gruppen");
                 }
-                
+
             }
             else
             {
@@ -435,7 +440,10 @@
                 {
                     await SuccessToastCallerAsync();
                 }
-                await GetLists();
+                if (!string.IsNullOrWhiteSpace(SearchField))
+                    await Search();
+                else
+                    await GetLists();
             }
             catch (Exception)
             {
@@ -451,7 +459,10 @@
         {
             await _RegistrationCaller.DeleteRegistrationAsync(id, SelectedEventID);
             toastService.ShowSuccess("Chip blev fjernet fra event");
-            await GetLists();
+            if (!string.IsNullOrWhiteSpace(SearchField))
+                await Search();
+            else
+                await GetLists();
         }
         catch (Exception)
         {
@@ -462,6 +473,12 @@
 
     protected async Task ImportExcelFile(InputFileChangeEventArgs e)
     {
+        if (Path.GetExtension(e.File.Name) != ".csv")
+        {
+            toastService.ShowError("Tager kun imod .csv filer");
+            return;
+        }
+
         int errorCounter = 0;
 
         var fileStream = e.File.OpenReadStream();
