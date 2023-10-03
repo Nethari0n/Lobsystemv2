@@ -271,20 +271,16 @@
         if (value == "" || DateTime.Parse(value) > DateTime.Now.AddYears(20))
         {
             EndDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
-            //ErrorMessage = $"Slut dato må senste være {DateTime.Now.AddYears(20).ToString("dd-MM-yyyy")}";
             toastService.ShowError($"Slut dato må senste være {DateTime.Now.AddYears(20).ToString("dd-MM-yyyy")}");
 
-            //await _jsModule.InvokeVoidAsync("ToastError");
             await _jsModule.InvokeVoidAsync("UpdateEndDate", DateTime.Now.ToString("yyyy-MM-ddTHH:mm"));
         }
         else
         {
-            //await _jsModule.InvokeVoidAsync("OnEndChange");
 
             if (DateTime.Parse(value) > DateTime.Parse(StartDate))
             {
                 EndDate = value;
-                //await _jsModule.InvokeVoidAsync("UpdateEndDate", DateTime.Parse(EndDate).ToString("yyyy-MM-ddTHH:mm"));
             }
             else
             {
@@ -299,7 +295,6 @@
 
     protected async Task ToastTitle()
     {
-        //await _jsModule.InvokeVoidAsync("ToastValidation")
 
         if (string.IsNullOrWhiteSpace(Title))
             toastService.ShowError("Der skal være en Titel");
@@ -351,22 +346,14 @@
                     catch (Exception e)
                     {
                         toastService.ShowError("Fejl opstod under Opretning af Event");
-                        //toastService.ShowError(e.Message);
-
                     }
 
-
-                    //_EventPostTypesService.AddPostFromList(PostList, eventDTO.EventID);
-
-                    //ClearFields();
 
                    
                 }
                 else
                 {
                     toastService.ShowError("Fejl opstod");
-                    // ErrorMessage = $"Fejl opstod";
-                    // await JsRuntime.InvokeVoidAsync("ToastError");
                 }
             }
             else
@@ -377,8 +364,6 @@
         else
         {
             toastService.ShowError("Mindst 1 Post");
-            // ErrorMessage = $"Mindst 1 post.";
-            // await JsRuntime.InvokeVoidAsync("ToastError");
         }
     }
 
@@ -400,8 +385,6 @@
         {
             Distance = 0;
             toastService.ShowError("Post afstand må ikke være længere end 5 karakter.");
-            // ErrorMessage = "Post afstand må ikke være længere ind 5 karakter.";
-            // await JsRuntime.InvokeVoidAsync("ToastError");
         }
     }
 

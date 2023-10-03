@@ -202,7 +202,15 @@
                 EventName = eventDTO.EventName
             };
         eventDTO.StartDate = DateTime.Now;
-        await _EventCaller.UpdateEventPosts(editEventDTO);
+        try
+        {
+            await _EventCaller.UpdateEventPosts(editEventDTO);
+            toastService.ShowSuccess($"Eventen {editEventDTO.EventName} er Startet");
+        }
+        catch (Exception)
+        {
+            toastService.ShowError("Noget gik galt under start af Event");
+        }
     }
 
     protected async Task EndEvent(EventTypeDTO eventDTO)
@@ -218,7 +226,15 @@
                 TypesID = eventDTO.TypesID,
                 EventName = eventDTO.EventName
             };
-        await _EventCaller.UpdateEventPosts(editEventDTO);
+        try
+        {
+            await _EventCaller.UpdateEventPosts(editEventDTO);
+            toastService.ShowSuccess($"Eventen {editEventDTO.EventName} er afsluttet");
+        }
+        catch (Exception)
+        {
+            toastService.ShowError("Noget gik galt under start af Event");
+        }
     }
 
     protected async Task DeleteEvent(EventTypeDTO events)
@@ -227,6 +243,7 @@
             return;
         else
         {
+            //TODO NEED delete event
             //await _CreateService.DeleteEntity(events);
             EventList.Remove(events);
         }

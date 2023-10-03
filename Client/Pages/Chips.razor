@@ -437,10 +437,19 @@
                         UID = UID,
                         LaanerID = LaanerID
                     };
-                await _ChipCaller.CreateChip(chip);
-                toastService.ShowSuccess("Chip blev oprettet.");
 
-               await GetChip();
+                try
+                {
+                    await _ChipCaller.CreateChip(chip);
+                    toastService.ShowSuccess("Chip blev oprettet.");
+                }
+                catch (Exception)
+                {
+                    toastService.ShowError("Noget gik galt ved oprettelse af Chip");
+                }
+
+
+                await GetChip();
             }
             else
             {
@@ -460,7 +469,7 @@
         UID = chipUploadInfo.UID;
         LaanerID = chipUploadInfo.BorrowID;
         await CreateChip();
-        dt.Rows.Remove(row); 
+        dt.Rows.Remove(row);
         await GetChip();
         StateHasChanged();
 
@@ -499,8 +508,7 @@
         }
         catch (Exception)
         {
-
-            throw;
+            toastService.ShowError("Noget gik galt ved oprettelse af Chips");
         }
 
         await GetChip();
@@ -524,8 +532,16 @@
                         UID = UID,
                         LaanerID = LaanerID
                     };
-                await _ChipCaller.UpdateChip(chipDTO);
-                toastService.ShowSuccess("Chip blev opdateret.");
+                try
+                {
+                    await _ChipCaller.UpdateChip(chipDTO);
+                    toastService.ShowSuccess("Chip blev opdateret.");
+                }
+                catch (Exception)
+                {
+                    toastService.ShowError("Noget gik galt med Opdateringen af Chip");
+                }
+
 
                 await GetChip();
             }
@@ -549,13 +565,22 @@
             obj.Aktive = true;
         }
         ChipHandlingDTO chipObj = new()
+            {
+                ChipID = obj.ChipID,
+                UID = obj.UID,
+                LaanerID = obj.LaanerID,
+                Aktive = obj.Aktive
+            };
+
+        try
         {
-            ChipID = obj.ChipID,
-            UID = obj.UID,
-            LaanerID = obj.LaanerID,
-            Aktive = obj.Aktive
-        };
-        await _ChipCaller.UpdateChip(chipObj);
+            await _ChipCaller.UpdateChip(chipObj);
+            toastService.ShowSuccess("Chip blev opdateret.");
+        }
+        catch (Exception)
+        {
+            toastService.ShowError("Noget gik galt med Opdateringen af Chip");
+        }
 
     }
 
