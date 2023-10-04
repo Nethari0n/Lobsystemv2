@@ -157,7 +157,7 @@
 
         await _ScanCaller.DeleteScan(scan.ScanningID);
         Scannings.Remove(Scannings.SingleOrDefault(i => i.ScanningID == scan.ScanningID));
-        GetRapport(eventId);
+        await GetRapport(eventId);
         StateHasChanged();
 
     }
