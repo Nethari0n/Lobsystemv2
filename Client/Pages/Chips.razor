@@ -13,13 +13,13 @@
             <div class="d-flex">
                 <h2>Chips</h2>
                 <button class="btn ml-5 mb-1 logoColor" data-bs-toggle="modal" data-bs-target="#opretModal">Opret</button>
-                <button type="button" id="exportBtn" class="btn ml-1 mb-1 logoColor" @onclick="ExportCSVFile">Export tabel til Excel</button>
-                <a id="exportTemplateBtn" class="btn ml-1 mb-1 logoColor" href="/templates/skabelonchip.xlsx" download="skabelonchip.xlsx">Export Skabelon til Excel</a>
-                <input type="button" class="btn ml-1 mb-1 logoColor" value="Upload Excel til tabel" onclick="document.getElementById('ExcelFileUpload').click()">
+                <button type="button" id="exportBtn" class="btn ml-5 mb-1 logoColor" @onclick="ExportCSVFile">Export tabel til Excel</button>
+                <a id="exportTemplateBtn" class="btn ml-5 mb-1 logoColor" href="/templates/skabelonchip.xlsx" download="skabelonchip.xlsx">Export Skabelon til Excel</a>
+                <input type="button" class="btn ml-5 mb-1 logoColor" value="Upload Excel til tabel" onclick="document.getElementById('ExcelFileUpload').click()">
                 <InputFile hidden id="ExcelFileUpload" OnChange="ImportExcelFile" />
             </div>
             <div>
-                <input class="form-control" type="text" id="search" @bind="SearchField" @oninput="(e => SearchField = e.Value.ToString())" @onkeyup="(e => {OnInitializedAsync(); CurrentPage = 1;})" placeholder="Søg på navn.." />
+                <input class="form-control" type="text" id="search" @onkeypress="e => IsAlphabetKeyAndNumbers(e)" @bind="SearchField" @oninput="(e => SearchField = e.Value.ToString())" @onkeyup="(e => {OnInitializedAsync(); CurrentPage = 1;})" placeholder="Søg på navn.." />
             </div>
         </div>
         <div class="TableScrollable" id="tableContainer">
@@ -170,57 +170,6 @@
             }
         }
         catch { }
-
-
-
-        @*//------------------------ Toast Validation ------------------------//*@
-        <div aria-live="polite" aria-atomic="true">
-            <div class="toast-container position-absolute top-0 end-0 p-3">
-                <div class="toast align-items-center text-white bg-danger border-0" id="ToastError" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="d-flex">
-                        <div class="toast-body toast-icon">
-                            <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                        </div>
-                        <div class="toast-body toast-text">
-                            @ErrorField
-                        </div>
-                    </div>
-                </div>
-
-                <div class="toast align-items-center text-white bg-success border-0" id="ToastSucces" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="d-flex">
-                        <div class="toast-body toast-icon">
-                            <i style="font-size: 20px;" class="fa-solid fa-thumbs-up"></i>
-                        </div>
-                        <div class="toast-body toast-text">
-                            @SuccesMessage
-                        </div>
-                    </div>
-                </div>
-
-                <div class="toast align-items-center text-white bg-danger border-0" id="LaanerIDToast" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="d-flex">
-                        <div class="toast-body toast-icon">
-                            <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                        </div>
-                        <div class="toast-body toast-text">
-                            LånerID skal udfyldes.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="toast align-items-center text-white bg-danger border-0" id="UIDToast" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="d-flex">
-                        <div class="toast-body toast-icon">
-                            <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                        </div>
-                        <div class="toast-body toast-text">
-                            UID skal udfyldes.
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
 
@@ -235,11 +184,11 @@
                 <div class="modal-body">
                     <div class="d-flex justify-content-center">
                         <p class="w-50">UID: </p>
-                        <input class="form-control w-50 ml-1" type="text" id="UID" @bind-value="UID" maxlength="30" />
+                        <input class="form-control w-50 ml-1" type="text" id="UID" @onkeypress="e => IsAlphabetKeyAndNumbers(e)" @bind-value="UID" maxlength="30" />
                     </div>
                     <div class="d-flex justify-content-center">
                         <p class="w-50">LaanerID: </p>
-                        <input class="form-control w-50 ml-1" type="text" id="LaanerID" @bind-value="LaanerID" maxlength="30" />
+                        <input class="form-control w-50 ml-1" type="text" id="LaanerID" @onkeypress="e => IsAlphabetKeyAndNumbers(e)" @bind-value="LaanerID" maxlength="30" />
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -261,12 +210,12 @@
                     <input id="chipID" type="hidden" @bind-value="ChipID" />
                     <div class="d-flex justify-content-center">
                         <p class="w-50">UID: </p>
-                        <input class="form-control w-50 ml-1" id="uid" type="text" @bind-value="UID" maxlength="30" />
+                        <input class="form-control w-50 ml-1" id="uid" type="text" @onkeypress="e => IsAlphabetKeyAndNumbers(e)" @bind-value="UID" maxlength="30" />
                         <input type="hidden" id="lastUID" @bind-value="LastUID" />
                     </div>
                     <div class="d-flex justify-content-center">
                         <p class="w-50">Låner ID: </p>
-                        <input class="form-control w-50 ml-1" id="name" type="text" @bind-value="LaanerID" maxlength="30" />
+                        <input class="form-control w-50 ml-1" id="name" type="text" @onkeypress="e => IsAlphabetKeyAndNumbers(e)" @bind-value="LaanerID" maxlength="30" />
                     </div>
 
                 </div>
@@ -384,6 +333,7 @@
 
     private IJSObjectReference _jsModule;
     private IJSObjectReference _jsChipsModule;
+    private IJSObjectReference _jsSite;
 
 
     protected async override Task OnInitializedAsync()
@@ -398,6 +348,7 @@
         TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageCount));
         _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/ExportCSV.js");
         _jsChipsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/Chips.js");
+        _jsSite = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/site.js");
 
     }
 
@@ -440,7 +391,7 @@
                 await _ChipCaller.CreateChip(chip);
                 toastService.ShowSuccess("Chip blev oprettet.");
 
-               await GetChip();
+                await GetChip();
             }
             else
             {
@@ -495,12 +446,11 @@
         try
         {
             await _ChipCaller.CreateChips(chips);
-
+            toastService.ShowSuccess("Oprettede chips");
         }
         catch (Exception)
         {
-
-            throw;
+            toastService.ShowError("Der skete en fejl under oprettelsen af chips");
         }
 
         await GetChip();
@@ -598,6 +548,8 @@
     }
 
     protected async Task ExportCSVFile() => await _jsModule.InvokeVoidAsync("export_table_to_csv", "#TemplateExcel", "Chips.csv");
+    protected async Task IsAlphabetKeyAndNumbers(KeyboardEventArgs e) => await _jsSite.InvokeVoidAsync("isAlphabetKeyAndNumbers", e.Code);
+
 
     protected async Task ShowEditModal(int id, string uid, string laanerID)
     {

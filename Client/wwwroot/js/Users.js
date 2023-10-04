@@ -7,6 +7,7 @@ export function isAlphabetKey(evt) {
     }
 }
 
+
 export function ShowEditModal() {
     var modal = document.getElementById("editModal");
     modal.style.display = "block";
