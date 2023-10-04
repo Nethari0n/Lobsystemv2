@@ -21,7 +21,7 @@
                 <div class="col-4 space"></div>
                 <div class="col-4 end">
                     <label for="startDate">Start Tid <i class="Required RightSideReq">*</i></label>
-                    <input class="form-control" type="datetime-local" id="startDate" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-dd HH:mm")" min="@DateTime.Parse(DateTime.Now.ToString("yyyy-MM-dd HH:mm")).ToString("yyyy-MM-dd HH:mm")" value="@StartDate" @onchange="(async e => {await StartDateValidation((string)e.Value);StateHasChanged();})" />
+                    <input class="form-control" type="datetime-local" id="startDate" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-ddTHH:mm")" @bind="SelectedStartDateTime" @oninput="StartDateValidation" />
                 </div>
             </div>
             <br />
@@ -33,7 +33,7 @@
                 <div class="col-4 space"></div>
                 <div class="col-4 end">
                     <label for="endDate">Slut Tid <i class="Required RightSideReq">*</i></label>
-                    <input class="form-control" type="datetime-local" id="endDate" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-dd HH:mm")" min="@DateTime.Parse(OldStartDate).ToString("yyyy-MM-dd HH:mm")" value="@EndDate" @onchange="(async e => {await EndDateValidation((string)e.Value);StateHasChanged();})" />
+                    <input class="form-control" type="datetime-local" id="endDate" min="@SelectedStartDateTime.ToString("yyyy-MM-ddTHH:mm")" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-ddTHH:mm")" @bind="SelectedEndDateTime" @oninput="EndDateValidation" />
                     <label for="TimeOutParamater" class="CooldownLabel">Cooldown <i class="ToolTip">*</i></label>
                     <input class="form-control Cooldown" onkeypress="@NumbersOnly" onpaste="return false;" ondrop="return false;" autocomplete="off" @bind="Cooldown" placeholder="Default er 30 sec" id="TimeOutParamater" />
                 </div>
@@ -134,6 +134,11 @@
 
     private string EndDate { get; set; }
 
+    private DateTime SelectedStartDateTime { get; set; } = DateTime.Now; // Initialize with the current date and time.
+
+    private DateTime SelectedEndDateTime { get; set; } = DateTime.Now.AddHours(1); // Initialize with the current date and time.
+
+
     private string Title { get; set; }
 
     private string Desc { get; set; }
@@ -198,8 +203,8 @@
 
         ID = ev.EditEventDTO.EventId;
 
-        StartDate = ev.EditEventDTO.StartDate.ToString("yyyy-MM-dd HH:mm");
-        EndDate = ev.EditEventDTO.EndDate.ToString("yyyy-MM-dd HH:mm");
+        SelectedStartDateTime = ev.EditEventDTO.StartDate;
+        SelectedEndDateTime = ev.EditEventDTO.EndDate;
 
         OldStartDate = ev.EditEventDTO.StartDate.ToString("yyyy-MM-dd HH:mm");
         OldEndDate = ev.EditEventDTO.EndDate.ToString("yyyy-MM-dd HH:mm");
@@ -207,46 +212,39 @@
         NumbersOnly = "return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))";
     }
 
-    protected async Task StartDateValidation(string value)
+    protected async Task StartDateValidation(ChangeEventArgs e)
     {
-        if (value == "" || DateTime.Parse(value) < DateTime.Now)
+        if (DateTime.TryParse(e.Value.ToString(), out DateTime selectedStartTime))
         {
-            StartDate = DateTime.Now.ToString("yyyy-MM-ddTHH:mm");
-            toastService.ShowError("Start dato må ikke være tidligere end idag.");
-            await _jsModule.InvokeVoidAsync("UpdateStartDate", DateTime.Now.ToString("yyyy-MM-ddTHH:mm"));
+            if (selectedStartTime < DateTime.Now)
+            {
+                SelectedStartDateTime = DateTime.Now;
+                toastService.ShowError("Start dato må ikke være tidligere end idag.");
+            }
+            else if (SelectedEndDateTime < selectedStartTime)
+            {
+                SelectedStartDateTime = selectedStartTime;
+                SelectedEndDateTime = selectedStartTime; // Adjust the end time to match the start time
+            }
+            StateHasChanged();
         }
-        else if (DateTime.Parse(EndDate) < DateTime.Parse(value))
-        {
-            await _jsModule.InvokeVoidAsync("OnDateChange");
-            StartDate = DateTime.Parse(value).ToString("yyyy-MM-ddTHH:mm");
-            EndDate = DateTime.Parse(value).ToString("yyyy-MM-ddTHH:mm");
-            await _jsModule.InvokeVoidAsync("UpdateEndDate", DateTime.Parse(value).ToString("yyyy-MM-ddTHH:mm"));
-        }
-        await _jsModule.InvokeVoidAsync("OnDateChange");
     }
 
-    protected async Task EndDateValidation(string value)
+    protected async Task EndDateValidation(ChangeEventArgs e)
     {
-        if (value == "" || DateTime.Parse(value) > DateTime.Now.AddYears(20))
+        if (DateTime.TryParse(e.Value.ToString(), out DateTime selectedEndTime))
         {
-            EndDate = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
-            toastService.ShowError($"Slut dato må senste være {DateTime.Now.AddYears(20).ToString("dd-MM-yyyy")}");
-
-            await _jsModule.InvokeVoidAsync("UpdateEndDate", DateTime.Now.ToString("yyyy-MM-ddTHH:mm"));
-        }
-        else
-        {
-
-            if (DateTime.Parse(value) > DateTime.Parse(StartDate))
+            if (selectedEndTime > DateTime.Now.AddYears(20))
             {
-                EndDate = value;
+                SelectedEndDateTime = DateTime.Now.AddYears(20);
+                toastService.ShowError($"Slut dato må seneste være {DateTime.Now.AddYears(20).ToString("dd-MM-yyyy")}");
             }
-            else
+            else if (selectedEndTime < SelectedStartDateTime)
             {
-                EndDate = StartDate;
+                SelectedEndDateTime = SelectedStartDateTime;
                 toastService.ShowError("Slut dato må ikke være før start dato.");
-                StateHasChanged();
             }
+            StateHasChanged();
         }
     }
 
@@ -258,9 +256,9 @@
 
         if (string.IsNullOrWhiteSpace(Title))
             toastService.ShowError("Der skal være en Titel");
-        if (string.IsNullOrWhiteSpace(StartDate))
+        if (SelectedStartDateTime == null)
             toastService.ShowError("Der skal være en Start Dato");
-        if (string.IsNullOrWhiteSpace(EndDate))
+        if (SelectedEndDateTime == null)
             toastService.ShowError("Der skal være en Slut Dato");
         if (TypesID == 0)
             toastService.ShowError("Der skal vælges en Type");
@@ -272,12 +270,12 @@
     {
         if (PostList.Count() != 0)
         {
-            if (StartDate != EndDate)
+            if (SelectedStartDateTime != SelectedEndDateTime)
             {
 
 
                 var _ = Cooldown != null ? Cooldown : Cooldown = "30";
-                if (!string.IsNullOrWhiteSpace(Title) && Title.Length <= 200 && StartDate != null && EndDate != null && TypesID != 0)
+                if (!string.IsNullOrWhiteSpace(Title) && Title.Length <= 200 && SelectedStartDateTime != null && SelectedEndDateTime != null && TypesID != 0)
                 {
                     var j = Desc == null ? Desc = "" : Desc;
 
@@ -285,8 +283,8 @@
                         {
                             EventId = ID,
                             EventName = Title.Trim(),
-                            StartDate = DateTime.Parse(StartDate),
-                            EndDate = DateTime.Parse(EndDate),
+                            StartDate = SelectedStartDateTime,
+                            EndDate = SelectedEndDateTime,
                             Description = Desc.Trim(),
                             TypesID = TypesID,
                             Username = Username,

@@ -239,8 +239,8 @@
 
         _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/CreateEvent.js");
 
-        StartDate = DateTime.Now.ToString("yyyy-MM-ddTHH:mm");
-        EndDate = DateTime.Now.AddHours(1).ToString("yyyy-MM-ddTHH:mm");
+        // StartDate = DateTime.Now.ToString("yyyy-MM-ddTHH:mm");
+        // EndDate = DateTime.Now.AddHours(1).ToString("yyyy-MM-ddTHH:mm");
 
         NumbersOnly = "return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))";
 
@@ -302,9 +302,9 @@
 
         if (string.IsNullOrWhiteSpace(Title))
             toastService.ShowError("Der skal være en Titel");
-        if (string.IsNullOrWhiteSpace(StartDate))
+        if (SelectedStartDateTime == null)
             toastService.ShowError("Der skal være en Start Dato");
-        if (string.IsNullOrWhiteSpace(EndDate))
+        if (SelectedEndDateTime == null)
             toastService.ShowError("Der skal være en Slut Dato");
         if (TypesID == 0)
             toastService.ShowError("Der skal vælges en Type");
@@ -316,10 +316,10 @@
     {
         if (PostList.Count != 0)
         {
-            if (StartDate != EndDate)
+            if (SelectedStartDateTime != SelectedEndDateTime)
             {
                 var _ = Cooldown != null ? Cooldown : Cooldown = "30";
-                if (!string.IsNullOrWhiteSpace(Title) && Title.Length <= 200 && !string.IsNullOrWhiteSpace(Cooldown) && StartDate != null && EndDate != null && TypesID != 0)
+                if (!string.IsNullOrWhiteSpace(Title) && Title.Length <= 200 && !string.IsNullOrWhiteSpace(Cooldown) && SelectedStartDateTime != null && SelectedEndDateTime != null && TypesID != 0)
                 {
                     var i = Desc == null ? Desc = "" : Desc;
 
