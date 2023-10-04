@@ -8,10 +8,10 @@
             <div class="d-flex">
                 <h2>Bruger</h2>
                 <button class="btn ml-5 mb-1 logoColor" @onclick='() => OpenCreateModal("ShowCreateModal")'>Opret</button>
-                <button type="button" id="exportBtn" class="btn ml-1 mb-1 logoColor" @onclick="async () => await ExportToExcel()">Export tabel til Excel</button>
+                <button type="button" id="exportBtn" class="btn ml-5 mb-1 logoColor" @onclick="async () => await ExportToExcel()">Export tabel til Excel</button>
             </div>
             <div>
-                <input class="form-control" type="text" id="search" @bind="SearchField" @oninput="(e => SearchField = e.Value.ToString())" @onkeyup="(e => {OnInitializedAsync(); CurrentPage = 1;})" placeholder="Søg på navn.." />
+                <input class="form-control" type="text" id="search" @onkeypress="e => IsAlphabetKeyAndNumbers(e)" @bind="SearchField" @oninput="(e => SearchField = e.Value.ToString())" @onkeyup="(e => {OnInitializedAsync(); CurrentPage = 1;})" placeholder="Søg på navn.." />
             </div>
         </div>
         <div class="TableScrollable">
@@ -94,25 +94,25 @@
                     <button type="button" class="btn-close" aria-label="Close" @onclick="CloseCreateModal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="d-flex justify-content-center">
-                        <p class="w-50">Brugernavn: </p>
-                        <input @onkeypress="e => IsAlphabetKey(e)" class="form-control w-50 ml-1" type="text" @bind="UserName" required />
+                    <div class="d-flex justify-content-center" style="margin-bottom: 5px;">
+                        <p class="w-50" style="margin: auto 0;">Brugernavn: </p>
+                        <input @onkeypress="e => IsAlphabetKey(e)" maxlength="25" class="form-control w-50 ml-1" type="text" @bind="UserName" required />
                     </div>
-                    <div class="d-flex justify-content-center">
-                        <p class="w-50">Navn: </p>
-                        <input @onkeypress="e => IsAlphabetKey(e)" class="form-control w-50 ml-1" type="text" @bind="Name" required />
+                    <div class="d-flex justify-content-center" style="margin-bottom: 5px;">
+                        <p class="w-50" style="margin: auto 0;">Navn: </p>
+                        <input @onkeypress="e => IsAlphabetKey(e)" maxlength="25" class="form-control w-50 ml-1" type="text" @bind="Name" required />
                     </div>
-                    <div class="d-flex justify-content-center">
-                        <p class="w-50">Adgangskode: </p>
+                    <div class="d-flex justify-content-center" style="margin-bottom: 5px;">
+                        <p class="w-50" style="margin: auto 0;">Adgangskode: <i class="ToolTip">*</i></p>
                         <input class="form-control w-50 ml-1" type="password" @bind="Password" required />
                     </div>
-                    <div class="d-flex justify-content-center">
-                        <p class="w-50">Gentag Adgangskode: </p>
+                    <div class="d-flex justify-content-center" style="margin-bottom: 5px;">
+                        <p class="w-50" style="margin: auto 0;">Gentag Adgangskode: </p>
                         <input class="form-control w-50 ml-1" type="password" @bind="PassRepeat" required />
                     </div>
 
-                    <div class="d-flex justify-content-center">
-                        <p class="w-50">Mail: </p>
+                    <div class="d-flex justify-content-center" style="margin-bottom: 5px;">
+                        <p class="w-50" style="margin: auto 0;">Mail: </p>
                         <input class="form-control w-50 ml-1" type="email" @bind="Mail" required />
                     </div>
                     @* <div class="d-flex justify-content-center">
@@ -145,26 +145,26 @@
                 </div>
                 <div class="modal-body">
                     <input id="ID" type="hidden" value="" asp-for="UserID" />
-                    <div class="d-flex justify-content-center">
-                        <p class="w-50">Brugernavn: </p>
-                        <input class="form-control w-50 ml-1" id="username" type="text" @bind="UserName" />
+                    <div class="d-flex justify-content-center" style="margin-bottom: 5px;">
+                        <p class="w-50" style="margin: auto 0;">Brugernavn: </p>
+                        <input @onkeypress="e => IsAlphabetKey(e)" maxlength="25" class="form-control w-50 ml-1" id="username" type="text" @bind="UserName" />
                         <input class="form-control w-50 ml-1" id="username" type="hidden" @bind="OldUserName" />
                     </div>
-                    <div class="d-flex justify-content-center">
-                        <p class="w-50">Navn: </p>
-                        <input class="form-control w-50 ml-1" id="name" type="text" @bind="Name" />
+                    <div class="d-flex justify-content-center" style="margin-bottom: 5px;">
+                        <p class="w-50" style="margin: auto 0;">Navn: </p>
+                        <input @onkeypress="e => IsAlphabetKey(e)" maxlength="25" class="form-control w-50 ml-1" id="name" type="text" @bind="Name" />
                         <input class="form-control w-50 ml-1" id="name" type="hidden" @bind="OldName" />
                     </div>
-                    <div class="d-flex justify-content-center">
-                        <p class="w-50">Adgangskode: </p>
+                    <div class="d-flex justify-content-center" style="margin-bottom: 5px;">
+                        <p class="w-50" style="margin: auto 0;">Adgangskode: </p>
                         <input class="form-control w-50 ml-1" type="password" id="password" @bind="Password" />
                     </div>
-                    <div class="d-flex justify-content-center">
-                        <p class="w-50">Gentag Adgangskode: </p>
+                    <div class="d-flex justify-content-center" style="margin-bottom: 5px;">
+                        <p class="w-50" style="margin: auto 0;">Gentag Adgangskode: </p>
                         <input class="form-control w-50 ml-1" type="password" id="repetPassword" @bind="PassRepeat" />
                     </div>
-                    <div class="d-flex justify-content-center">
-                        <p class="w-50">Mail: </p>
+                    <div class="d-flex justify-content-center" style="margin-bottom: 5px;">
+                        <p class="w-50" style="margin: auto 0;">Mail: </p>
                         <input class="form-control w-50 ml-1" id="mail" type="email" @bind="Mail" />
                     </div>
                     @*  <div class="d-flex justify-content-center">
@@ -184,112 +184,12 @@
             </div>
         </div>
     </form>
-
-    @*Toast Validation*@
-    <div aria-live="polite" aria-atomic="true">
-        <div class="toast-container position-absolute top-0 end-0 p-3">
-
-            <div class="toast align-items-center text-white bg-danger border-0 DateTimeToast" id="UserNameToast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body toast-icon">
-                        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                    </div>
-                    <div class="toast-body toast-text">
-                        Brugernavn skal udfyles.
-                    </div>
-                </div>
-            </div>
-
-            <div class="toast align-items-center text-white bg-danger border-0" id="NameToast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body toast-icon">
-                        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                    </div>
-                    <div class="toast-body toast-text">
-                        Navn skal udfyles.
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="toast align-items-center text-white bg-danger border-0" id="PassToast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body toast-icon">
-                        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                    </div>
-                    <div class="toast-body toast-text">
-                        Adgangskode skal udfyles..
-                    </div>
-                </div>
-            </div>
-
-            <div class="toast align-items-center text-white bg-danger border-0" id="RepPassToast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body toast-icon">
-                        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                    </div>
-                    <div class="toast-body toast-text">
-                        Gentag adgangskode skal være korrekt.
-                    </div>
-                </div>
-            </div>
-
-            <div class="toast align-items-center text-white bg-danger border-0" id="EmailToast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body toast-icon">
-                        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                    </div>
-                    <div class="toast-body toast-text">
-                        Email skal udfyles.
-                    </div>
-                </div>
-            </div>
-
-            <div class="toast align-items-center text-white bg-danger border-0" id="RoleToast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body toast-icon">
-                        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                    </div>
-                    <div class="toast-body toast-text">
-                        Du skal vælge en role.
-                    </div>
-                </div>
-            </div>
-
-            <div class="toast align-items-center text-white bg-success border-0 DateTimeToast" id="SucessToast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body toast-icon">
-                        <i style="font-size: 20px;" class="fa-solid fa-thumbs-up"></i>
-                    </div>
-                    <div class="toast-body toast-text">
-                        @SuccessField
-                    </div>
-                </div>
-            </div>
-
-            <div class="toast align-items-center text-white bg-danger border-0 DateTimeToast" id="ErrorToast" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body toast-icon">
-                        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-                    </div>
-                    <div class="toast-body toast-text">
-                        @ErrorField
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
 </div>
 @code {
     #region Properties
 
     private List<User> UsersDTO { get; set; } = new();
     private List<User> UsersFull { get; set; } = new();
-
-
-
-    private string xls = "xlsx";
 
 
     private string UserName { get; set; }
@@ -329,6 +229,7 @@
 
 
     private IJSObjectReference _jsModule;
+    private IJSObjectReference _jsSite;
     private IJSObjectReference _jsExcel;
 
     #endregion
@@ -338,6 +239,8 @@
 
         _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/Users.js");
         _jsExcel = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/ExportCSV.js");
+        _jsSite = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/site.js");
+        // Roles = _UserService.GetAllRoles();
         if (!string.IsNullOrWhiteSpace(SearchField))
             await Search();
         else
@@ -589,7 +492,9 @@
             return;
         else
         {
-            if (_AuthService.CurrentUserInfo().Id.ToString() != user.Id)
+            var temp = await _AuthService.CurrentUserInfo();
+
+            if (temp.UserName.ToString() != user.UserName)
             {
                 user.IsDeleted = true;
                 try
@@ -607,6 +512,7 @@
                 toastService.ShowError("Bruger kan ikke slette sig selv");
         }
         await GetLists();
+        StateHasChanged();
     }
 
 
@@ -624,6 +530,7 @@
     protected async Task SearchTable() => await _jsModule.InvokeVoidAsync("SearchTable");
 
     protected async Task IsAlphabetKey(KeyboardEventArgs e) => await _jsModule.InvokeVoidAsync("isAlphabetKey", e.Code);
+    protected async Task IsAlphabetKeyAndNumbers(KeyboardEventArgs e) => await _jsSite.InvokeVoidAsync("isAlphabetKeyAndNumbers", e.Code);
     //protected async Task RoleChange() => await _jsModule.InvokeVoidAsync("roleChange");
 
     protected async Task ToastValidation()

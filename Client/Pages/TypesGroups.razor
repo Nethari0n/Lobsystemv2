@@ -11,7 +11,7 @@
                 <button class="btn ml-5 mb-1 logoColor" @onclick='() => OpenModals("opretModalGroup")'>Opret Gruppe</button>
             </div>
             <div>
-                <input class="form-control" type="text" id="search" @bind="SearchField" @oninput="(e => SearchField = e.Value.ToString())" @onkeyup="(e => {OnInitializedAsync(); CurrentPage = 1;})" placeholder="Søg på navn.." />
+                <input class="form-control" type="text" id="search" @onkeypress="e => IsAlphabetKeyAndNumbers(e)" @bind="SearchField" @oninput="(e => SearchField = e.Value.ToString())" @onkeyup="(e => {OnInitializedAsync(); CurrentPage = 1;})" placeholder="Søg på navn.." />
             </div>
         </div>
         <div class="TableScrollable tableContainerChips">
@@ -61,7 +61,7 @@
                 <button class="btn ml-5 mb-1 logoColor" @onclick='() => OpenModals("opretModalType", "typeTable")'>Opret Type</button>
             </div>
             <div>
-                <input class="form-control" type="text" id="search" @bind="SearchFieldTypes" @oninput="(e => SearchFieldTypes = e.Value.ToString())" @onkeyup="(e => {OnInitializedAsync(); CurrentPage = 1;})" placeholder="Søg på navn.." />
+                <input class="form-control" type="text" id="search" @onkeypress="e => IsAlphabetKeyAndNumbers(e)" @bind="SearchFieldTypes" @oninput="(e => SearchFieldTypes = e.Value.ToString())" @onkeyup="(e => {OnInitializedAsync(); CurrentPage = 1;})" placeholder="Søg på navn.." />
             </div>
         </div>
         <div class="TableScrollable tableContainerChips">
@@ -116,60 +116,6 @@
         }
     </div>
 
-
-    @*Toast Validation*@
-    @*    <div aria-live="polite" aria-atomic="true">
-    <div class="toast-container position-absolute top-0 end-0 p-3">
-
-    <div class="toast align-items-center text-white bg-danger border-0 DateTimeToast" id="GroupNameToast" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="d-flex">
-    <div class="toast-body toast-icon">
-    <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-    </div>
-    <div class="toast-body toast-text">
-    Gruppe navn skal udfyles.
-    </div>
-    </div>
-    </div>
-
-    <div class="toast align-items-center text-white bg-danger border-0" id="TypeNameToast" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="d-flex">
-    <div class="toast-body toast-icon">
-    <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-    </div>
-    <div class="toast-body toast-text">
-    Type navn skal udfyles.
-    </div>
-    </div>
-    </div>
-
-
-    <div class="toast align-items-center text-white bg-success border-0 DateTimeToast" id="SucessToast" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="d-flex">
-    <div class="toast-body toast-icon">
-    <i style="font-size: 20px;" class="fa-solid fa-thumbs-up"></i>
-    </div>
-    <div class="toast-body toast-text">
-    @SuccessMessage
-    </div>
-    </div>
-    </div>
-
-    <div class="toast align-items-center text-white bg-danger border-0 DateTimeToast" id="ErrorToast" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="d-flex">
-    <div class="toast-body toast-icon">
-    <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
-    </div>
-    <div class="toast-body toast-text">
-    @ErrorMessage
-    </div>
-    </div>
-    </div>
-
-    </div>
-    </div> *@
-
-
     @*Edit modal*@
     <form class="modal fade" id="editModalGroup" style="backdrop-filter: brightness(0.5);" tabindex="-1" aria-hidden="true" method="post">
         <div class="modal-dialog">
@@ -181,7 +127,7 @@
                 <div class="modal-body">
                     <div class="d-flex justify-content-center">
                         <p class="w-50">Gruppe Navn: </p>
-                        <input class="form-control w-50 ml-1" id="GroupName" type="text" @bind="GroupName" />
+                        <input class="form-control w-50 ml-1" id="GroupName" @onkeypress="e => IsAlphabetKeyAndNumbers(e)" type="text" @bind="GroupName" />
                         <input type="hidden" @bind="OldGroupName" />
                     </div>
                 </div>
@@ -202,7 +148,7 @@
                 <div class="modal-body">
                     <div class="d-flex">
                         <p class="w-50">Type Navn: </p>
-                        <input class="form-control w-50 ml-1" type="text" @bind="TypeName" required />
+                        <input class="form-control w-50 ml-1" type="text" @onkeypress="e => IsAlphabetKeyAndNumbers(e)" @bind="TypeName" required />
                     </div>
                     <div class="d-flex">
                         <p class="w-50">Multiplier: </p>
@@ -232,7 +178,7 @@
                 <div class="modal-body">
                     <div class="d-flex">
                         <p class="w-50">Type Navn: </p>
-                        <input class="form-control w-50 ml-1" type="text" @bind="TypeName" required />
+                        <input class="form-control w-50 ml-1" type="text" @onkeypress="e => IsAlphabetKeyAndNumbers(e)" @bind="TypeName" required />
                     </div>
                     <div class="d-flex">
                         <p class="w-50">Multiplier: </p>
@@ -260,7 +206,7 @@
                 <div class="modal-body">
                     <div class="d-flex">
                         <p class="w-50">Gruppe Navn: </p>
-                        <input class="form-control w-50 ml-1" type="text" @bind="GroupName" required />
+                        <input class="form-control w-50 ml-1" type="text" @onkeypress="e => IsAlphabetKeyAndNumbers(e)" @bind="GroupName" required />
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -332,6 +278,7 @@
     #endregion
 
     private IJSObjectReference _jsModule;
+    private IJSObjectReference _jsSite;
 
 
     //------------------------- Methods --------------------------//
@@ -340,6 +287,7 @@
     protected override async Task OnInitializedAsync()
     {
         _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/TypesGroups.js");
+        _jsSite = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/site.js");
 
         if (!string.IsNullOrWhiteSpace(SearchField))
             await SearchGroup();
@@ -565,6 +513,7 @@
     }
     #endregion
 
+    protected async Task IsAlphabetKeyAndNumbers(KeyboardEventArgs e) => await _jsSite.InvokeVoidAsync("isAlphabetKeyAndNumbers", e.Code);
 
     protected bool IsNull(string value) => string.IsNullOrWhiteSpace(value);
 
