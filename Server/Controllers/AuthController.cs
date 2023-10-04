@@ -28,8 +28,9 @@ namespace Lobsystem.Server.Controllers
         public async Task<IActionResult> Login(LoginRequest request)
         {
             var user = await _userManager.FindByNameAsync(request.UserName);
-            if (user == null)
+            if (user == null || user.IsDeleted)
                 return BadRequest("User does not exist");
+            
             var singInResult = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
             if (!singInResult.Succeeded)
                 return BadRequest("Invalid password");
