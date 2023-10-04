@@ -43,7 +43,8 @@ namespace Lobsystem.Client.APICallers
         {
             try
             {
-                var test =  await _httpClient.PostAsJsonAsync("Scan/CreateOne", scanning);
+                var response =  await _httpClient.PostAsJsonAsync("Scan/CreateOne", scanning);
+                response.EnsureSuccessStatusCode();
                 
             }
             catch (Exception e)
@@ -57,8 +58,8 @@ namespace Lobsystem.Client.APICallers
         {
             try
             {
-                var test = await _httpClient.PostAsJsonAsync("Scan/CreateList", scans);
-
+                var response = await _httpClient.PostAsJsonAsync("Scan/CreateList", scans);
+                response.EnsureSuccessStatusCode();
             }
             catch (Exception e)
             {

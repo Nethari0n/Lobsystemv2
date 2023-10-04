@@ -20,7 +20,7 @@ namespace Lobsystem.Server.Controllers
             _createService = createService;
         }
 
-        [HttpPost]        
+        [HttpPost]
         public async Task<IActionResult> AddEvent(EventPostsDTO eventType)
         {
             try
@@ -48,11 +48,11 @@ namespace Lobsystem.Server.Controllers
                     StartDate = eventType.CreateEvent.StartDate,
                     CooldownTimer = eventType.CreateEvent.CooldownTimer,
                     IsDeleted = false,
-                    TypesID = eventType.CreateEvent.TypesID,                    
+                    TypesID = eventType.CreateEvent.TypesID,
                     Username = eventType.CreateEvent.Username,
                     Posts = posts
                 };
-              
+
                 _eventPostTypesService.AddEvent(newEvent);
                 return Ok();
             }
@@ -130,18 +130,18 @@ namespace Lobsystem.Server.Controllers
             {
                 var temp = _eventPostTypesService.GetEventByID(id);
                 var templist = _eventPostTypesService.GetAllPostByEventID(id);
-                
+
                 List<EditPostDTO> editPostDTOs = new();
                 EditEventDTO editEventDTO = new()
                 {
-                     StartDate = temp.StartDate,
-                     EndDate=temp.EndDate,
-                     EventId = id,
-                     EventName = temp.EventName,
-                     CooldownTimer=temp.CooldownTimer,
-                     Description = temp.Description,
-                     TypesID = temp.TypesID,
-                     Username = temp.Username
+                    StartDate = temp.StartDate,
+                    EndDate = temp.EndDate,
+                    EventId = id,
+                    EventName = temp.EventName,
+                    CooldownTimer = temp.CooldownTimer,
+                    Description = temp.Description,
+                    TypesID = temp.TypesID,
+                    Username = temp.Username
                 };
 
                 foreach (var item in templist)
@@ -210,6 +210,10 @@ namespace Lobsystem.Server.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
+
+        [HttpGet]
+        [Route("CheckConnection")]
+        public IActionResult CheckConnection() =>  Ok(); 
 
     }
 
