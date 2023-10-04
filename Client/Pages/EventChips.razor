@@ -19,7 +19,7 @@
             </div>
         </div>
         <div>
-            <input class="form-control" type="text" id="search" @bind="SearchField" @oninput="(e => SearchField = e.Value.ToString())" @onkeyup="(e => {OnInitializedAsync(); CurrentPage = 1;})" placeholder="Søg på navn.." />
+            <input class="form-control" type="text" id="search" @onkeypress="e => IsAlphabetKeyAndNumbers(e)" @bind="SearchField" @oninput="(e => SearchField = e.Value.ToString())" @onkeyup="(e => {OnInitializedAsync(); CurrentPage = 1;})" placeholder="Søg på navn.." />
         </div>
     </div>
     <div class="TableScrollable">
@@ -262,6 +262,7 @@
 
     private IJSObjectReference _jsModule;
     private IJSObjectReference _jsEventChips;
+    private IJSObjectReference _jsSite;
 
     protected async override Task OnInitializedAsync()
     {
@@ -285,6 +286,7 @@
 
         _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/ExportCSV.js");
         _jsEventChips = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/EventChips.js");
+        _jsSite = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/site.js");
         //toastService.ShowToast<Test>(settings => { settings.Timeout = 1; });
         TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageCount));
         StateHasChanged();
@@ -596,4 +598,7 @@
             toastService.ShowError("Der gik noget galt under exporteringen af chips");
         }
     }
+
+    protected async Task IsAlphabetKeyAndNumbers(KeyboardEventArgs e) => await _jsSite.InvokeVoidAsync("isAlphabetKeyAndNumbers", e.Code);
+
 }
