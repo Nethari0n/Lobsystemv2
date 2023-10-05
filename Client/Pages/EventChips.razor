@@ -518,6 +518,8 @@
         foreach (DataRow row in dt.Rows)
         {
             string chipUID = "";
+            string group1 = "";
+            string group2 = "";
             int excelCount = 0;
 
             foreach (DataColumn col in dt.Columns)
@@ -525,8 +527,18 @@
                 if (excelCount == 0)
                 {
                     chipUID = (row[col.ColumnName].ToString());
-                };
-                excelCount++;
+                    excelCount++;
+                }
+                else if (excelCount == 1)
+                {
+                    group1 = (row[col.ColumnName].ToString());
+                    excelCount++;
+                }
+                else if (excelCount == 2)
+                {
+                    group2 = (row[col.ColumnName].ToString());
+                    excelCount++;
+                }
             }
 
 
@@ -555,6 +567,17 @@
                     errorCounter++;
                 }
             }
+            if (Groups.Any(x => x.GroupName == group1))
+            {
+                string groupID = Groups.Where(x => x.GroupName == group1).FirstOrDefault().GroupId.ToString();
+                await GroupChange(groupID, chipID, 1); //We use 1 as we're currently manipulating the first group
+            }
+            if (Groups.Any(x => x.GroupName == group2))
+            {
+                string groupID = Groups.Where(x => x.GroupName == group2).FirstOrDefault().GroupId.ToString();
+                await GroupChange(groupID, chipID, 2); //We use 2 as we're currently manipulating the second group
+            }
+            
 
         }
         if (errorCounter > 0)
@@ -585,6 +608,7 @@
         }
 
     }
+
     protected async Task ExportToExcel()
     {
         try
