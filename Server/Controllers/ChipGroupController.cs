@@ -114,5 +114,27 @@ namespace Lobsystem.Server.Controllers
             }
         }
 
+        //TODO: make DTO for this
+        [HttpGet]
+        [Route("ChipGroupEvent/{EventId}")]
+        public IActionResult GetChipGroupsByEventId(int eventId)
+        {
+            try
+            {
+                List<ChipGroup> chipGroups = _chipGroupRegistrationService.GetAllChipGroupsAndGroupNamesByEventId(eventId);
+
+
+                foreach (var chipGroup in chipGroups)
+                {
+                    
+                }
+                return Ok(chipGroups);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
+        }
+
     }
 }

@@ -93,5 +93,19 @@ namespace Lobsystem.Client.APICallers
                 throw e.GetBaseException();
             }
         }
+
+        public async Task<List<ChipGroup>> GetChipGroupsByEventId(int eventId)
+        {
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<List<ChipGroup>>($"ChipGroup/ChipGroupEvent/{eventId}");
+                return response;
+            }
+            catch (Exception e)
+            {
+
+                throw e.GetBaseException();
+            }
+        }
     }
 }

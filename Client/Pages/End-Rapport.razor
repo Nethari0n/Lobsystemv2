@@ -10,6 +10,14 @@
         <h1 class="text-center">Afsluttende Rapport for @EventName</h1>
     </div>
     <button type="button" id="exportBtn" class="btn ml-1 mb-1 logoColor" @onclick="async () => await ExportCSVFile()">Export tabel til Excel</button>
+    <select class="form-control" @onchange="(e => {SortAfterGroup((string)e.Value);})">
+        <option>Vælg en Gruppe til Sortering</option>
+        @foreach (var item in ChipGroups)
+        {
+            <option value="@item.GroupID">@item.Group.GroupName</option>
+        }
+
+    </select>
     <div class="table-responsive">
         <div class="TableScrollable rapport">
             <table id="table" class="table table-striped">
@@ -111,6 +119,7 @@
     public int ChipId { get; set; }
     public string EventName { get; set; }
 
+    public List<ChipGroup> ChipGroups { get; set; } = new();
     public List<EndRapport> Rapports { get; set; } = new();
     public List<Scanning> Scannings { get; set; } = new();
 
@@ -133,6 +142,7 @@
             Event @event = await _EventCaller.GetEventByID(Value);
             EventName = @event.EventName;
             await GetRapport(Value);
+            ChipGroups = await _ChipGroupCaller.GetChipGroupsByEventId(Value);
             StateHasChanged();
         }
         else
@@ -160,6 +170,11 @@
         await GetRapport(eventId);
         StateHasChanged();
 
+    }
+
+    public async Task SortAfterGroup(string GroupName)
+    {
+        
     }
 
     public async void GetScans(int id)

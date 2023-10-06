@@ -43,6 +43,7 @@ namespace SBO.LobSystem.Services.Interface
         bool ChipGroupExists(int chipId, int eventId, int groupNumber);
 
         List<ChipGroup> GetAllChipGroups();
+        List<ChipGroup> GetAllChipGroupsAndGroupNamesByEventId(int eventId);
 
 
         int GetChipGroupIDByChipGroupObject(int chipId, int eventId, int groupNumber);
