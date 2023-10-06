@@ -1,5 +1,22 @@
 ﻿//Scan succes check if true background green
-export   function IsTrue(isNot){
+
+export function toggleField(){
+    var state = document.getElementById("UID");
+    var loading = document.getElementById("loading");
+    if (!state.disabled) {
+        state.disabled = true;
+        loading.hidden = false
+        $(".boxTitle").text("Arbejder");
+        $(".scanBox").css("background-color", "#edee4e ");
+    }
+    else {
+        state.disabled = false;
+        loading.hidden = true;
+    }
+}
+
+
+export function IsTrue(isNot) {
         if (isNot) {
             Succes();
         }

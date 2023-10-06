@@ -22,6 +22,9 @@
                     <div class="container scanBox">
                         <div class="title">
                             <h2 class="boxTitle">Klar</h2>
+                            <div id="loading" hidden class="spinner-border" style="width: 5rem; height: 5rem;" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
                             <input id="ErrorMessage" class="ErrorInput" type="text" @bind="ErrorMessage" readonly />
                         </div>
                         <div class="User">
@@ -250,7 +253,8 @@
     {
         DateTime lastScan = DateTime.Parse("0001-01-01");
         Sucsses = false;
-
+        await _jsModule.InvokeVoidAsync("toggleField");
+        await Task.Delay(5000);
         if (await IsConnectedToInternetAsync())
         {
             if (UID != null && ChipList.Any(x => x.UID == uid))
@@ -291,6 +295,8 @@
         {
             await SetLocalStoreScanlist(uid);
         }
+        await _jsModule.InvokeVoidAsync("toggleField");
+
     }
 
 
@@ -419,7 +425,7 @@
         ErrorMessage = error;
 
         StateHasChanged();
-
+        //TODO : Sequence issue when scanning multiple chips fast after one another
         await _jsModule.InvokeVoidAsync("Clear");
     }
 
