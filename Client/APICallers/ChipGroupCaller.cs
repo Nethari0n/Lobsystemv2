@@ -12,8 +12,6 @@ namespace Lobsystem.Client.APICallers
         {
             _httpClient = httpClient;
         }
-
-        //TODO: have to send more parameters than only ID, Can't send a whole object so gotta send multiple Id's
         public async Task<bool> ChipGroupExistsAsync(int chipId, int eventId, int groupNumber)
         {
             try
@@ -26,7 +24,7 @@ namespace Lobsystem.Client.APICallers
                 throw e.GetBaseException();
             }
         }
-        //TODO: look previous TODO
+
         public async Task<int> GetChipGroupIDByChipGroupObjectAsync(int chipId, int eventId, int groupNumber)
         {
             try
@@ -94,11 +92,11 @@ namespace Lobsystem.Client.APICallers
             }
         }
 
-        public async Task<List<ChipGroup>> GetChipGroupsByEventId(int eventId)
+        public async Task<List<GroupIdAndGroupNameDTO>> GetChipGroupsByEventId(int eventId)
         {
             try
             {
-                var response = await _httpClient.GetFromJsonAsync<List<ChipGroup>>($"ChipGroup/ChipGroupEvent/{eventId}");
+                var response = await _httpClient.GetFromJsonAsync<List<GroupIdAndGroupNameDTO>>($"ChipGroup/ChipGroupEvent/{eventId}");
                 return response;
             }
             catch (Exception e)

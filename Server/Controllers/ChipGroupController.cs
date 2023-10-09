@@ -122,13 +122,19 @@ namespace Lobsystem.Server.Controllers
             try
             {
                 List<ChipGroup> chipGroups = _chipGroupRegistrationService.GetAllChipGroupsAndGroupNamesByEventId(eventId);
-
+                List<GroupIdAndGroupNameDTO> chipGroupAndGroupNameDTOs = new List<GroupIdAndGroupNameDTO>();
 
                 foreach (var chipGroup in chipGroups)
                 {
-                    
+                    if (!chipGroupAndGroupNameDTOs.Any(x => x.GroupId == chipGroup.GroupID && x.GroupName == chipGroup.Group.GroupName && x.GroupNumber == chipGroup.GroupNumber)
+                        || chipGroupAndGroupNameDTOs.Count == 0)
+                    {
+                        GroupIdAndGroupNameDTO chipGroupAndGroupNameDTO = new() { GroupId = chipGroup.GroupID, GroupName = chipGroup.Group.GroupName, GroupNumber = chipGroup.GroupNumber };
+                        chipGroupAndGroupNameDTOs.Add(chipGroupAndGroupNameDTO);
+                    }
+                   
                 }
-                return Ok(chipGroups);
+                return Ok(chipGroupAndGroupNameDTOs);
             }
             catch (Exception)
             {
