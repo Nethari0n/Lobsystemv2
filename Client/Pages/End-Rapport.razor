@@ -10,6 +10,7 @@
         <h1 class="text-center">Afsluttende Rapport for @EventName</h1>
     </div>
     <button type="button" id="exportBtn" class="btn ml-1 mb-1 logoColor" @onclick="async () => await ExportCSVFile()">Export tabel til Excel</button>
+    <button type="button" id="exportBtn" class="btn ml-1 mb-1 logoColor" @onclick="async () => await ExportAllGroups()">Export Alle Grupper til Excel</button>
     <div class="row">
         <div class="col-auto col-md-auto col-sm-auto">
             <select class="form-control col-5" @onchange="(e => {SortAfterGroupOne((string)e.Value);})">
@@ -132,6 +133,56 @@
     </div>
 </div>
 
+<div>
+    <div class="TableScrollable rapport">
+        <table id="table-hidden" class="table table-striped">
+            <thead>
+                <tr class="text-center">
+                    <th scope="col">Rangering</th>
+                    <th scope="col">Låner Nummer</th>
+                    <th scope="col">Gruppe 1</th>
+                    <th scope="col">Gruppe 2</th>
+                    <th scope="col">Seneste Registrering</th>
+                    <th scope="col">Registeringer</th>
+                    <th scope="col">Tid siden Start og seneste skan</th>
+                    <th scope="col">Hurtigste Skan</th>
+                    <th scope="col">Distance</th>
+                    <th scope="col">Handling</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Rapports != null)
+                {
+                    foreach (EndRapport item in HiddenRapports)
+                    {
+                        <tr class="text-center">
+                            @{
+                                Counter = Rapports.IndexOf(item) + 1;
+                                <td scope="row">@Counter</td>
+                            }
+                            <td>@item.LaanerID</td>
+                            <td>@item.Group1</td>
+                            <td>@item.Group2</td>
+                            <td>@item.LatestRecord.ToString("HH:mm:ss")</td>
+                            <td>@item.Recordings</td>
+                            <td>@item.TimeBetweenStartAndLatestScan.Duration().ToString(@"dd\:hh\:mm\:ss")</td>
+                            <td>@item.FastestScan.Duration().ToString(@"dd\:hh\:mm\:ss")</td>
+                            <td>@item.DistanceRun</td>
+                            <td>
+                                <a type="button" @onclick="() => GetScans(item.ChipID)" class="hyperlink" data-bs-toggle="modal" data-bs-target="#exampleModal">Se Skanninger</a>
+                            </td>
+                        </tr>
+
+
+
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
 @code {
 
     #region Proberties
@@ -147,6 +198,7 @@
     public List<GroupIdAndGroupNameDTO> ChipGroups { get; set; } = new();
     public List<EndRapport> Rapports { get; set; } = new();
     public List<Scanning> Scannings { get; set; } = new();
+    public List<EndRapport> HiddenRapports { get; set; } = new();
 
     private IJSObjectReference _jsModule;
 
@@ -266,8 +318,60 @@
         StateHasChanged();
     }
 
+  
+    public async Task ExportAllGroups()
+    {
+        //TODO: this needs to be a For and not a Foreach
+        string groupNameOne = "", groupNameTwo = "";
+        int counter = 0;
+        foreach (var item in ChipGroups)
+        {
+            if (item.GroupNumber == 1)
+                groupNameOne = item.GroupName;
+            if (item.GroupNumber == 2)
+                groupNameTwo = item.GroupName;
+
+            if (groupNameOne != "" && groupNameTwo == "")
+            {
+                HiddenRapports = Rapports.Where(x => x.Group1 == groupNameOne).ToList();
+                if (HiddenRapports.Count != 0)
+                {
+                    StateHasChanged();
+                    await Task.Delay(1000);
+                    await ExportHiddenCSVFile(groupNameOne);
+                }
+            }
+            else if (groupNameOne == "" && groupNameTwo != "")
+            {
+                HiddenRapports = Rapports.Where(x => x.Group2 == groupNameTwo).ToList();
+                if (HiddenRapports.Count != 0)
+                {
+                    StateHasChanged();
+                    await Task.Delay(1000);
+                    await ExportHiddenCSVFile(groupNameTwo);
+                }
+            }
+            else if (groupNameTwo != "" && groupNameOne != "")
+            {
+                HiddenRapports = Rapports.Where(x => x.Group1 == GroupOneSort && x.Group2 == GroupTwoSort).ToList();
+                if (HiddenRapports.Count != 0)
+                {
+                    StateHasChanged();
+                    await Task.Delay(1000);
+                    await ExportHiddenCSVFile(groupNameOne, groupNameTwo);
+                }
+
+            }
+
+
+        }
+    }
+
 
     #region Javascript
     protected async Task ExportCSVFile() => await _jsModule.InvokeVoidAsync("export_table_to_csv", "#table", EventName);
+
+    protected async Task ExportHiddenCSVFile(string GroupName1, string groupName2) => await _jsModule.InvokeVoidAsync("export_table_to_csv", "#table-hidden", $"{EventName}: {GroupName1} + {groupName2}");
+    protected async Task ExportHiddenCSVFile(string GroupName) => await _jsModule.InvokeVoidAsync("export_table_to_csv", "#table-hidden", $"{EventName}:{GroupName}");
     #endregion
 }
