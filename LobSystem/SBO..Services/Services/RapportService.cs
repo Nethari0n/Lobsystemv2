@@ -241,7 +241,7 @@ namespace SBO.LobSystem.Services.Services
                         foreach ( var scanning in sortedScannings )
                         {
                             int chipId = scanning.ChipID;
-                            double distance = post.Distance;
+                            double distanceInMeters = post.Distance;
 
                             if ( !endRapportsDict.ContainsKey(chipId) )
                             {
@@ -261,6 +261,9 @@ namespace SBO.LobSystem.Services.Services
                             }
 
                             var endRapport = endRapportsDict[chipId];
+
+                            // Convert meters to kilometers
+                            double distanceInKilometers = distanceInMeters / 1000;
 
                             endRapport.LaanerID = scanning.Chip.LaanerID;
                             endRapport.Recordings++;
@@ -302,13 +305,13 @@ namespace SBO.LobSystem.Services.Services
 
                             if ( endRapport.DistanceRun == string.Empty )
                             {
-                                endRapport.DistanceRun = $"{distance} M";
+                                endRapport.DistanceRun = $"{distanceInKilometers} KM";
                             }
                             else
                             {
                                 double existingDistance = double.Parse(endRapport.DistanceRun.Split(' ')[0]);
-                                double updatedDistance = existingDistance + distance;
-                                endRapport.DistanceRun = $"{updatedDistance} M";
+                                double updatedDistance = existingDistance + distanceInKilometers;
+                                endRapport.DistanceRun = $"{updatedDistance} KM";
                             }
 
                             endRapportsDict[chipId] = endRapport;
