@@ -1,4 +1,4 @@
-﻿using SBO.LobSystem.Services.Classes;
+﻿using Lobsystem.Shared.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;

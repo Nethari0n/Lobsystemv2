@@ -1,7 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Lobsystem.Shared.DTO;
+using Microsoft.EntityFrameworkCore;
 using SBO.Lobsystem.Domain.Data;
-using Lobsystem.Shared.Models;
-using SBO.LobSystem.Services.Classes;
 using SBO.LobSystem.Services.Interface;
 using System;
 using System.Collections.Generic;
@@ -18,6 +17,7 @@ namespace SBO.LobSystem.Services.Services
         {
             _lobsContext = lobsContext;
         }
+
         #region LiveRapport
         /// <summary>
         /// Gets Live rapport for the liverapport site
@@ -53,8 +53,8 @@ namespace SBO.LobSystem.Services.Services
 
                         foreach ( var scanning in sortedScannings )
                         {
-                            int chipId = scanning.ChipID;
-                            double distance = post.Distance;
+                            int chipId = scanning.ChipID; 
+                            double distanceInMeters = post.Distance;
 
                             if ( !liveRapportsDict.ContainsKey(chipId) )
                             {
@@ -75,6 +75,8 @@ namespace SBO.LobSystem.Services.Services
 
                             var liveRapport = liveRapportsDict[chipId];
 
+                            // Convert meters to kilometers
+                            double distanceInKilometers = distanceInMeters / 1000;
                             liveRapport.Recordings++;
                             liveRapport.LatestRecord = scanning.TimeStamp;
                             liveRapport.TimeSinceLatestScan = DateTime.Now.Subtract(scanning.TimeStamp);
@@ -90,13 +92,13 @@ namespace SBO.LobSystem.Services.Services
 
                             if ( liveRapport.DistanceRun == string.Empty )
                             {
-                                liveRapport.DistanceRun = $"{distance} M";
+                                liveRapport.DistanceRun = $"{distanceInKilometers} KM";
                             }
                             else
                             {
                                 double existingDistance = double.Parse(liveRapport.DistanceRun.Split(' ')[0]);
-                                double updatedDistance = existingDistance + distance;
-                                liveRapport.DistanceRun = $"{updatedDistance} M";
+                                double updatedDistance = existingDistance + distanceInKilometers;
+                                liveRapport.DistanceRun = $"{updatedDistance} KM";
                             }
 
                             liveRapportsDict[chipId] = liveRapport;
@@ -107,89 +109,7 @@ namespace SBO.LobSystem.Services.Services
                 liveRapports = liveRapportsDict.Values.ToList();
 
 
-                #region Old code
-
-                //int temp = 0;
-                //string tempDistance;
-                //List<LiveRapport> liveRapports = new List<LiveRapport>();
-
-                ////Data set used for Liverapport
-
-                //var dataset = _lobsContext.Events.Where(e => e.EventID == id)
-                //                                   .Include(p => p.Posts)
-                //                                        .ThenInclude(s => s.Scannings.Where(d => d.IsDeleted == false))
-                //                                            .ThenInclude(c => c.Chip)
-                //                                                .ThenInclude(cg => cg.ChipGroup)
-                //                                                    .ThenInclude(g => g.Group)
-                //                                                    .AsNoTracking()
-                //                                                    .ToList();
-
-
-
-                //foreach ( var item in dataset )
-                //{
-
-                //    TimeSpan eventStartTS = DateTime.Now.Subtract(item.StartDate);                                      //gets timespan from Eventstart
-
-                //    foreach ( var post in item.Posts )
-                //    {
-                //        LiveRapport liveRapport = new();
-
-                //        if ( post.Scannings.Any() )
-                //        {
-                //            post.Scannings = post.Scannings.OrderBy(c => c.ChipID).ThenBy(t => t.TimeStamp).ToList();   // Sorts list of scannings by chip ID then Timestamp
-
-
-
-                //            foreach ( var scanning in post.Scannings )
-                //            {
-
-
-                //                liveRapport.TimeSinceStart = eventStartTS;
-
-                //                liveRapport.ChipID = scanning.ChipID;
-
-                //                liveRapport.Recordings = post.Scannings.Where(x => x.ChipID == scanning.ChipID).Count();
-
-                //                liveRapport.LatestRecord = post.Scannings.Where(x => x.ChipID == scanning.ChipID).Last().TimeStamp;
-
-                //                liveRapport.TimeSinceLatestScan = DateTime.Now.Subtract(scanning.TimeStamp);
-                //                liveRapport.TimeSinceStart = DateTime.Now.Subtract(item.StartDate);
-                //                liveRapport.TimeBetweenStartAndLatestScan = scanning.TimeStamp.Subtract(item.StartDate);
-
-                //                foreach ( var chipGroup in scanning.Chip.ChipGroup )
-                //                {
-                //                    if ( chipGroup.GroupNumber == 1 )
-                //                        liveRapport.Group1 = chipGroup.Group.GroupName;
-                //                    else if ( chipGroup.GroupNumber == 2 )
-                //                        liveRapport.Group2 = chipGroup.Group.GroupName;
-                //                }
-
-                //                liveRapport.LaanerID = scanning.Chip.LaanerID;
-                //                double distance = post.Distance * scanning.Chip.Scanning.Count();
-                //                if ( distance > 1000 )
-                //                {
-                //                    distance /= 1000;
-                //                    tempDistance = $"{distance} KM";
-                //                }
-                //                else
-                //                    tempDistance = $"{distance} M";
-
-                //                if ( temp != liveRapport.ChipID && liveRapport.ChipID > 0 )
-                //                {
-                //                    liveRapport.DistanceRun = tempDistance;
-                //                    temp = liveRapport.ChipID;
-                //                    liveRapports.Add(liveRapport);
-                //                    liveRapport = new();
-
-                //                }
-                //            }
-
-                //        }
-                //    }
-                //}
-
-                #endregion
+               
 
                 //Returns and orders the Liverapport by recordings and latestrecord
                 return liveRapports.OrderByDescending(x => x.Recordings).ThenBy(x => x.LatestRecord).ToList();

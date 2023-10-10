@@ -40,14 +40,13 @@ namespace Lobsystem.Server.Controllers
                 Scanning scan = new() { ChipID = scanning.ChipID, IsDeleted = false, PostID = scanning.PostID, TimeStamp = scanning.TimeStamp };
 
                 //_createService.CreateEntity(scanning);
+                await _createService.CreateEntity<Scanning>(scan);
 
-
-                return Ok(_createService.CreateEntity<Scanning>(scan));
+                return Ok();
             }
             catch (Exception)
             {
-
-                throw;
+                return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
 
@@ -71,8 +70,7 @@ namespace Lobsystem.Server.Controllers
             }
             catch (Exception)
             {
-
-                throw;
+                return StatusCode(StatusCodes.Status400BadRequest);
             }
         }
 
