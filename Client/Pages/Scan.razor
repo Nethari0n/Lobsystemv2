@@ -22,6 +22,9 @@
                     <div class="container scanBox">
                         <div class="title">
                             <h2 class="boxTitle">Klar</h2>
+                            <div id="loading" hidden class="spinner-border" style="width: 5rem; height: 5rem;" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
                             <input id="ErrorMessage" class="ErrorInput" type="text" @bind="ErrorMessage" readonly />
                         </div>
                         <div class="User">
@@ -134,6 +137,8 @@
     public bool _render { get; set; } = false;
 
     private IJSObjectReference _jsModule;
+
+    private CancellationTokenSource _cancellationTokenSource;
 
     //private System.Threading.Timer timer { get; set; }
 
@@ -248,17 +253,28 @@
     /// <returns></returns>
     protected async Task OnScan(string uid)
     {
+        User = null;
         DateTime lastScan = DateTime.Parse("0001-01-01");
         Sucsses = false;
+        await _jsModule.InvokeVoidAsync("toggleField");
+        User = uid;
+        StateHasChanged();
 
+        //This is used in the ScanResults method
+        if (_cancellationTokenSource != null)
+            _cancellationTokenSource.Cancel(); // This cancels the ongoing task.
+
+        _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(new CancellationTokenSource().Token);
+
+        await Task.Delay(1000);
         if (await IsConnectedToInternetAsync())
         {
             if (UID != null && ChipList.Any(x => x.UID == uid))
                 lastScan = await _ScanCaller.FindScansDatetime(uid, Convert.ToInt32(PostID));
             else if (UID == null)
-                await ScanResualts(uid, "UID er tomt!");
+                Task.Run(() => ScanResults(uid, "UID er tomt!"));
             else if (!ChipList.Any(x => x.UID == uid))
-                await ScanResualts(uid, "Chip er ikke med i begivenhed!");
+                Task.Run(() => ScanResults(uid, "Chip er ikke med i begivenhed!"));
 
 
             if (lastScan != DateTime.Parse("0001-01-01") && lastScan.AddSeconds(CooldownTimer) <= DateTime.Now)
@@ -268,7 +284,6 @@
                 {
                     Scanning scan = await _ScanCaller.GetScan(uid, Convert.ToInt32(PostID));
                     ScanningDTO scanningDTO = new() { ChipID = scan.ChipID, PostID = Convert.ToInt32(PostID), TimeStamp = DateTime.Now };
-                    //scan.PostID = Convert.ToInt32(PostID);
                     if (Sucsses)
                     {
                         await _ScanCaller.CreateScan(scanningDTO);
@@ -278,19 +293,21 @@
                 {
                     await SetLocalStoreScanlist(uid);
                 }
-                
-                    
-                await ScanResualts(uid);
+
+                Task.Run(() => ScanResults(uid));
             }
             else if (lastScan.AddSeconds(CooldownTimer) > DateTime.Now)
             {
-                await ScanResualts(uid, "Cooldown!");
+                Task.Run(() => ScanResults(uid, "Cooldown!"));
             }
         }
         else
         {
             await SetLocalStoreScanlist(uid);
         }
+        await _jsModule.InvokeVoidAsync("toggleField");
+        await _jsModule.InvokeVoidAsync("FocusInput");
+
     }
 
 
@@ -324,13 +341,13 @@
                         if (lastScan != DateTime.Parse("0001-01-01") && lastScan.AddSeconds(CooldownTimer) <= DateTime.Now)
                         {
                             Sucsses = true;
-
-                            await ScanResualts(uid);
+                            Task.Run(() => ScanResults(uid));
+                            //ScanResults(uid);
                         }
                         else if (lastScan.AddSeconds(CooldownTimer) > DateTime.Now)
                         {
-
-                            await ScanResualts(uid, "Cooldown!");
+                            Task.Run(() => ScanResults(uid, "Cooldown!"));
+                            //await ScanResults(uid, "Cooldown!");
                             await localStore.SetItemAsync("LocalStore", scanningDTOs);
                             return;
                         }
@@ -339,15 +356,17 @@
                     else
                     {
                         Sucsses = true;
-                        await ScanResualts(uid);
+                        Task.Run(() => ScanResults(uid));
+                        //await ScanResults(uid);
                     }
                 }
             }
             else
             {
                 Sucsses = true;
+                Task.Run(() => ScanResults(uid));
 
-                await ScanResualts(uid);
+                //await ScanResults(uid);
             }
 
             scanningDTOs.Add(scanningDTO);
@@ -357,7 +376,9 @@
         }
         else
         {
-            await ScanResualts(uid, "Chip er ikke med i begivenhed!");
+            Task.Run(() => ScanResults(uid, "Chip er ikke med i begivenhed!"));
+
+            //await ScanResults(uid, "Chip er ikke med i begivenhed!");
         }
 
     }
@@ -403,7 +424,7 @@
     /// </summary>
     /// <param name="e"></param>
     /// <returns></returns>
-    protected async Task ScanResualts(string uid, string error = null)
+    protected async Task ScanResults(string uid, string error = null)
     {
         await _jsModule.InvokeVoidAsync("myStopFunction");
 
@@ -411,7 +432,6 @@
 
         StateHasChanged();
 
-        //Call javascript
         await _jsModule.InvokeVoidAsync("IsTrue", Sucsses);
         await _jsModule.InvokeVoidAsync("IsTrueTitle", Sucsses);
 
@@ -419,7 +439,14 @@
         ErrorMessage = error;
 
         StateHasChanged();
-
+        try
+        {
+            await Task.Delay(3000, _cancellationTokenSource.Token);
+        }
+        catch
+        {
+            return;
+        }
         await _jsModule.InvokeVoidAsync("Clear");
     }
 
@@ -447,28 +474,6 @@
     protected async void CheckStartDate(int result) => StartDate = await _EventCaller.GetEventByIDStartDate(result);
     protected async void CheckEndDate(int result) => EndDate = await _EventCaller.GetEventByIDEndDate(result);
 
-
-    /// <summary>
-    /// Every 3 secounds check if wifi connection then upload "ScanLists" content to database
-    /// </summary>
-    /// <returns></returns>
-    //protected async Task Timer()
-    //{
-    //    timer = new System.Threading.Timer(async (object stateInfo) =>
-    //    {
-    //        InternetConnection = await IsConnectedToInternetAsync();
-
-    //        if (InternetConnection)
-    //        {
-    //            try { await JsRuntime.InvokeVoidAsync("InternetConnection", InternetConnection); } catch { }
-
-    //        }
-    //        else { try { await JsRuntime.InvokeVoidAsync("InternetConnection", InternetConnection); } catch { } }
-
-    //        await InvokeAsync(StateHasChanged);
-    //    }, new System.Threading.AutoResetEvent(false), 0, 3000);
-    //}
-
     /// <summary>
     /// Check if able to ping domain
     /// </summary>
@@ -485,12 +490,10 @@
             if (response.IsSuccessStatusCode)
             {
 
-                //await StartInternetTimer();
                 return true;
             }
             else
             {
-                //DisposeInternetTímer();
                 return false;
             }
 
@@ -503,56 +506,5 @@
         }
 
     }
-
-    // protected async Task StartInternetTimer()
-    // {
-    //     InternetTimer = new System.Threading.Timer(async (object? stateInfo) =>
-    //    {
-    //        try
-    //        {
-    //            if (await IsConnectedToInternetAsync())
-    //            {
-    //                UploadLocalStore();
-    //                await InvokeAsync(StateHasChanged); //MUST CALL StateHasChanged() BECAUSE THIS IS TRIGGERED BY A TIMER INSTEAD OF A USER EVENT
-        //            }
-
-    //        }
-    //        catch (Exception)
-    //        {
-    //            DisposeInternetTímer();
-    //            throw;
-    //        }
-    //    }, new System.Threading.AutoResetEvent(false), 10000, 30000); //TODO: might change fire timer: fires every 10000 milliseconds
-    // }
-
-
-    /// <summary>
-    /// Uploads content from scan list to database
-    /// </summary>
-    /// <returns></returns>
-    //protected async Task UploadScannigsAsync() => ScanningList = await _IRepo.AddScansFromListAsync(ScanningList);
-
-    /// <summary>
-    /// Convert Uid to "scans" then uploads them to "ScanningList"
-    /// </summary>
-    //protected void UploadUID()
-    //{
-    //    for (int i = 0; i < UIDList.Count; i++)
-    //    {
-    //        if (_IRepo.GetMultiRound(Value))
-    //        {
-    //            if (Sucsses)
-    //                ScanningList.Add(_IRepo.GetScan(UIDList[i], Convert.ToInt32(PostID)));
-    //        }
-    //        else
-    //        {
-    //            if (!_IRepo.CheckPostScan(_IRepo.GetChipIDByUID(UIDList[i]), Convert.ToInt32(PostID)))
-    //                if (Sucsses)
-    //                    ScanningList.Add(_IRepo.GetScan(UIDList[i], Convert.ToInt32(PostID)));
-    //        }
-
-    //        UIDList.Remove(UIDList[i]);
-    //    }
-    //}
 
 }
