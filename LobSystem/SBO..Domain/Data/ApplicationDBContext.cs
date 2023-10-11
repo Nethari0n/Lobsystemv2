@@ -12,6 +12,7 @@ namespace SBO.Lobsystem.Domain.Data
     {
         public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options) : base(options)
         {
+            Database.EnsureCreatedAsync();
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
