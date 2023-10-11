@@ -5,6 +5,8 @@ using Lobsystem.Shared.Models;
 using System.Data;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace SBO.Lobsystem.Domain.Data
 {
@@ -12,8 +14,9 @@ namespace SBO.Lobsystem.Domain.Data
     {
         public ApplicationDBContext(DbContextOptions<ApplicationDBContext> options) : base(options)
         {
-            Database.EnsureCreatedAsync();
+            Database.Migrate();
         }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
