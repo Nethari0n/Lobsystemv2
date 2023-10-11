@@ -266,7 +266,6 @@
 
         _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(new CancellationTokenSource().Token);
 
-        await Task.Delay(1000);
         if (await IsConnectedToInternetAsync())
         {
             if (UID != null && ChipList.Any(x => x.UID == uid))
