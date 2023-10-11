@@ -114,7 +114,7 @@ namespace Lobsystem.Server.Controllers
             }
         }
 
-        //TODO: make DTO for this
+        
         [HttpGet]
         [Route("ChipGroupEvent/{EventId}")]
         public IActionResult GetChipGroupsByEventId(int eventId)

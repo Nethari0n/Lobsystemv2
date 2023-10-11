@@ -24,23 +24,6 @@ namespace SBO.LobSystem.Services.Services
 
         #region User
 
-        
-        //TODO Get user for Login
-        //public User GetUserLogin(string username, string password)
-        //{
-        //    User user = _lobsContext.Users.Where(u => u.UserName == username && u.IsDeleted == false).AsNoTracking().FirstOrDefault();
-        //    User userDTO;
-
-        //    if ( user != null && PasswordAreEqual(password, user.Password, user.PassSalt) )
-        //        return userDTO = new()
-        //        {
-        //            UserID = user.UserID,
-        //            RoleID = user.RoleID,
-        //        };
-
-
-        //    return null;
-        //}
 
         public List<User> UserPagination(int page, int totalItem) => _lobsContext.Users
             .Where(e => e.IsDeleted == false)
