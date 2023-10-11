@@ -107,15 +107,29 @@ Then run the Command
 
 
 # API Diagram
-![cry](./ReadmePictures/APICaller_Diagram.png)
+## Repository
+![APICaller_Diagram](./ReadmePictures/APICaller_Diagram.png)
 
+## Interface
+![IAPICaller_Diagram](./ReadmePictures/IApiCaller_Diagram.png)
+
+## Controller
+
+![Api Diagram](./ReadmePictures/API_Diagram.png)
 # Class Diagrams
 
 ## DTO's  
+![DTO Diagram](./ReadmePictures/DTO_Diagram.png)
+# Services
 
-## Services
+## Repository
+![Service Repository](./ReadmePictures/Service_Diagram.png)
+
+## Interface
+![Service Interface](./ReadmePictures/IService_Diagram.png)
 
 # Authorization Service Diagram
+![Auth Diagram](./ReadmePictures/Auth_Diagram.png)
 
 # Entity Diagram
-
+![Database Diagram](./ReadmePictures/Database_Diagram.png)
