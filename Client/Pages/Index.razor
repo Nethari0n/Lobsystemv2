@@ -44,7 +44,7 @@
                                                 <li><a class="dropdown-item text-decoration-none" type="button" href="@($"/EventScan?id={item.EventID}")">Skan</a></li>
                                                 <li><input class="dropdown-item SlutInput" type="button" @onclick="(async e => {await EndEventConf(item);})" value="Slut Begivenhed"></li>
                                                 <li><hr class="dropdown-divider"></li>
-                                                <li><a class="dropdown-item text-decoration-none" type="button" href="@($"/EventChips?id={item.EventID}")">Tilføj Chips</a></li>
+                                                <li><a class="dropdown-item text-decoration-none" type="button" href="@($"/EventChips?id={item.EventID}")">Administrer Chips</a></li>
                                                 <li><a class="dropdown-item text-decoration-none" type="button" href="@($"/EditEvent?id={item.EventID}")">Rediger</a></li>
                                             </ul>
                                         </div>
