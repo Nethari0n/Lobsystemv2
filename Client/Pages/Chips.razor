@@ -432,11 +432,13 @@
 
     protected async Task UploadAllChips()
     {
+        AllChips = await _ChipCaller.GetAllChips();
+        
         await _jsChipsModule.InvokeVoidAsync("OpenExistingChipsModal");
         List<ChipHandlingDTO> chips = new();
         foreach (ChipUploadInfo item in ChipUploadInfos)
         {
-            if (!Chip.Any(x => x.UID == item.UID))
+            if (!AllChips.Any(x => x.UID == item.UID))
             {
                 ChipHandlingDTO chipObj = new ChipHandlingDTO
                     {
