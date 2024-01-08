@@ -32,10 +32,10 @@ namespace Lobsystem.Client.APICallers
                 var response = await _httpClient.GetFromJsonAsync<DateTime>($"Scan/{uid}/{id}/datetime");
                 return response;
             }
-            catch (Exception)
+            catch (Exception e)
             {
 
-                throw;
+                throw e.GetBaseException();
             }
         }
 
@@ -50,7 +50,7 @@ namespace Lobsystem.Client.APICallers
             catch (Exception e)
             {
 
-                throw;
+                throw e.GetBaseException();
             }
         }
 
@@ -64,7 +64,7 @@ namespace Lobsystem.Client.APICallers
             catch (Exception e)
             {
 
-                throw;
+                throw e.GetBaseException();
             }
         }
 
@@ -81,10 +81,10 @@ namespace Lobsystem.Client.APICallers
                 var response = await _httpClient.GetFromJsonAsync<List<Scanning>>($"Scan?id={id}&eventID={eventID}");               
                 return response;
             }
-            catch (Exception)
+            catch (Exception e)
             {
 
-                throw;
+                throw e.GetBaseException();
             }
         }
 
@@ -95,10 +95,10 @@ namespace Lobsystem.Client.APICallers
                 var response = await _httpClient.GetFromJsonAsync<Scanning>($"Scan/{uid}/{postID}");
                 return response;
             }
-            catch (Exception)
+            catch (Exception e)
             {
 
-                throw;
+                throw e.GetBaseException();
             }
         }
 
@@ -113,7 +113,7 @@ namespace Lobsystem.Client.APICallers
             catch (Exception e)
             {
 
-                throw;
+                throw e.GetBaseException();
             }
         }
     }
