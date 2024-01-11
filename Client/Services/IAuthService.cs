@@ -1,4 +1,5 @@
 ﻿using Lobsystem.Shared.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace Lobsystem.Client.Services
 {
@@ -8,5 +9,7 @@ namespace Lobsystem.Client.Services
         Task Register(RegisterRequest registerRequest);
         Task Logout();
         Task<CurrentUser> CurrentUserInfo();
+        Task CreateRole(string roleName);
+        Task<List<IdentityRole>> GetRoles();
     }
 }

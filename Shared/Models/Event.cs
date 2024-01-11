@@ -38,6 +38,8 @@ namespace Lobsystem.Shared.Models
 
         public string Username { get; set; }
 
+        public string School { get; set; }
+
         [Required]
         public bool IsDeleted { get; set; }
 

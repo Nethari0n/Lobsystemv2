@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Rewrite;
+using Microsoft.EntityFrameworkCore;
 using SBO.LobSystem.Services.Interface;
 using SBO.LobSystem.Services.Services;
 using System.Security.Claims;
@@ -14,14 +16,16 @@ namespace Lobsystem.Server.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IUserService _userService;
         private readonly ICRUDService _crudService;
-        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, IUserService userService, ICRUDService crudService)
+        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager,RoleManager<IdentityRole> roleManager, IUserService userService, ICRUDService crudService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _userService = userService;
             _crudService = crudService;
+            _roleManager = roleManager;
         }
 
         [HttpPost]
@@ -48,7 +52,8 @@ namespace Lobsystem.Server.Controllers
         {
             var user = new User() { UserName = parameters.UserName, Email = parameters.Email, IsDeleted = false, EmailConfirmed = true, Name = parameters.Name };
             var result = await _userManager.CreateAsync(user, parameters.Password);
-            if (!result.Succeeded)
+            var roleResult = await _userManager.AddToRoleAsync(user, parameters.Role);
+            if (!result.Succeeded && !roleResult.Succeeded)
                 return BadRequest(result.Errors.FirstOrDefault()?.Description);
             //return await Login(new LoginRequest
             //{
@@ -82,6 +87,33 @@ namespace Lobsystem.Server.Controllers
             };
             return cu;
         }
+
+
+        [HttpPost]
+        public async Task<IActionResult> CreateRole(IdentityRole roleName)
+        {
+            //IdentityRole identityRole = new() { Name = roleName };
+
+            var result = await _roleManager.CreateAsync(roleName);
+
+            if (!result.Succeeded)
+                return BadRequest(result.Errors.FirstOrDefault()?.Description);
+
+            return Ok();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetRoles()
+        {
+            var result = await _roleManager.Roles.ToListAsync();
+
+            if (result.Count == 0)
+                return BadRequest("No roles");
+
+            return Ok(result);
+        }
+
+       
     }
 
 

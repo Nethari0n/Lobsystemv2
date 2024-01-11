@@ -1,4 +1,5 @@
 ﻿using Lobsystem.Shared.Models;
+using Microsoft.AspNetCore.Identity;
 using System.Net.Http.Json;
 
 namespace Lobsystem.Client.Services
@@ -38,6 +39,36 @@ namespace Lobsystem.Client.Services
             if (result.StatusCode == System.Net.HttpStatusCode.BadRequest)
                 throw new Exception(await result.Content.ReadAsStringAsync());
             result.EnsureSuccessStatusCode();
+        }
+
+        public async Task CreateRole(string roleName)
+        {
+            try
+            {
+                IdentityRole identityRole = new() {  Name = roleName, ConcurrencyStamp = Guid.NewGuid().ToString() };
+                var response = await _httpClient.PostAsJsonAsync<IdentityRole>("api/auth/createrole", identityRole);
+                if (response.StatusCode == System.Net.HttpStatusCode.BadRequest)
+                    throw new Exception(await response.Content.ReadAsStringAsync());
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception e)
+            {
+                throw e.InnerException;
+            }
+        }
+
+        public async Task<List<IdentityRole>> GetRoles()
+        {
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<List<IdentityRole>>("api/auth/getroles");
+
+                return response;
+            }
+            catch (Exception e)
+            {
+                throw e.InnerException;
+            }
         }
 
     }

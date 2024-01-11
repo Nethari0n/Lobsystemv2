@@ -115,16 +115,16 @@
                         <p class="w-50" style="margin: auto 0;">Mail: </p>
                         <input class="form-control w-50 ml-1" type="email" @bind="Mail" required />
                     </div>
-                    @* <div class="d-flex justify-content-center">
-                    <p class="w-50">Rolle: </p>
-                    <select class="form-control w-50" id="role" name="RoleID" value="@RoleID" @onchange="async e => {await RoleChange();RoleID = Convert.ToInt32((string)e.Value);}">
-                    <option value="0">Vælg en role &#9660;</option>
-                    @foreach (var item in Roles)
-                    {
-                    <option value="@item.RoleID">@item.RoleName</option>
-                    }
-                    </select>
-                    </div> *@
+                    <div class="d-flex justify-content-center">
+                        <p class="w-50">Rolle: </p>
+                        <select class="form-control w-50" id="role" name="RoleID" @bind="@RoleName">
+                            <option value="0">Vælg en role &#9660;</option>
+                            @foreach (var item in Roles)
+                            {
+                                <option value="@item">@item</option>
+                            }
+                        </select>
+                    </div>
 
 
                 </div>
@@ -167,16 +167,16 @@
                         <p class="w-50" style="margin: auto 0;">Mail: </p>
                         <input class="form-control w-50 ml-1" id="mail" type="email" @bind="Mail" />
                     </div>
-                    @*  <div class="d-flex justify-content-center">
-                    <p class="w-50">Rolle: </p>
-                    <select class="form-control w-50" id="role" name="RoleID" @bind="RoleID">
+                    <div class="d-flex justify-content-center">
+                        <p class="w-50">Rolle: </p>
+                        <select class="form-control w-50" id="role" name="RoleID" @bind="RoleName">
 
-                    @* @foreach (var item in Roles)
-                    {
-                    <option class="options" value="@item.RoleID">@item.RoleName</option>
-                    }
-                    </select>
-                    </div> *@
+                            @foreach (var item in Roles)
+                            {
+                                <option class="options" value="@item">@item</option>
+                            }
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <input type="button" value="Opdater bruger" class="btn logoColor" @onclick="async () => {await ToastValidationEdit(); await UpdateUser();}" />
@@ -190,7 +190,7 @@
 
     private List<User> UsersDTO { get; set; } = new();
     private List<User> UsersFull { get; set; } = new();
-
+    private List<string> Roles { get; set; } = new();
 
     private string UserName { get; set; }
     private string OldUserName { get; set; }
@@ -209,7 +209,8 @@
 
     private string Mail { get; set; }
 
-    private int RoleID { get; set; }
+    private string RoleName { get; set; }
+
 
     private string UserID { get; set; }
 
@@ -240,12 +241,12 @@
         _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/Users.js");
         _jsExcel = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/ExportCSV.js");
         _jsSite = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/site.js");
-        // Roles = _UserService.GetAllRoles();
+
+
         if (!string.IsNullOrWhiteSpace(SearchField))
             await Search();
         else
             await GetLists();
-
 
         TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageCount));
     }
@@ -266,6 +267,7 @@
         var TempUsers = await _UserCaller.GetAllUsers();
         Count = TempUsers.Count();
         UsersFull = await _UserCaller.GetAllUsers();
+        Roles = await _UserCaller.GetRoles();
         if (PageCount >= Count)
         {
             UsersDTO = await _UserCaller.UserPagination(1, PageCount);
@@ -278,7 +280,6 @@
 
         TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageCount));
         StateHasChanged();
-
     }
 
     protected async Task EditUser(User user)
@@ -299,7 +300,7 @@
         UserName = null;
         Name = null;
         Mail = null;
-        RoleID = 0;
+        RoleName = "";
         Password = null;
         PassRepeat = null;
 
@@ -312,7 +313,7 @@
         UserName = null;
         Name = null;
         Mail = null;
-        RoleID = 0;
+        RoleName = "";
         Password = null;
         PassRepeat = null;
 
@@ -351,7 +352,7 @@
                                     Password = Password,
                                     PasswordConfirm = PassRepeat,
                                     Email = Mail.ToLower(),
-                                    RoleId = "8e9f3987-e4d9-47c2-b465-9919e0c206c7",
+                                    Role = RoleName,
                                 };
 
                             try
@@ -410,7 +411,7 @@
                                 UserName = UserName.ToLower(),
                                 Name = Name,
                                 Email = Mail,
-                                RoleId = "8e9f3987-e4d9-47c2-b465-9919e0c206c7",
+                                Role = RoleName,
                                 // PassSalt = PassSalt
                             };
                         try
@@ -441,7 +442,7 @@
                                     UserName = UserName,
                                     Name = Name,
                                     Email = Mail,
-                                    RoleId = "8e9f3987-e4d9-47c2-b465-9919e0c206c7",
+                                    Role = RoleName,
                                     Password = Password,
                                     PasswordConfirm = PassRepeat
 

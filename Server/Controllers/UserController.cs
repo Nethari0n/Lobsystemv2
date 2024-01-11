@@ -158,6 +158,28 @@ namespace Lobsystem.Server.Controllers
             {
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
+
+        }
+
+        [HttpGet]
+        [Route("GetRoles")]
+        public async Task<IActionResult> GetRoles()
+        {
+            try
+            {
+                List<string> roleNames = new List<string>();
+                var roles = await _userService.GetAllRoles();
+                foreach (var item in roles)
+                {
+                    roleNames.Add(item.Name);
+                }
+                return Ok(roleNames);
+            }
+            catch (Exception e)
+            {
+
+                return StatusCode(StatusCodes.Status400BadRequest);
+            }
         }
 
     }

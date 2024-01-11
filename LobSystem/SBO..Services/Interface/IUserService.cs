@@ -1,4 +1,5 @@
 ﻿using Lobsystem.Shared.Models;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,8 +30,9 @@ namespace SBO.LobSystem.Services.Interface
 
         #region Role
 
-        //List<Role> GetAllRoles();
+        Task<List<IdentityRole>> GetAllRoles();
 
+        Task<List<IdentityRole>> RolePagination(int page, int totalItem);
         //Role GetRoleByRoleID(string id);
 
         #endregion

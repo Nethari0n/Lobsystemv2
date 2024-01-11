@@ -20,9 +20,12 @@ namespace Lobsystem.Shared.Models
         public string Email { get; set; }
         [Required]
         public string Name { get; set; }
-        public string? RoleId { get; set; }
+        
         
         [Compare(nameof(Password), ErrorMessage = "Passwords do not match!")]
         public string? PasswordConfirm { get; set; }
+
+        [Required]
+        public string Role { get; set; }
     }
 }

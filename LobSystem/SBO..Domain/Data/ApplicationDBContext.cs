@@ -25,15 +25,15 @@ namespace SBO.Lobsystem.Domain.Data
                          .HasData(
                          new IdentityRole
                          {
-                             Name = "Admin",
-                             NormalizedName = "ADMIN",
+                             Name = "Dybbøl Skole",
+                             NormalizedName = "DYBBØL SKOLE",
                              Id = "8e9f3987-e4d9-47c2-b465-9919e0c206c7",
                              ConcurrencyStamp = "6f6c68e9-0d18-460c-bb6a-7df4fe5241b4"
                          },
                          new IdentityRole
                          {
-                             Name = "User",
-                             NormalizedName = "USER",
+                             Name = "Oksbøl Friskole",
+                             NormalizedName = "OKSBØL FRISKOLE",
                              Id = "4f625560-ccfa-4655-82a9-c9bcfe9566d5",
                              ConcurrencyStamp = "0b471a65-11da-4d2c-9e72-fce7de17638f"
                          });
@@ -116,6 +116,7 @@ namespace SBO.Lobsystem.Domain.Data
                     Description = "bla bla",
                     Username = "Ole",
                     IsDeleted = false, Chips = 0,
+                    School = "Dybbøl"
 
                 });
             modelBuilder.Entity<Post>()

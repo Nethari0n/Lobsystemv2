@@ -10,6 +10,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 
 namespace SBO.LobSystem.Services.Services
 {
@@ -86,11 +87,11 @@ namespace SBO.LobSystem.Services.Services
 
         #region Role
 
-        //public void AddRole(Role roles)
+        //public void AddRole(string roles)
         //{
         //    Role role = new();
 
-        //    role.RoleName = roles.RoleName;
+            
 
         //    _lobsContext.Roles.Add(role);
         //    _lobsContext.SaveChanges();
@@ -106,21 +107,18 @@ namespace SBO.LobSystem.Services.Services
         //    _lobsContext.SaveChanges();
         //}
 
-        //public List<Role> GetAllRoles()
-        //{
-        //    List<Role> list = new();
+        public async Task<List<IdentityRole>> GetAllRoles()
+        {
+            List<IdentityRole> list = await _lobsContext.Roles.ToListAsync();
+           
+            return list;
+        }
 
-        //    foreach ( var role in _lobsContext.Roles )
-        //    {
-        //        Role roleDTO = new();
-
-        //        roleDTO.Id = role.Id;
-        //        roleDTO.RoleName = role.RoleName;
-
-        //        list.Add(roleDTO);
-        //    }
-        //    return list;
-        //}
+        public  List<IdentityRole> RolePagination(int page, int totalItem)
+        {
+            var list =  _lobsContext.Roles.Paging(page,totalItem).ToList();
+            return list;
+        }
 
         //public Role GetRoleByRoleID(string id)
         //{

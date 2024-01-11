@@ -1,5 +1,6 @@
 ﻿using Lobsystem.Client.IAPICallers;
 using Lobsystem.Shared.Models;
+using Microsoft.AspNetCore.Identity;
 using System.Net.Http.Json;
 
 namespace Lobsystem.Client.APICallers
@@ -37,6 +38,7 @@ namespace Lobsystem.Client.APICallers
                 throw e.InnerException;
             }
         }
+
 
         public async Task<string> GetUsernameByID(string id)
         {
@@ -115,5 +117,20 @@ namespace Lobsystem.Client.APICallers
                 throw e.InnerException;
             }
         }
+
+        public async Task<List<string>> GetRoles()
+        {
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<List<string>>($"User/GetRoles");
+                return response;
+            }
+            catch (Exception e)
+            {
+                throw e.InnerException;
+            }
+        }
+
+     
     }
 }
