@@ -114,9 +114,9 @@ namespace SBO.LobSystem.Services.Services
             return list;
         }
 
-        public  List<IdentityRole> RolePagination(int page, int totalItem)
+        public async  Task<List<IdentityRole>> RolePagination(int page, int totalItem)
         {
-            var list =  _lobsContext.Roles.Paging(page,totalItem).ToList();
+            var list = await _lobsContext.Roles.Paging(page,totalItem).ToListAsync();
             return list;
         }
 

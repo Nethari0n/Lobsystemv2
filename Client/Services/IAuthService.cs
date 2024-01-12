@@ -11,5 +11,6 @@ namespace Lobsystem.Client.Services
         Task<CurrentUser> CurrentUserInfo();
         Task CreateRole(string roleName);
         Task<List<IdentityRole>> GetRoles();
+        Task<List<IdentityRole>> RolePagination(int pages, int totalPages);
     }
 }

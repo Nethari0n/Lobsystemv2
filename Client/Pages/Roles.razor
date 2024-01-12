@@ -66,8 +66,8 @@
 
     #region Properties
 
-    private List<User> UsersDTO { get; set; } = new();
-    private List<User> UsersFull { get; set; } = new();
+    private List<IdentityRole> Roles { get; set; } = new();
+    private List<IdentityRole> RolessFull { get; set; } = new();
     private List<IdentityRole> RolesList { get; set; } = new();
 
     private string UserName { get; set; }
@@ -108,7 +108,7 @@
     protected async Task Search()
     {
 
-        UsersDTO = await _UserCaller.SearchUser(CurrentPage, PageCount, SearchField);
+        Roles = await _UserCaller.SearchUser(CurrentPage, PageCount, SearchField);
         var tempUsers = await _AuthService.GetRoles();
         Count = tempUsers.Where(x => x.Name.Contains(SearchField) || x.Name.Contains(SearchField)).ToList().Count();
 
@@ -118,17 +118,17 @@
 
     protected async Task GetLists()
     {
-        var TempUsers = await _UserCaller.GetAllUsers();
+        var TempUsers = await _AuthService.GetRoles();
         Count = TempUsers.Count();
         RolesList = await _AuthService.GetRoles();
         if (PageCount >= Count)
         {
-            UsersDTO = await _UserCaller.UserPagination(1, PageCount);
+            Roles = await _AuthService.RolePagination(CurrentPage, PageCount);
 
         }
         else
         {
-            UsersDTO = await _UserCaller.UserPagination(CurrentPage, PageCount);
+            Roles = await _AuthService.RolePagination(CurrentPage, PageCount);
         }
 
         TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageCount));

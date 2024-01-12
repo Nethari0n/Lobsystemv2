@@ -18,8 +18,6 @@ namespace Lobsystem.Client.IAPICallers
         Task<bool> UserExists(string username, string name, string oldUsername, string oldName);
 
         Task<List<string>> GetRoles();
-  
-
 
         Task<bool> UserExists(string username, string name);
 

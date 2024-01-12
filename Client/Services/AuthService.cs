@@ -71,5 +71,18 @@ namespace Lobsystem.Client.Services
             }
         }
 
+        public async Task<List<IdentityRole>> RolePagination(int pages, int totalPages)
+        {
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<List<IdentityRole>>($"api/auth/rolepagination/{pages}/{totalPages}");
+                return response;
+            }
+            catch (Exception e)
+            {
+                throw e.InnerException;
+            }
+        }
+
     }
 }

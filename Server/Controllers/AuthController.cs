@@ -113,6 +113,17 @@ namespace Lobsystem.Server.Controllers
             return Ok(result);
         }
 
+        [HttpGet]
+        [Route("Pagination/{page}/{totalPages}")]
+        public async Task<IActionResult> RolesPagination(int page, int totalPages)
+        {
+            var result = await _userService.RolePagination(page, totalPages);
+
+            if (result.Count == 0)
+                return BadRequest("No roles");
+
+            return Ok(result);
+        }
        
     }
 
