@@ -1,0 +1,509 @@
+﻿@page "/EventScan"
+@using System.Web;
+@using Lobsystem.Shared.DTO;
+@using System.Net
+@using System.Net.NetworkInformation
+@inject HttpClient _httpClient
+
+
+
+
+
+@if (_render)
+{
+
+
+    <div class="container">
+        <div class="text-center">
+            <div class="EventScan">
+                <h1>@Title</h1>
+
+                <div class="container main">
+                    <div class="container scanBox">
+                        <div class="title">
+                            <h2 class="boxTitle">Klar</h2>
+                            <div id="loading" hidden class="spinner-border" style="width: 5rem; height: 5rem;" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <input id="ErrorMessage" class="ErrorInput" type="text" @bind="ErrorMessage" readonly />
+                        </div>
+                        <div class="User">
+                            <input id="User" class="UserInput" type="text" @bind="User" readonly />
+                        </div>
+                    </div>
+                    @if (StartDate > DateTime.Now)
+                    {
+                        <h3>Event ikke startet.</h3>
+                    }
+                    else if (EndDate <= DateTime.Now)
+                    {
+                        <h3>Event er afsluttet.</h3>
+                    }
+                    <div class="input">
+
+                        @if (PostList.Count() > 1)
+                        {
+                            @if (EndDate > DateTime.Now)
+                            {
+                                <select @onchange="@(async e => {PostID = (string)e.Value; await RemoveFocusSelect(); await FocusInput(); if (Convert.ToInt32(PostID) > 0) { await Show();} else { await Hide();} })" class="form-control" id="PostSelecter">
+                                    <option value="0">Vælge Post</option>
+                                    @foreach (var item in PostList)
+                                    {
+                                        <option value="@item.PostID">@item.PostNum</option>
+                                    }
+                                </select>
+                            }
+                            @if (StartDate < DateTime.Now && EndDate > DateTime.Now)
+                            {
+                                if (Convert.ToInt32(PostID) > 0)
+                                {
+                                    <input id="UID" @bind="UID" @onkeypress="@Enter" @oninput="@(e => {UID=(string)e.Value;})" type="text" class="form-control" autofocus autocomplete="off" />
+                                    InvokeAsync(FocusInput);
+                                }
+                                else
+                                {
+                                    <input id="UID" @bind="UID" @onkeypress="@Enter" @oninput="@(e => {UID=(string)e.Value;})" type="text" class="form-control" readonly />
+                                }
+
+                            }
+                        }
+                        else
+                        {
+                            PostID = PostList.FirstOrDefault().PostID.ToString();
+                            @if (StartDate < DateTime.Now && EndDate > DateTime.Now)
+                            {
+                                <input id="UID" @bind="UID" @onkeypress="@Enter" @oninput="@(e => {UID=(string)e.Value;})" type="text" class="form-control" autofocus autocomplete="off" />
+                            }
+                        }
+                        @if (LocalStoreCount > 0)
+                        {
+                            <p>Der er @LocalStoreCount i Offline Køen</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @*No internet connection pop-up warrning*@
+    @*<div id="PopUp">Internet Problemer..</div>*@
+}
+
+
+@code {
+    //------------------------ Properties ------------------------//
+
+    private int Value { get; set; }
+
+    private string Title { get; set; }
+
+    private DateTime StartDate { get; set; }
+
+    private DateTime EndDate { get; set; }
+
+    private bool Sucsses { get; set; }
+
+    private bool InternetConnection { get; set; }
+
+    private bool MultiRound { get; set; }
+
+    private System.Threading.Timer? timer;
+
+    private System.Threading.Timer? InternetTimer;
+
+    private int CooldownTimer { get; set; }
+
+    private string ErrorMessage { get; set; }
+
+    public int SiteId { get; set; }
+
+    public int LocalStoreCount { get; set; }
+
+
+    //User
+    private string User { get; set; }
+
+    private string UID { get; set; }
+
+
+    //Post
+    private List<Post> PostList { get; set; } = new();
+
+    private string PostID { get; set; }
+
+
+    //Scan
+    private List<ChipDTO> ChipList { get; set; } = new();
+
+    public bool _render { get; set; } = false;
+
+    private IJSObjectReference _jsModule;
+
+    private CancellationTokenSource _cancellationTokenSource;
+
+    //private System.Threading.Timer timer { get; set; }
+
+    //private List<ScanningDTO> ScanningList { get; set; }
+
+    //private List<string> UIDList { get; set; }
+
+
+    //------------------------- Methods --------------------------//
+
+    /// <summary>
+    /// Initializeses lists & starts Timer method
+    /// </summary>
+    /// <returns></returns>
+    protected override async Task OnInitializedAsync()
+    {
+
+        var uri = navigationManager.ToAbsoluteUri(navigationManager.Uri);
+        var test = HttpUtility.ParseQueryString(uri.Query)["id"];
+        //var test2 = test["id"];
+
+        if (int.TryParse(test, out int result))
+        {
+            //_jsModule = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./scripts/jsExamples.js");
+            _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/scan.js");
+            SiteId = result;
+            await InitializeProperties(SiteId);
+
+        }
+        else
+        {
+            navigationManager.NavigateTo("/HomePage");
+        }
+
+        MultiRound = await _TypesCaller.GetMultiRound(Convert.ToInt32(SiteId));
+
+
+        _render = true;
+
+        //await Timer();
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            timer = new System.Threading.Timer(async (object? stateInfo) =>
+            {
+                try
+                {
+                    if (await IsConnectedToInternetAsync())
+                    {
+                        CheckStartDate(Convert.ToInt32(SiteId));
+                        CheckEndDate(Convert.ToInt32(SiteId));
+                        if (await localStore.GetItemAsync<List<ScanningDTO>>("LocalStore") != null)
+                        {
+                            UploadLocalStore();
+                        }
+
+                        await InvokeAsync(StateHasChanged); //MUST CALL StateHasChanged() BECAUSE THIS IS TRIGGERED BY A TIMER INSTEAD OF A USER EVENT
+                    }
+
+                }
+                catch (Exception)
+                {
+                    DisposeTimer();
+                    throw;
+                }
+            }, new System.Threading.AutoResetEvent(false), 10000, 30000); //TODO: might change fire timer: fires every 10000 milliseconds
+
+        }
+    }
+    public void DisposeTimer()
+    {
+        timer?.Dispose();
+
+    }
+    public void DisposeInternetTímer()
+    {
+        InternetTimer?.Dispose();
+    }
+
+
+    /// <summary>
+    /// Initializes all the necessary properties
+    /// </summary>
+    /// <param name="value"></param>
+    protected async Task InitializeProperties(int value)
+    {
+        //Int32.TryParse(value, out int result);
+
+        Event eventDTO = new();
+        eventDTO = await _EventCaller.GetEventByID(value);
+        Title = eventDTO.EventName;
+        StartDate = eventDTO.StartDate;
+        EndDate = eventDTO.EndDate;
+        CooldownTimer = eventDTO.CooldownTimer;
+
+        PostList = await _PostCaller.GetAllPostByEventID(value);
+
+        ChipList = await _ChipCaller.GetAllChipsFromEvent(value);
+
+        //UIDList = new List<string>();
+        //ScanningList = new List<ScanningDTO>();
+    }
+
+    /// <summary>
+    /// Validate uid recived if true save in uid list
+    /// </summary>
+    /// <param name="uid"></param>
+    /// <returns></returns>
+    protected async Task OnScan(string uid)
+    {
+        User = null;
+        DateTime lastScan = DateTime.Parse("0001-01-01");
+        Sucsses = false;
+        await _jsModule.InvokeVoidAsync("toggleField");
+        User = uid;
+        StateHasChanged();
+
+        //This is used in the ScanResults method
+        if (_cancellationTokenSource != null)
+            _cancellationTokenSource.Cancel(); // This cancels the ongoing task.
+
+        _cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(new CancellationTokenSource().Token);
+
+        if (await IsConnectedToInternetAsync())
+        {
+            if (UID != null && ChipList.Any(x => x.UID == uid))
+                lastScan = await _ScanCaller.FindScansDatetime(uid, Convert.ToInt32(PostID));
+            else if (UID == null)
+                Task.Run(() => ScanResults(uid, "UID er tomt!"));
+            else if (!ChipList.Any(x => x.UID == uid))
+                Task.Run(() => ScanResults(uid, "Chip er ikke med i begivenhed!"));
+
+
+            if (lastScan != DateTime.Parse("0001-01-01") && lastScan.AddSeconds(CooldownTimer) <= DateTime.Now)
+            {
+                Sucsses = true;
+                try
+                {
+                    Scanning scan = await _ScanCaller.GetScan(uid, Convert.ToInt32(PostID));
+                    ScanningDTO scanningDTO = new() { ChipID = scan.ChipID, PostID = Convert.ToInt32(PostID), TimeStamp = DateTime.Now };
+                    if (Sucsses)
+                    {
+                        await _ScanCaller.CreateScan(scanningDTO);
+                    }
+                }
+                catch (Exception)
+                {
+                    await SetLocalStoreScanlist(uid);
+                }
+
+                Task.Run(() => ScanResults(uid));
+            }
+            else if (lastScan.AddSeconds(CooldownTimer) > DateTime.Now)
+            {
+                Task.Run(() => ScanResults(uid, "Cooldown!"));
+            }
+        }
+        else
+        {
+            await SetLocalStoreScanlist(uid);
+        }
+        await _jsModule.InvokeVoidAsync("toggleField");
+        await _jsModule.InvokeVoidAsync("FocusInput");
+
+    }
+
+
+    public async Task SetLocalStoreScanlist(string uid)
+    {
+        DateTime lastScan = DateTime.Parse("0001-01-01");
+        Sucsses = false;
+
+        if (UID != null && ChipList.Any(x => x.UID == uid))
+        {
+            List<ScanningDTO> scanningDTOs = new();
+            ScanningDTO scanningDTO = new() { TimeStamp = DateTime.Now, ChipID = ChipList.Where(x => x.UID == uid).FirstOrDefault().ChipID, PostID = int.Parse(PostID) };
+            if (await localStore.GetItemAsync<List<ScanningDTO>>("LocalStore") != null)
+            {
+                scanningDTOs = await localStore.GetItemAsync<List<ScanningDTO>>("LocalStore");
+                LocalStoreCount = scanningDTOs.Count();
+                StateHasChanged();
+                await localStore.ClearAsync();
+            }
+
+            if (scanningDTOs.Count() > 0)
+            {
+
+                foreach (var item in scanningDTOs.ToList())
+                {
+                    Sucsses = false;
+                    if (item.ChipID == scanningDTO.ChipID)
+                    {
+
+                        lastScan = item.TimeStamp;
+                        if (lastScan != DateTime.Parse("0001-01-01") && lastScan.AddSeconds(CooldownTimer) <= DateTime.Now)
+                        {
+                            Sucsses = true;
+                            Task.Run(() => ScanResults(uid));
+                            //ScanResults(uid);
+                        }
+                        else if (lastScan.AddSeconds(CooldownTimer) > DateTime.Now)
+                        {
+                            Task.Run(() => ScanResults(uid, "Cooldown!"));
+                            //await ScanResults(uid, "Cooldown!");
+                            await localStore.SetItemAsync("LocalStore", scanningDTOs);
+                            return;
+                        }
+
+                    }
+                    else
+                    {
+                        Sucsses = true;
+                        Task.Run(() => ScanResults(uid));
+                        //await ScanResults(uid);
+                    }
+                }
+            }
+            else
+            {
+                Sucsses = true;
+                Task.Run(() => ScanResults(uid));
+
+                //await ScanResults(uid);
+            }
+
+            scanningDTOs.Add(scanningDTO);
+
+            await localStore.SetItemAsync("LocalStore", scanningDTOs);
+
+        }
+        else
+        {
+            Task.Run(() => ScanResults(uid, "Chip er ikke med i begivenhed!"));
+
+            //await ScanResults(uid, "Chip er ikke med i begivenhed!");
+        }
+
+    }
+
+
+    protected async Task UploadLocalStore()
+    {
+
+        if (await localStore.GetItemAsync<List<ScanningDTO>>("LocalStore") != null)
+        {
+            List<ScanningDTO> scanningDTOs = await localStore.GetItemAsync<List<ScanningDTO>>("LocalStore");
+            //For some reason foreach doesn't work??? So we're running with a for loop.
+            //When we run with a foreach it only runs through it once even though there is multiple objects in the list we're looping through.
+            // for (int i = scanningDTOs.Count - 1; i >= 0; i--)
+            // {
+            try
+            {
+                await _ScanCaller.CreateScans(scanningDTOs);
+                await localStore.ClearAsync();
+                LocalStoreCount = 0;
+                StateHasChanged();
+            }
+            catch (Exception)
+            {
+                toastService.ShowError("Noget gik galt med upload af Lokale Chips");
+            }
+
+        }
+    }
+
+    /// <summary>
+    /// Call OnScan method if enter key is pressed
+    /// </summary>
+    /// <param name="e"></param>
+    /// <returns></returns>
+    protected async Task Enter(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" || e.Code == "NumpadEnter") await OnScan(UID);
+    }
+
+    /// <summary>
+    /// Display succes or failure of scan
+    /// </summary>
+    /// <param name="e"></param>
+    /// <returns></returns>
+    protected async Task ScanResults(string uid, string error = null)
+    {
+        await _jsModule.InvokeVoidAsync("myStopFunction");
+
+        User = null;
+
+        StateHasChanged();
+
+        await _jsModule.InvokeVoidAsync("IsTrue", Sucsses);
+        await _jsModule.InvokeVoidAsync("IsTrueTitle", Sucsses);
+
+        User = uid; UID = null;
+        ErrorMessage = error;
+
+        StateHasChanged();
+        try
+        {
+            await Task.Delay(3000, _cancellationTokenSource.Token);
+        }
+        catch
+        {
+            return;
+        }
+        await _jsModule.InvokeVoidAsync("Clear");
+    }
+
+    /// <summary>
+    /// Remove readonly from UID input field
+    /// </summary>
+    /// <returns></returns>
+    protected async Task Show() => await _jsModule.InvokeVoidAsync("Show");
+
+    /// <summary>
+    /// Add readonly to UID input field
+    /// </summary>
+    /// <returns></returns>
+    protected async Task Hide() => await _jsModule.InvokeVoidAsync("Hide");
+
+    /// <summary>
+    /// Foce focus on UID input field
+    /// </summary>
+    /// <returns></returns>
+    protected async Task FocusInput() => await _jsModule.InvokeVoidAsync("FocusInput");
+
+
+    protected async Task RemoveFocusSelect() => await _jsModule.InvokeVoidAsync("RemoveFocusSelect");
+
+    protected async void CheckStartDate(int result) => StartDate = await _EventCaller.GetEventByIDStartDate(result);
+    protected async void CheckEndDate(int result) => EndDate = await _EventCaller.GetEventByIDEndDate(result);
+
+    /// <summary>
+    /// Check if able to ping domain
+    /// </summary>
+    /// <returns></returns>
+    protected async Task<bool> IsConnectedToInternetAsync()
+    {
+
+        bool result = false;
+
+        try
+        {
+
+            var response = await _httpClient.GetAsync("Event/CheckConnection");
+            if (response.IsSuccessStatusCode)
+            {
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+
+        }
+        catch (Exception)
+        {
+
+            return false;
+        }
+
+    }
+
+}

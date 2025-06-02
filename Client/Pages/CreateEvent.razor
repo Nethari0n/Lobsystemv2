@@ -1,0 +1,409 @@
+﻿@page "/CreateEvent"
+@using Lobsystem.Shared.DTO;
+
+
+
+<div class="container">
+    <div class="text-center EventAdmin">
+        <h3 class="title-e">Tilføj Begivenhed</h3>
+        <hr />
+
+        @*Event properties*@
+        <div class="container EventProp">
+            <div class="row col-row">
+                <div class="col-4 start">
+                    <label for="Title">Titel <i class="Required">*</i></label>
+                    <input type="text" id="Title" maxlength="200" @bind="Title" class="form-control left" />
+                </div>
+                <div class="col-4 space"></div>
+                <div class="col-4 end">
+                    <label for="startDate">Start Tid <i class="Required">*</i></label>
+                    <input class="form-control" type="datetime-local" id="startDate" min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-ddTHH:mm")" @bind="SelectedStartDateTime" @oninput="StartDateValidation" />
+                </div>
+
+
+            </div>
+            <br />
+            <div class="row col-row">
+                <div class="col-4 start">
+                    <label for="Beskrivelse">Beskrivelse</label>
+                    <textarea type="text" @bind="Desc" id="Beskrivelse" class="form-control left"></textarea>
+                </div>
+                <div class="col-4 space"></div>
+                <div class="col-4 end">
+                    <label for="endDate">Slut Tid <i class="Required">*</i></label>
+                    <input class="form-control" type="datetime-local" id="endDate" min="@SelectedStartDateTime.ToString("yyyy-MM-ddTHH:mm")" max="@DateTime.Now.AddYears(20).ToString("yyyy-MM-ddTHH:mm")" @bind="SelectedEndDateTime" @oninput="EndDateValidation" />
+                    <label for="TimeOutParamater" class="CooldownLabel">Cooldown <i class="ToolTip">*</i></label>
+                    <input class="form-control Cooldown" onkeypress="@NumbersOnly" onpaste="return false;" ondrop="return false;" autocomplete="off" @bind="Cooldown" placeholder="Default er 30 sec" id="TimeOutParamater" />
+                </div>
+            </div>
+            <br />
+            <div class="row col-row">
+                <div class="col-4 start">
+                    <label for="Types">Type <i class="Required">*</i></label>
+                    <select class="form-control" id="Types" @bind="TypesID">
+                        <option value="0">Vælg Type</option>
+                        @foreach (var item in TypeList)
+                        {
+                            <option value="@item.TypesID">@item.TypeName</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-8 end align-self-end">
+                    <input type="submit" id="EventAdd" class="btn logoColor" value="Tilføj Begivenhed" @onclick="(async e => { await ToastTitle(); AddEvents(); StateHasChanged();})" />
+                </div>
+            </div>
+            <br />
+        </div>
+
+
+        @*Post table*@
+        <div class="container PostTable">
+            <nav class="navbar navbar-expand-lg">
+                <div class="d-flex">
+                    <input type="checkbox" class="form-check-input" id="multiplyer" @onchange="(async e => {await CheckBoxMulti(); IsChekced = (bool)e.Value;})" style="margin: 0; margin-top: 8px;" />
+                    <label class="form-check-label" for="multiplyer" style="margin-left: 25px; line-height:30px;">Multiplier</label>
+                    <input type="number" onkeypress="@NumbersOnly" id="MultiTetxt" @bind="Multiplyer" class="form-control small" placeholder="2x" disabled />
+                </div>
+                <div class="d-flex">
+                    <label style="line-height:30px;">Afstand mellem poster</label>
+                    <input type="number" onkeypress="@NumbersOnly" id="distance" @bind="Distance" class="form-control InputMeter small" placeholder="100m" />
+                    <label class="form-control InputMeterText" for="distance">M</label>
+                </div>
+                <div class="d-flex">
+                    <input type="submit" id="PostTilf" value="Tilføj" @onclick="(async e => {await AddPost(); StateHasChanged();})" class="btn logoColor float-right" />
+                </div>
+            </nav>
+            <div class="TableScrollable">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Post nr.</th>
+                            <th>Multiplier</th>
+                            <th>Afstand</th>
+                            <th>Handling</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in PostList)
+                        {
+                            <tr>
+                                <td>@item.PostNum</td>
+                                <td>@item.Multiplyer</td>
+                                <td>@item.Distance</td>
+                                <td><a type="button" class="hyperlink" @onclick="() => {DeletePost(item.PostNum);}">Slet</a></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        @*Toast Notifaction*@
+        @* <div aria-live="polite" aria-atomic="true">
+        <div class="toast-container position-absolute top-0 end-0 p-3">
+
+        <div class="toast align-items-center text-white bg-danger border-0" id="TitleToast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+        <div class="toast-body toast-icon">
+        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
+        </div>
+        <div class="toast-body toast-text">
+        Title skal udfyles.
+        </div>
+        </div>
+        </div>
+
+        <div class="toast align-items-center text-white bg-danger border-0" id="TypeToast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+        <div class="toast-body toast-icon">
+        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
+        </div>
+        <div class="toast-body toast-text">
+        Vælg en type.
+        </div>
+        </div>
+        </div>
+
+        <div class="toast align-items-center text-white bg-danger border-0" id="StartDateToast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+        <div class="toast-body toast-icon">
+        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
+        </div>
+        <div class="toast-body toast-text">
+        Start dato skal udfyles.
+        </div>
+        </div>
+        </div>
+
+        <div class="toast align-items-center text-white bg-danger border-0" id="EndDateToast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+        <div class="toast-body toast-icon">
+        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
+        </div>
+        <div class="toast-body toast-text">
+        Slut dato skal udfyles.
+        </div>
+        </div>
+        </div>
+
+        <div class="toast align-items-center text-white bg-danger border-0 DateTimeToast" id="DateToast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+        <div class="toast-body toast-icon">
+        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
+        </div>
+        <div class="toast-body toast-text">
+        Slut dato må ikke være før start dato...
+        </div>
+        </div>
+        </div>
+
+
+        <div class="toast align-items-center text-white bg-danger border-0 DateTimeToast" id="ToastError" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+        <div class="toast-body toast-icon">
+        <i style="font-size: 20px;" class="fa-solid fa-circle-xmark"></i>
+        </div>
+        <div class="toast-body toast-text">
+        @ErrorMessage
+        </div>
+        </div>
+        </div>
+
+        </div>
+        </div> *@
+    </div>
+</div>
+
+
+
+@code {
+
+    //------------------------ Properties ------------------------//
+    private List<Types> TypeList { get; set; }
+
+    private List<PostDTO> PostList { get; set; }
+
+    private string NumbersOnly { get; set; }
+
+    private string ErrorMessage { get; set; }
+
+    //Post Prop
+    private bool IsChekced { get; set; }
+
+    private int Distance { get; set; }
+
+    private int Multiplyer { get; set; }
+
+    private int PostNrCounter { get; set; }
+
+
+    //Event Prop
+    private string StartDate { get; set; }
+
+    private string EndDate { get; set; }
+
+    private string Title { get; set; }
+
+    private string Desc { get; set; }
+
+    private int TypesID { get; set; }
+
+    private string Cooldown { get; set; }
+
+    private DateTime SelectedStartDateTime { get; set; } = DateTime.Now; // Initialize with the current date and time.
+
+    private DateTime SelectedEndDateTime { get; set; } = DateTime.Now.AddHours(1); // Initialize with the current date and time.
+
+
+
+    public DateTime StarttimeEvent;
+
+    public DateTime EndtimeEvent;
+
+    private IJSObjectReference _jsModule;
+
+
+
+
+
+    //------------------------- Methods --------------------------//
+
+    protected override async void OnInitialized()
+    {
+
+        TypeList = new List<Types>();
+        PostList = new List<PostDTO>();
+
+        TypeList = await _TypesCaller.GetAllTypes();
+
+        _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/CreateEvent.js");
+
+        // StartDate = DateTime.Now.ToString("yyyy-MM-ddTHH:mm");
+        // EndDate = DateTime.Now.AddHours(1).ToString("yyyy-MM-ddTHH:mm");
+
+        NumbersOnly = "return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))";
+
+        StateHasChanged();
+    }
+
+    protected async void ClearFields()
+    {
+        PostList = new List<PostDTO>();
+        Title = "";
+        Desc = "";
+        TypesID = 0;
+
+        await _jsModule.InvokeVoidAsync("AddDisableEventAdd");
+    }
+
+    protected async Task StartDateValidation(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value.ToString(), out DateTime selectedStartTime))
+        {
+            if (selectedStartTime < DateTime.Now)
+            {
+                SelectedStartDateTime = DateTime.Now;
+                toastService.ShowError("Start dato må ikke være tidligere end idag.");
+            }
+            else if (SelectedEndDateTime < selectedStartTime)
+            {
+                SelectedStartDateTime = selectedStartTime;
+                SelectedEndDateTime = selectedStartTime; // Adjust the end time to match the start time
+            }
+            StateHasChanged();
+        }
+    }
+
+    protected async Task EndDateValidation(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value.ToString(), out DateTime selectedEndTime))
+        {
+            if (selectedEndTime > DateTime.Now.AddYears(20))
+            {
+                SelectedEndDateTime = DateTime.Now.AddYears(20);
+                toastService.ShowError($"Slut dato må seneste være {DateTime.Now.AddYears(20).ToString("dd-MM-yyyy")}");
+            }
+            else if (selectedEndTime < SelectedStartDateTime)
+            {
+                SelectedEndDateTime = SelectedStartDateTime;
+                toastService.ShowError("Slut dato må ikke være før start dato.");
+            }
+            StateHasChanged();
+        }
+    }
+
+
+
+    protected async Task CheckBoxMulti() => await _jsModule.InvokeVoidAsync("CheckedMulti");
+
+    protected async Task ToastTitle()
+    {
+
+        if (string.IsNullOrWhiteSpace(Title))
+            toastService.ShowError("Der skal være en Titel");
+        if (SelectedStartDateTime == null)
+            toastService.ShowError("Der skal være en Start Dato");
+        if (SelectedEndDateTime == null)
+            toastService.ShowError("Der skal være en Slut Dato");
+        if (TypesID == 0)
+            toastService.ShowError("Der skal vælges en Type");
+
+    }
+
+
+    protected async Task AddEvents()
+    {
+        if (PostList.Count != 0)
+        {
+            if (SelectedStartDateTime != SelectedEndDateTime)
+            {
+                var _ = Cooldown != null ? Cooldown : Cooldown = "30";
+                if (!string.IsNullOrWhiteSpace(Title) && Title.Length <= 200 && !string.IsNullOrWhiteSpace(Cooldown) && SelectedStartDateTime != null && SelectedEndDateTime != null && TypesID != 0)
+                {
+                    var i = Desc == null ? Desc = "" : Desc;
+
+                    CurrentUser currentUser = await _AuthService.CurrentUserInfo();
+
+
+
+                    CreateEventDTO eventDTO = new CreateEventDTO
+                        {
+                            EventName = Title.Trim(),
+                            StartDate = SelectedStartDateTime,
+                            EndDate = SelectedEndDateTime,
+                            Description = Desc.Trim(),
+                            TypesID = TypesID,
+                            Username = currentUser.UserName,
+                            CooldownTimer = Convert.ToInt32(Cooldown),
+
+                        };
+                    EventPostsDTO eventPostsDTO = new() { CreateEvent = eventDTO, PostList = PostList };
+
+                    try
+                    {
+                        await _EventCaller.AddEvent(eventPostsDTO);
+                        //toastService.ShowSuccess($"{eventDTO.EventName} Oprettet");
+                        await localStore.SetItemAsync("EventToastName", eventDTO.EventName);
+                        navigationManager.NavigateTo("/", true);
+                    }
+                    catch (Exception e)
+                    {
+                        toastService.ShowError("Fejl opstod under Opretning af Event");
+                    }
+
+
+
+                }
+                else
+                {
+                    toastService.ShowError("Fejl opstod");
+                }
+            }
+            else
+            {
+                toastService.ShowError("Start og Slut data må ikke være på samme tidspunkt Eller Slut data må ikke være før Start Dato");
+            }
+        }
+        else
+        {
+            toastService.ShowError("Mindst 1 Post");
+        }
+    }
+
+    protected async Task AddPost()
+    {
+        if (Distance.ToString().Length <= 5)
+        {
+            var _ = !IsChekced ? Multiplyer = 0 : Multiplyer;
+
+            PostDTO post = new PostDTO
+                {
+                    Multiplyer = Multiplyer,
+                    Distance = Distance,
+                    PostNum = (PostList.Count() + 1)
+                };
+            PostList.Add(post);
+        }
+        else
+        {
+            Distance = 0;
+            toastService.ShowError("Post afstand må ikke være længere end 5 karakter.");
+        }
+    }
+
+    protected void DeletePost(int id)
+    {
+        PostList.RemoveAll(x => x.PostNum == id);
+
+        if (PostList.Count() != 0)
+        {
+            for (int i = 0; i < PostList.Count; i++)
+            {
+                PostList[i].PostNum = (i + 1);
+            }
+        }
+    }
+
+
+}

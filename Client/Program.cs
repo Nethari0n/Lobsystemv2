@@ -2,6 +2,11 @@ using Lobsystem.Client.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Lobsystem.Client.APICallers;
+using Lobsystem.Client.IAPICallers;
+using Blazored.Toast;
+using Blazored.Modal;
+using Blazored.LocalStorage;
 
 namespace Lobsystem.Client
 {
@@ -19,8 +24,24 @@ namespace Lobsystem.Client
             builder.Services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<CustomStateProvider>());
             builder.Services.AddScoped<IAuthService, AuthService>();
 
-
+            builder.Services.AddScoped<IEventCaller, EventCaller>();
+            builder.Services.AddScoped<ICRUDCaller, CRUDCaller>();
+            builder.Services.AddScoped<IScanCaller, ScanCaller>();
+            builder.Services.AddScoped<ITypesCaller, TypesCaller>();
+            builder.Services.AddScoped<IPostCaller, PostCaller>();
+            builder.Services.AddScoped<IChipCaller, ChipCaller>();
+            builder.Services.AddScoped<IRapportAPICaller, RapportAPICaller>();
+            builder.Services.AddScoped<IGroupCaller, GroupCaller>();
+            builder.Services.AddScoped<IUserCaller, UserCaller>();
+            builder.Services.AddScoped<IChipGroupCaller, ChipGroupCaller>();
+            builder.Services.AddScoped<IRegistrationCaller, RegistrationCaller>();
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+            
+
+            builder.Services.AddBlazoredToast();
+            builder.Services.AddBlazoredModal();
+            builder.Services.AddBlazoredLocalStorage();
 
             await builder.Build().RunAsync();
         }

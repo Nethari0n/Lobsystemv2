@@ -1,4 +1,4 @@
-﻿using SBO.LobSystem.Domain.Model;
+﻿using Lobsystem.Shared.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +19,7 @@ namespace SBO.LobSystem.Services.Interface
 
         bool CheckPostScan(int id, int postID);
 
-
+        Scanning GetScanById(int id);
 
 
 

@@ -32,7 +32,7 @@
 
 @functions {
 
-    RegisterRequest registerRequest { get; set; } = new RegisterRequest();
+    RegisterRequest registerRequest { get; set; } = new RegisterRequest() { Email = "asdi@dasd.dk",Name = "test", };
     string error { get; set; }
 
     async Task OnSubmit()

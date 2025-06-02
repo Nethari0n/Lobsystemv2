@@ -1,0 +1,562 @@
+﻿@page "/Users"
+@using System.ComponentModel.DataAnnotations;
+
+<div class="container">
+    <div class="text-center mt-4 UserAdmin">
+
+        <div class="table-header d-flex btn-res justify-content-between" style="margin-top:2rem;">
+            <div class="d-flex">
+                <h2>Bruger</h2>
+                <button class="btn ml-5 mb-1 logoColor" @onclick='() => OpenCreateModal("ShowCreateModal")'>Opret</button>
+                <button type="button" id="exportBtn" class="btn ml-5 mb-1 logoColor" @onclick="async () => await ExportToExcel()">Export tabel til Excel</button>
+            </div>
+            <div>
+                <input class="form-control" type="text" id="search" @onkeypress="e => IsAlphabetKeyAndNumbers(e)" @bind="SearchField" @oninput="(e => SearchField = e.Value.ToString())" @onkeyup="(e => {OnInitializedAsync(); CurrentPage = 1;})" placeholder="Søg på navn.." />
+            </div>
+        </div>
+        <div class="TableScrollable">
+            <table class="table table-striped" id="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Brugernavn</th>
+                        <th>Navn</th>
+                        <th>Mail</th>
+                        @*  <th>Rolle</th> *@
+                        <th>Handlinger</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in UsersDTO.Where(x => x.IsDeleted == false))
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>@item.UserName</td>
+                            <td>@item.Name</td>
+                            <td>@item.Email</td>
+                            @* <td>@GetRoleByRoleID(@item.RoleID)</td> *@
+                            <td class="d-flex justify-content-center">
+                                <button class="hyperlink" @onclick="() => EditUser(item)">Rediger</button> |
+                                <button type="button" class="hyperlink" @onclick="() => DeleteUserConf(item)">Slet</button>
+
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    @if (Count > 0 && TotalPages > 1)
+                    {
+                        <ul class="pagination">
+                            @for (var i = 1; i <= TotalPages; i++)
+                            {
+                                int page = i;
+                                <li class="page-item @(i == CurrentPage ? "active" : "")">
+                                    <input type="button" @onclick="(e => {CurrentPage = page;OnInitializedAsync();})" class="page-link" value="@i" />
+                                </li>
+                            }
+                        </ul>
+                    }
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+
+    <table hidden id="tableFull">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Brugernavn</th>
+                <th>Navn</th>
+                <th>Mail</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in UsersFull.Where(x => x.IsDeleted == false))
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.UserName</td>
+                    <td>@item.Name</td>
+                    <td>@item.Email</td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+
+    @*//------------------------ Create user modal ------------------------//*@
+    <form class="modal modalBackdrop fade" id="opretModal" tabindex="-1" aria-hidden="true" method="post">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Opret Bruger</h5>
+                    <button type="button" class="btn-close" aria-label="Close" @onclick="CloseCreateModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-center" style="margin-bottom: 5px;">
+                        <p class="w-50" style="margin: auto 0;">Brugernavn: </p>
+                        <input @onkeypress="e => IsAlphabetKey(e)" maxlength="25" class="form-control w-50 ml-1" type="text" @bind="UserName" required />
+                    </div>
+                    <div class="d-flex justify-content-center" style="margin-bottom: 5px;">
+                        <p class="w-50" style="margin: auto 0;">Navn: </p>
+                        <input @onkeypress="e => IsAlphabetKey(e)" maxlength="25" class="form-control w-50 ml-1" type="text" @bind="Name" required />
+                    </div>
+                    <div class="d-flex justify-content-center" style="margin-bottom: 5px;">
+                        <p class="w-50" style="margin: auto 0;">Adgangskode: <i class="ToolTip">*</i></p>
+                        <input class="form-control w-50 ml-1" type="password" @bind="Password" required />
+                    </div>
+                    <div class="d-flex justify-content-center" style="margin-bottom: 5px;">
+                        <p class="w-50" style="margin: auto 0;">Gentag Adgangskode: </p>
+                        <input class="form-control w-50 ml-1" type="password" @bind="PassRepeat" required />
+                    </div>
+
+                    <div class="d-flex justify-content-center" style="margin-bottom: 5px;">
+                        <p class="w-50" style="margin: auto 0;">Mail: </p>
+                        <input class="form-control w-50 ml-1" type="email" @bind="Mail" required />
+                    </div>
+                    @* <div class="d-flex justify-content-center">
+                    <p class="w-50">Rolle: </p>
+                    <select class="form-control w-50" id="role" name="RoleID" value="@RoleID" @onchange="async e => {await RoleChange();RoleID = Convert.ToInt32((string)e.Value);}">
+                    <option value="0">Vælg en role &#9660;</option>
+                    @foreach (var item in Roles)
+                    {
+                    <option value="@item.RoleID">@item.RoleName</option>
+                    }
+                    </select>
+                    </div> *@
+
+
+                </div>
+                <div class="modal-footer">
+                    <input id="submitCreate" type="button" value="Opret Bruger" class="btn logoColor" @onclick="async () => {await ToastValidation();await CreateUser();}" />
+                </div>
+            </div>
+        </div>
+    </form>
+
+    @*//------------------------ Edit user modal ------------------------//*@
+    <form class="modal modalBackdrop fade" id="editModal" tabindex="-1" aria-hidden="true" method="post">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Rediger</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="CloseEditModal"></button>
+                </div>
+                <div class="modal-body">
+                    <input id="ID" type="hidden" value="" asp-for="UserID" />
+                    <div class="d-flex justify-content-center" style="margin-bottom: 5px;">
+                        <p class="w-50" style="margin: auto 0;">Brugernavn: </p>
+                        <input @onkeypress="e => IsAlphabetKey(e)" maxlength="25" class="form-control w-50 ml-1" id="username" type="text" @bind="UserName" />
+                        <input class="form-control w-50 ml-1" id="username" type="hidden" @bind="OldUserName" />
+                    </div>
+                    <div class="d-flex justify-content-center" style="margin-bottom: 5px;">
+                        <p class="w-50" style="margin: auto 0;">Navn: </p>
+                        <input @onkeypress="e => IsAlphabetKey(e)" maxlength="25" class="form-control w-50 ml-1" id="name" type="text" @bind="Name" />
+                        <input class="form-control w-50 ml-1" id="name" type="hidden" @bind="OldName" />
+                    </div>
+                    <div class="d-flex justify-content-center" style="margin-bottom: 5px;">
+                        <p class="w-50" style="margin: auto 0;">Adgangskode: </p>
+                        <input class="form-control w-50 ml-1" type="password" id="password" @bind="Password" />
+                    </div>
+                    <div class="d-flex justify-content-center" style="margin-bottom: 5px;">
+                        <p class="w-50" style="margin: auto 0;">Gentag Adgangskode: </p>
+                        <input class="form-control w-50 ml-1" type="password" id="repetPassword" @bind="PassRepeat" />
+                    </div>
+                    <div class="d-flex justify-content-center" style="margin-bottom: 5px;">
+                        <p class="w-50" style="margin: auto 0;">Mail: </p>
+                        <input class="form-control w-50 ml-1" id="mail" type="email" @bind="Mail" />
+                    </div>
+                    @*  <div class="d-flex justify-content-center">
+                    <p class="w-50">Rolle: </p>
+                    <select class="form-control w-50" id="role" name="RoleID" @bind="RoleID">
+
+                    @* @foreach (var item in Roles)
+                    {
+                    <option class="options" value="@item.RoleID">@item.RoleName</option>
+                    }
+                    </select>
+                    </div> *@
+                </div>
+                <div class="modal-footer">
+                    <input type="button" value="Opdater bruger" class="btn logoColor" @onclick="async () => {await ToastValidationEdit(); await UpdateUser();}" />
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+@code {
+    #region Properties
+
+    private List<User> UsersDTO { get; set; } = new();
+    private List<User> UsersFull { get; set; } = new();
+
+
+    private string UserName { get; set; }
+    private string OldUserName { get; set; }
+
+    private string Name { get; set; }
+    private string OldName { get; set; }
+
+
+    private string Password { get; set; }
+
+    [Compare(nameof(Password), ErrorMessage = "Password er ikke det Samme")]
+    private string PassRepeat { get; set; }
+
+    private string HiddenPass { get; set; } //Used to edit without a password in EditUser method
+    private string PassSalt { get; set; } //Used to edit without a password in EditUser method
+
+    private string Mail { get; set; }
+
+    private int RoleID { get; set; }
+
+    private string UserID { get; set; }
+
+    private string ErrorField { get; set; }
+    private string SuccessField { get; set; }
+
+    private string SearchField { get; set; }
+
+    #endregion
+
+    #region Pagination
+
+    private int CurrentPage { get; set; } = 1;
+    private int Count { get; set; } = 0;
+    private int TotalPages { get; set; }
+    private int PageCount { get; set; } = 10;
+
+
+    private IJSObjectReference _jsModule;
+    private IJSObjectReference _jsSite;
+    private IJSObjectReference _jsExcel;
+
+    #endregion
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/Users.js");
+        _jsExcel = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/ExportCSV.js");
+        _jsSite = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/site.js");
+        // Roles = _UserService.GetAllRoles();
+        if (!string.IsNullOrWhiteSpace(SearchField))
+            await Search();
+        else
+            await GetLists();
+
+
+        TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageCount));
+    }
+
+    protected async Task Search()
+    {
+
+        UsersDTO = await _UserCaller.SearchUser(CurrentPage, PageCount, SearchField);
+        var tempUsers = await _UserCaller.GetAllUsers();
+        Count = tempUsers.Where(x => x.UserName.Contains(SearchField) || x.Name.Contains(SearchField)).ToList().Count();
+
+        StateHasChanged();
+
+    }
+
+    protected async Task GetLists()
+    {
+        var TempUsers = await _UserCaller.GetAllUsers();
+        Count = TempUsers.Count();
+        UsersFull = await _UserCaller.GetAllUsers();
+        if (PageCount >= Count)
+        {
+            UsersDTO = await _UserCaller.UserPagination(1, PageCount);
+
+        }
+        else
+        {
+            UsersDTO = await _UserCaller.UserPagination(CurrentPage, PageCount);
+        }
+
+        TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageCount));
+        StateHasChanged();
+
+    }
+
+    protected async Task EditUser(User user)
+    {
+        UserID = user.Id;
+        UserName = user.UserName;
+        OldUserName = user.UserName;
+        Name = user.Name;
+        OldName = user.Name;
+        Mail = user.Email;
+
+        await _jsModule.InvokeVoidAsync("ShowEditModal");
+    }
+
+    protected async Task CloseEditModal()
+    {
+        UserID = "";
+        UserName = null;
+        Name = null;
+        Mail = null;
+        RoleID = 0;
+        Password = null;
+        PassRepeat = null;
+
+        await _jsModule.InvokeVoidAsync("CloseEditModal");
+    }
+
+    protected async Task CloseCreateModal()
+    {
+        UserID = "";
+        UserName = null;
+        Name = null;
+        Mail = null;
+        RoleID = 0;
+        Password = null;
+        PassRepeat = null;
+
+        await _jsModule.InvokeVoidAsync("CloseCreateModal");
+    }
+
+    protected string GetRoleByRoleID(int id)
+    {
+        return null; //_UserService.GetRoleByRoleID(id).RoleName;
+    }
+
+    protected async Task CreateUser()
+    {
+        if (Mail != null)
+        {
+            if (ValidateEmail(Mail.ToLower()))
+            {
+
+                UserName = UserName.Trim();
+                Name = Name.Trim();
+                Mail = Mail.Trim();
+                Password = Password.Trim();
+                PassRepeat = PassRepeat.Trim();
+                if (Password.Length > 7)
+                {
+                    if (!IsNull(UserName) && !IsNull(Name) && !IsNull(Mail) && !IsNull(Password) && !IsNull(PassRepeat) && PassRepeat == Password)
+                    {
+                        if (!await _UserCaller.UserExists(UserName.ToLower(), Name))
+                        {
+                            // string passSalt = _UserService.CreateSalt();
+
+                            RegisterRequest registerRequest = new RegisterRequest
+                                {
+                                    UserName = UserName.ToLower(),
+                                    Name = Name,
+                                    Password = Password,
+                                    PasswordConfirm = PassRepeat,
+                                    Email = Mail.ToLower(),
+                                    RoleId = "8e9f3987-e4d9-47c2-b465-9919e0c206c7",
+                                };
+
+                            try
+                            {
+
+                                await _AuthService.Register(registerRequest);
+                                toastService.ShowSuccess($"Bruger '{registerRequest.UserName}' blev oprettet");
+                            }
+                            catch (Exception)
+                            {
+                                toastService.ShowError("der gik noget galt med oprettelse af Brugeren");
+                            }
+
+                            await GetLists();
+                            await CloseCreateModal();
+                        }
+                        else
+                            toastService.ShowError("Brugernavn eller Navn eksistere allerede.");
+                    }
+                    else
+                        toastService.ShowError("Noget gik galt i oprettelse af bruger, tjek de indtastede oplysninger");
+                }
+                else
+                {
+                    toastService.ShowError("Password skal være mere end 8 karaktere");
+                }
+            }
+
+            else
+                toastService.ShowError("Email er ikke gyldig.");
+        }
+        else
+            toastService.ShowError("Mail skal udfyldes");
+    }
+
+    protected async Task UpdateUser()
+    {
+        if (ValidateEmail(Mail))
+        {
+            UserName = UserName.Trim();
+            Name = Name.Trim();
+            Mail = Mail.Trim();
+
+            if (!IsNull(UserName) && !IsNull(Name) && !IsNull(Mail))
+            {
+                if (!await _UserCaller.UserExists(UserName, Name, OldUserName, OldName))
+                {
+                    if (!IsNull(Password))
+                        Password = Password.Trim();
+                    if (IsNull(Password) && IsNull(PassRepeat))
+                    {
+
+                        RegisterRequest registerRequest = new RegisterRequest
+                            {
+                                Id = UserID,
+                                UserName = UserName.ToLower(),
+                                Name = Name,
+                                Email = Mail,
+                                RoleId = "8e9f3987-e4d9-47c2-b465-9919e0c206c7",
+                                // PassSalt = PassSalt
+                            };
+                        try
+                        {
+                            await _UserCaller.UpdateUser(registerRequest);
+                            toastService.ShowSuccess($"Bruger '{registerRequest.UserName}' blev opdateret");
+                        }
+                        catch (Exception)
+                        {
+                            toastService.ShowError("Noget gik galt under opdateringen af brugeren");
+                        }
+
+
+
+                        await CloseEditModal();
+                        await GetLists();
+                    }
+                    else
+                    {
+                        if (PassRepeat == Password)
+                        {
+                            Password = Password.Trim();
+                            PassRepeat = PassRepeat.Trim();
+                            //string passSalt = _UserCaller.CreateSalt();
+                            RegisterRequest registerRequest = new RegisterRequest
+                                {
+                                    Id = UserID,
+                                    UserName = UserName,
+                                    Name = Name,
+                                    Email = Mail,
+                                    RoleId = "8e9f3987-e4d9-47c2-b465-9919e0c206c7",
+                                    Password = Password,
+                                    PasswordConfirm = PassRepeat
+
+                                };
+
+                            try
+                            {
+                                await _UserCaller.UpdateUser(registerRequest);
+                                toastService.ShowSuccess($"Bruger '{registerRequest.UserName}' blev opdateret");
+                            }
+                            catch (Exception)
+                            {
+                                toastService.ShowError("Noget gik galt under opdateringen af brugeren");
+                            }
+                            await CloseEditModal();
+                            await GetLists();
+                        }
+                        else
+                            toastService.ShowError("Gentag adgangskode skal være korrekt.");
+                    }
+                }
+                else
+                    toastService.ShowError("Brugernavn eller Navn eksistere allerede.");
+            }
+        }
+        else
+            toastService.ShowError("Email er ikke gyldig.");
+
+
+
+    }
+
+    private bool ValidateEmail(string email)
+    {
+        if (email == null)
+        {
+            return false;
+        }
+        const string validEmailPattern = @"^(?!\.)(""([^""\r\\]|\\[""\r\\])*""|"
+            + @"([-a-z0-9!#$%&'*+/=?^_`{|}~]|(?<!\.)\.)*)(?<!\.)"
+            + @"@[a-z0-9][\w\.-]*[a-z0-9]\.[a-z][a-z\.]*[a-z]$";
+        return System.Text.RegularExpressions.Regex.IsMatch(email, validEmailPattern);
+    }
+
+    protected async Task DeleteUserConf(User user)
+    {
+        if (!await JsRuntime.InvokeAsync<bool>("confirm", $"Er du sikker på du ville slette denne bruger? \n ID: {user.Id.ToString()} \n Navn: {user.UserName} \n Brugernavn: {user.Name} \n Mail: {user.Email}"))
+            return;
+        else
+        {
+            var temp = await _AuthService.CurrentUserInfo();
+
+            if (temp.UserName.ToString() != user.UserName)
+            {
+                user.IsDeleted = true;
+                try
+                {
+
+                    _UserCaller.DeleteUser(user.Id);
+                    toastService.ShowSuccess("Brugeren er nu slettet");
+                }
+                catch (Exception)
+                {
+                    toastService.ShowError("Noget gik galt under sletning af brugeren");
+                }
+            }
+            else
+                toastService.ShowError("Bruger kan ikke slette sig selv");
+        }
+        await GetLists();
+        StateHasChanged();
+    }
+
+
+    protected bool IsNull(string value) { return string.IsNullOrWhiteSpace(value); }
+
+
+    #region Javascript
+
+    protected async Task OpenCreateModal(string modalName)
+    {
+        await _jsModule.InvokeVoidAsync("ShowCreateModal", modalName);
+    }
+
+    protected async Task ExportToExcel() => await _jsExcel.InvokeVoidAsync("export_table_to_csv", "#tableFull", "Brugere");
+    protected async Task SearchTable() => await _jsModule.InvokeVoidAsync("SearchTable");
+
+    protected async Task IsAlphabetKey(KeyboardEventArgs e) => await _jsModule.InvokeVoidAsync("isAlphabetKey", e.Code);
+    protected async Task IsAlphabetKeyAndNumbers(KeyboardEventArgs e) => await _jsSite.InvokeVoidAsync("isAlphabetKeyAndNumbers", e.Code);
+    //protected async Task RoleChange() => await _jsModule.InvokeVoidAsync("roleChange");
+
+    protected async Task ToastValidation()
+    {
+        if (string.IsNullOrWhiteSpace(UserName))
+            toastService.ShowError("Bruger navn skal udfyldes");
+        if (string.IsNullOrWhiteSpace(Name))
+            toastService.ShowError("Navn skal udfyldes");
+        if (string.IsNullOrWhiteSpace(Mail))
+            toastService.ShowError("Mail skal udfyldes");
+        if (string.IsNullOrWhiteSpace(Password))
+            toastService.ShowError("Adgangskode skal udfyldes");
+
+
+    }
+
+    protected async Task ToastValidationEdit()
+    {
+        if (string.IsNullOrWhiteSpace(UserName))
+            toastService.ShowError("Bruger navn skal udfyldes");
+        if (string.IsNullOrWhiteSpace(Name))
+            toastService.ShowError("Navn skal udfyldes");
+        if (string.IsNullOrWhiteSpace(Mail))
+            toastService.ShowError("Mail skal udfyldes");
+    }
+
+
+    #endregion
+}

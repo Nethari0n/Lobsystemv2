@@ -1,4 +1,5 @@
-﻿using SBO.LobSystem.Domain.Model;
+﻿using Lobsystem.Shared.DTO;
+using Lobsystem.Shared.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,29 +24,29 @@ namespace SBO.LobSystem.Services.Interface
 
         List<Chip> SearchChip(int page, int totalItem, string search);
 
-        Task ToggleAktiveChip(int ID);
-
         bool CheckUID(string uid);
 
         int GetChipIDByUID(string uid);
 
-        List<string> GetAllUIDFromEvent(int id); 
+        List<ChipDTO> GetAllChipsFromEvent(int id); 
 
         bool ChipExists(string UID);
 
         int GetChipIDByChipUID(string UID);
+        Chip GetChipByID(int id);
 
         #endregion
 
         #region Chip Group
 
 
-        bool ChipGroupExists(ChipGroup chipGroupDTO);
+        bool ChipGroupExists(int chipId, int eventId, int groupNumber);
 
         List<ChipGroup> GetAllChipGroups();
+        List<ChipGroup> GetAllChipGroupsAndGroupNamesByEventId(int eventId);
 
 
-        int GetChipGroupIDByChipGroupObject(ChipGroup chipGroups);
+        int GetChipGroupIDByChipGroupObject(int chipId, int eventId, int groupNumber);
 
         void RemoveChipGroup(ChipGroup chipGroupDTO);
 

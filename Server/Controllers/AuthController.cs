@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using SBO.Lobsystem.Domain.Models;
+using SBO.LobSystem.Services.Interface;
+using SBO.LobSystem.Services.Services;
 using System.Security.Claims;
 
 namespace Lobsystem.Server.Controllers
@@ -13,19 +14,26 @@ namespace Lobsystem.Server.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
-        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager)
+        private readonly IUserService _userService;
+        private readonly ICRUDService _crudService;
+        public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, IUserService userService, ICRUDService crudService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _userService = userService;
+            _crudService = crudService;
         }
 
         [HttpPost]
         public async Task<IActionResult> Login(LoginRequest request)
         {
             var user = await _userManager.FindByNameAsync(request.UserName);
-            if (user == null) return BadRequest("User does not exist");
+            if (user == null || user.IsDeleted)
+                return BadRequest("User does not exist");
+            
             var singInResult = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
-            if (!singInResult.Succeeded) return BadRequest("Invalid password");
+            if (!singInResult.Succeeded)
+                return BadRequest("Invalid password");
             await _signInManager.SignInAsync(user, request.RememberMe);
 
             var IsAuthenticated = User.Identity.IsAuthenticated;
@@ -38,11 +46,10 @@ namespace Lobsystem.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(RegisterRequest parameters)
         {
-            var user = new User();
-            user.UserName = parameters.UserName;
-            user.EmailConfirmed = true;
+            var user = new User() { UserName = parameters.UserName, Email = parameters.Email, IsDeleted = false, EmailConfirmed = true, Name = parameters.Name };
             var result = await _userManager.CreateAsync(user, parameters.Password);
-            if (!result.Succeeded) return BadRequest(result.Errors.FirstOrDefault()?.Description);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors.FirstOrDefault()?.Description);
             //return await Login(new LoginRequest
             //{
             //    UserName = parameters.UserName,
@@ -50,6 +57,10 @@ namespace Lobsystem.Server.Controllers
             //});
             return Ok();
         }
+
+        //[Authorize]
+        
+
 
         [Authorize]
         [HttpPost]

@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SBO.LobSystem.Domain.Model;
+using Lobsystem.Shared.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +8,7 @@ using SBO.LobSystem.Services.ExtensionMethods;
 using System.Threading.Tasks;
 using SBO.LobSystem.Services.Interface;
 using SBO.Lobsystem.Domain.Data;
+using Lobsystem.Shared.DTO;
 
 namespace SBO.LobSystem.Services.Services
 {
@@ -16,9 +17,9 @@ namespace SBO.LobSystem.Services.Services
 
         private readonly ApplicationDBContext _lobsContext;
 
-        private readonly ICreateService _create;
+        private readonly ICRUDService _create;
 
-        public ChipGroupRegistrationService(ApplicationDBContext lobsContext, ICreateService create)
+        public ChipGroupRegistrationService(ApplicationDBContext lobsContext, ICRUDService create)
         {
             _lobsContext = lobsContext;
             _create = create;
@@ -37,36 +38,26 @@ namespace SBO.LobSystem.Services.Services
 
         public int GetChipIDByUID(string uid)
         {
-            try { return _lobsContext.Chips.Where(x => x.UID == uid).AsNoTracking().FirstOrDefault().ChipID; } catch { return 0; }
+            try
+            {
+                return _lobsContext.Chips.Where(x => x.UID == uid).AsNoTracking().FirstOrDefault().ChipID;
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
-        public List<string> GetAllUIDFromEvent(int id)
+        public List<ChipDTO> GetAllChipsFromEvent(int id)
         {
-            List<string> list = new List<string>();
+            List<ChipDTO> list = new List<ChipDTO>();
 
             foreach ( var item in _lobsContext.Registrations.Where(x => x.EventID == id).Include(x => x.Chip).AsNoTracking() )
             {
-                list.Add(item.Chip.UID);
+                list.Add(new ChipDTO { ChipID = item.ChipID, UID = item.Chip.UID });
             }
 
             return list;
-        }
-
-        public async Task ToggleAktiveChip(int ID)
-        {
-            Chip chip = _lobsContext.Chips.Where(c => c.ChipID == ID).AsNoTracking().FirstOrDefault();
-
-            if ( chip.Aktive == true )
-            {
-                chip.Aktive = false;
-            }
-            else
-            {
-                chip.Aktive = true;
-            }
-
-
-            await _create.UpdateEntity(chip);
         }
 
         public bool ChipExists(string UID)
@@ -84,19 +75,24 @@ namespace SBO.LobSystem.Services.Services
 
         public int GetChipIDByChipUID(string UID) => _lobsContext.Chips?.Where(c => c.UID == UID).AsNoTracking().FirstOrDefault()?.ChipID ?? 0;
 
+        public Chip GetChipByID(int id) => _lobsContext.Chips.Where(x => x.ChipID == id).AsNoTracking().FirstOrDefault();
+
         #endregion
 
         #region Chip Group
 
 
 
-        public int GetChipGroupIDByChipGroupObject(ChipGroup chipGroups) { return _lobsContext.ChipGroups.Where(c => c.ChipID == chipGroups.ChipID).Where(c => c.EventID == chipGroups.EventID).Where(c => c.GroupNumber == chipGroups.GroupNumber).AsNoTracking().FirstOrDefault().ChipGroupID; }
+        public int GetChipGroupIDByChipGroupObject(int chipId, int eventId, int groupNumber) { return _lobsContext.ChipGroups.Where(c => c.ChipID == chipId).Where(c => c.EventID == eventId).Where(c => c.GroupNumber == groupNumber).AsNoTracking().FirstOrDefault().ChipGroupID; }
 
         public List<ChipGroup> GetAllChipGroups() => _lobsContext.ChipGroups.ToList();
-        public bool ChipGroupExists(ChipGroup chipGroup)
+
+        public List<ChipGroup> GetAllChipGroupsAndGroupNamesByEventId(int eventId) => _lobsContext.ChipGroups.Where(x => x.EventID == eventId).Include(x => x.Group).ToList();
+
+        public bool ChipGroupExists(int chipId, int eventId, int groupNumber)
         {
             bool exists = false;
-            ChipGroup chipGroupObj = _lobsContext.ChipGroups.Where(c => c.ChipID == chipGroup.ChipID).Where(c => c.EventID == chipGroup.EventID).Where(c => c.GroupNumber == chipGroup.GroupNumber).AsNoTracking().FirstOrDefault();
+            ChipGroup chipGroupObj = _lobsContext.ChipGroups.Where(c => c.ChipID == chipId).Where(c => c.EventID == eventId).Where(c => c.GroupNumber == groupNumber).AsNoTracking().FirstOrDefault();
 
             if ( chipGroupObj != null )
             {
@@ -155,14 +151,14 @@ namespace SBO.LobSystem.Services.Services
 
         public Registration GetRegistrationByChipAndEventId(int id, int eventId)
         {
-            
-                return _lobsContext.Registrations.Where(c => c.ChipID == id).Where(c => c.EventID == eventId).AsNoTracking().FirstOrDefault();
-            
+
+            return _lobsContext.Registrations.Where(c => c.ChipID == id).Where(c => c.EventID == eventId).AsNoTracking().FirstOrDefault();
+
         }
         public async Task<Registration> GetRegistrationById(int id)
         {
-                return await _lobsContext.Registrations.Where(x => x.RegistrationID == id).AsNoTracking().FirstOrDefaultAsync();
-            
+            return await _lobsContext.Registrations.Where(x => x.RegistrationID == id).AsNoTracking().FirstOrDefaultAsync();
+
         }
 
 

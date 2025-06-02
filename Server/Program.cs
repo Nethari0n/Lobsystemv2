@@ -1,9 +1,9 @@
+using Lobsystem.Shared.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using SBO.Lobsystem.Domain.Data;
-using SBO.Lobsystem.Domain.Models;
 using SBO.LobSystem.Services.Interface;
 using SBO.LobSystem.Services.Services;
 
@@ -31,11 +31,14 @@ namespace Lobsystem.Server
                     return Task.CompletedTask;
                 };
             });
-            builder.Services.AddControllers().AddNewtonsoftJson();
+            builder.Services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.Formatting = Newtonsoft.Json.Formatting.Indented;
+            });
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
 
-            builder.Services.AddScoped<ICreateService, CreateService>();
+            builder.Services.AddScoped<ICRUDService, CRUDService>();
             builder.Services.AddScoped<IRapportService, RapportService>();
             builder.Services.AddScoped<IChipGroupRegistrationService, ChipGroupRegistrationService>();
             builder.Services.AddScoped<IEventPostTypesService, EventPostTypesService>();

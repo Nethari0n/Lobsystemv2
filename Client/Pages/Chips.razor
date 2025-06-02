@@ -1,0 +1,616 @@
+﻿@page "/Chips"
+
+@using Lobsystem.Shared.DTO;
+@using System.Data
+@using System.ComponentModel.DataAnnotations;
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavManager
+
+<div class="container">
+    <div class="text-center mt-4 UserAdmin">
+
+        <div style="margin-top: 2rem;" class="table-header d-flex btn-res justify-content-between">
+            <div class="d-flex">
+                <h2>Chips</h2>
+                <button class="btn ml-5 mb-1 logoColor" data-bs-toggle="modal" data-bs-target="#opretModal">Opret</button>
+                <button type="button" id="exportBtn" class="btn ml-5 mb-1 logoColor" @onclick="ExportCSVFile">Export tabel til Excel</button>
+                <a id="exportTemplateBtn" class="btn ml-5 mb-1 logoColor" href="/templates/skabelonchip.xlsx" download="skabelonchip.xlsx">Export Skabelon til Excel</a>
+                <input type="button" class="btn ml-5 mb-1 logoColor" value="Upload Excel til tabel" onclick="document.getElementById('ExcelFileUpload').click()">
+                <InputFile hidden id="ExcelFileUpload" OnChange="ImportExcelFile" />
+            </div>
+            <div>
+                <input class="form-control" type="text" id="search" @onkeypress="e => IsAlphabetKeyAndNumbers(e)" @bind="SearchField" @oninput="(e => SearchField = e.Value.ToString())" @onkeyup="(e => {OnInitializedAsync(); CurrentPage = 1;})" placeholder="Søg på navn.." />
+            </div>
+        </div>
+        <div class="TableScrollable" id="tableContainer">
+            <table class="table searchTable table-striped paginated" id="table">
+                <thead>
+                    <tr>
+                        <th class="thSorting" @onclick="() => SortTable(1)">UID</th>
+                        <th class="thSorting" @onclick="() => SortTable(2)">Låner ID</th>
+                        <th class="thSorting" @onclick="() => SortTable(3)">Aktiv</th>
+                        <th>Handlinger</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Chip)
+                    {
+                        <tr>
+                            <td>@item.UID</td>
+                            <td>@item.LaanerID</td>
+                            <td>@item.Aktive</td>
+                            <td class="justify-content-center">
+                                <button class="hyperlink" @onclick="() => ShowEditModal(item.ChipID, item.UID, item.LaanerID)">Rediger</button> |
+                                @if (item.Aktive == true)
+                                {
+                                    <button type="button" class="hyperlink" @onclick="() => ToggleChip(item)">Deaktiver</button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="hyperlink" @onclick="() => ToggleChip(item)">Aktiver</button>
+                                }
+
+
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <ul class="pagination">
+                        @if (Count > 0)
+                        {
+                            bool previousPageIsEllipsis = false;
+
+                            for (int i = 1; i <= TotalPages; i++)
+                            {
+                                int page = i;
+
+                                if (i == CurrentPage)
+                                {
+                                    <li class="page-item @(i == CurrentPage ? "active" : "")">
+                                        <input type="button" @onclick="(e => {CurrentPage = page;OnInitializedAsync();})" class="page-link" value="@i" />
+                                    </li>
+
+                                    previousPageIsEllipsis = false;
+                                }
+                                else
+                                {
+                                    if (i == 1
+                                    || i == CurrentPage - 2
+                                    || i == CurrentPage - 1
+                                    || i == CurrentPage + 1
+                                    || i == CurrentPage + 2
+                                    || i == TotalPages - 1
+                                    || i == TotalPages)
+                                    {
+                                        <li class="page-item @(i == CurrentPage ? "active" : "")">
+                                            <input type="button" @onclick="(e => {CurrentPage = page;OnInitializedAsync();})" class="page-link" value="@i" />
+                                        </li>
+                                    }
+                                    else
+                                    if (previousPageIsEllipsis) continue;
+                                    else
+                                    {
+                                        <li class="page-item">
+                                            <input class="page-link" style="width: 35px;" value="..." />
+                                        </li>
+                                        previousPageIsEllipsis = true;
+                                    }
+
+                                }
+                            }
+                        }
+                    </ul>
+                </tfoot>
+            </table>
+        </div>
+
+        @try
+        {
+            @if (dt != null && dt.Rows.Count != 0)
+            {
+                <div class="d-flex mt-1">
+                    <h2 class="text-left">Importeret tabel</h2>
+                    <button class="btn ml-5 mb-1 logoColor" @onclick="UploadAllChips">Upload alle chips</button>
+                </div>
+                <!-- Excel preview table. -->
+                <div class="TableScrollable tableContainerChips" id="tableContainer">
+
+                    <table class="table searchTable table-striped paginated" id="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>UID</th>
+                                <th>Låner ID</th>
+                                @*<th>Aktiv</th>*@
+                                <th>Handlinger</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (DataRow row in dt.Rows)
+                            {
+                                DataRow tempRow = row;
+                                int tempCount = btnCounter;
+                                ChipUploadInfo chipUploadInfo = new();
+                                <tr>
+                                    @{
+                                        <td>@tempCount</td>
+                                        chipUploadInfo.ID = btnCounter.ToString();
+                                    }
+                                    @foreach (DataColumn col in dt.Columns)
+                                    {
+
+                                        if (ExcellCount == 0)
+                                        {
+                                            chipUploadInfo.UID = row[col.ColumnName].ToString();
+                                        }
+                                        else if (ExcellCount == 1)
+                                        {
+                                            chipUploadInfo.BorrowID = row[col.ColumnName].ToString();
+                                        }
+
+                                        <td>@row[col.ColumnName]</td>
+                                        ExcellCount++;
+                                    }
+                                    <td class="d-flex justify-content-center">
+                                        <button type="button" class="hyperlink" @onclick="() => UploadChip(tempCount, tempRow)">Upload</button>
+                                    </td>
+                                </tr>
+                                @if (!ChipUploadInfos.Any(x => x.UID == chipUploadInfo.UID))
+                                {
+                                    ChipUploadInfos.Add(chipUploadInfo);
+                                }
+
+                                ExcellCount = 0;
+                                btnCounter++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        }
+        catch { }
+    </div>
+
+
+    @*//------------------------ Create chip modal ------------------------//*@
+    <form class="modal fade" id="opretModal" tabindex="-1" aria-hidden="true" method="post">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Opret Chip</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-center">
+                        <p class="w-50">UID: </p>
+                        <input class="form-control w-50 ml-1" type="text" id="UID" @onkeypress="e => IsAlphabetKeyAndNumbers(e)" @bind-value="UID" maxlength="30" />
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <p class="w-50">LaanerID: </p>
+                        <input class="form-control w-50 ml-1" type="text" id="LaanerID" @onkeypress="e => IsAlphabetKeyAndNumbers(e)" @bind-value="LaanerID" maxlength="30" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input id="submitCreate" type="button" value="Opret Chip" class="btn logoColor" @onclick="CreateChip" />
+                </div>
+            </div>
+        </div>
+    </form>
+
+    @*//------------------------ Edit chip modal ------------------------//*@
+    <form class="modal fade modalBackdrop" id="editModal" tabindex="-1" aria-hidden="true" method="post">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Rediger</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="CloseEditModal"></button>
+                </div>
+                <div class="modal-body">
+                    <input id="chipID" type="hidden" @bind-value="ChipID" />
+                    <div class="d-flex justify-content-center">
+                        <p class="w-50">UID: </p>
+                        <input class="form-control w-50 ml-1" id="uid" type="text" @onkeypress="e => IsAlphabetKeyAndNumbers(e)" @bind-value="UID" maxlength="30" />
+                        <input type="hidden" id="lastUID" @bind-value="LastUID" />
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        <p class="w-50">Låner ID: </p>
+                        <input class="form-control w-50 ml-1" id="name" type="text" @onkeypress="e => IsAlphabetKeyAndNumbers(e)" @bind-value="LaanerID" maxlength="30" />
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <input type="button" value="Opdater Chip" class="btn logoColor" @onclick="UpdateChip" />
+                </div>
+            </div>
+        </div>
+    </form>
+
+    @*//------------------------ Show already uploaded chips modal ------------------------//*@
+    <form class="modal fade modalBackdrop" id="existingChipsModal" tabindex="-1" aria-hidden="true" method="post">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Allerede eksiterene chips</h3>
+                    <a href="Chips" class="btn-close" aria-label="Close"></a>
+                </div>
+                <div class="modal-body">
+
+                    <div class="TableScrollable TableExist tableContainerChips" id="tableContainer">
+                        <table class="table table-striped paginated" id="table">
+                            <thead>
+                                <tr>
+                                    <th>UID</th>
+                                    <th>Låner ID</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (ChipUploadInfo item in AlreadyExistingChips)
+                                {
+                                    <tr>
+                                        <td>@item.UID</td>
+                                        <td>@item.BorrowID</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a @onclick="CloseExistingChipsModal" class="btn logoColor">Luk popup</a>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <table class="table" hidden id="TemplateExcel">
+        <thead>
+            <tr>
+                <th>UID</th>
+                <th>Laaner ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var chip in AllChips)
+            {
+                <tr>
+                    <th>@chip.UID</th>
+                    <th>@chip.LaanerID</th>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+@code {
+
+
+
+    #region Properties
+
+    private List<Chip> Chip { get; set; } = new();
+    private List<Chip> AllChips { get; set; } = new();
+
+    private List<ChipUploadInfo> ChipUploadInfos { get; set; } = new();
+    private List<ChipUploadInfo> AlreadyExistingChips { get; set; } = new();
+
+    private int ChipID { get; set; }
+
+    [Required]
+    [MaxLength(30)]
+    private string UID { get; set; }
+
+    private string LastUID { get; set; }
+
+    [Required]
+    [MaxLength(30)]
+    private string LaanerID { get; set; }
+
+    private bool Aktive { get; set; }
+
+    private string ErrorField { get; set; }
+
+    private string SuccesMessage { get; set; }
+
+    private int btnCounter { get; set; }
+
+    DataTable dt;
+
+    private int ExcellCount { get; set; }
+
+    private string SearchField { get; set; }
+    #endregion
+
+    #region Pagination
+
+    private int CurrentPage { get; set; } = 1;
+    private int Count { get; set; } = 0;
+    private int TotalPages { get; set; }
+    private int PageCount { get; set; } = 13;
+
+    #endregion
+
+    private IJSObjectReference _jsModule;
+    private IJSObjectReference _jsChipsModule;
+    private IJSObjectReference _jsSite;
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(SearchField))
+            await Search();
+        else
+            await GetChip();
+
+        ExcellCount = 0;
+        btnCounter = 1;
+        TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageCount));
+        _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/ExportCSV.js");
+        _jsChipsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/Chips.js");
+        _jsSite = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./js/site.js");
+
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        btnCounter = 1;
+    }
+
+    protected async Task GetChip()
+    {
+        Chip = await _ChipCaller.ChipPagination(CurrentPage, PageCount);
+        AllChips = await _ChipCaller.GetAllChips();
+        Count = AllChips.Count();
+        TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageCount));
+        StateHasChanged();
+    }
+
+    protected async Task Search()
+    {
+        Chip = await _ChipCaller.SearchChip(CurrentPage, PageCount, SearchField);
+        var temp = await _ChipCaller.GetAllChipsSearch(SearchField);
+        Count = temp.Count();
+
+        //Count = await _ChipCaller.GetAllChips().Where(x => x.UID.Contains(SearchField) || x.LaanerID.Contains(SearchField)).ToList().Count();
+        TotalPages = (int)Math.Ceiling(decimal.Divide(Count, PageCount));
+        StateHasChanged();
+    }
+
+    protected async Task CreateChip()
+    {
+        if (!IsNull(UID) && !IsNull(LaanerID))
+        {
+            if (!await _ChipCaller.ChipExists(UID))
+            {
+                ChipHandlingDTO chip = new ChipHandlingDTO
+                    {
+                        UID = UID,
+                        LaanerID = LaanerID
+                    };
+
+                try
+                {
+                    await _ChipCaller.CreateChip(chip);
+                    toastService.ShowSuccess("Chip blev oprettet.");
+                }
+                catch (Exception)
+                {
+                    toastService.ShowError("Noget gik galt ved oprettelse af Chip");
+                }
+
+                await GetChip();
+            }
+            else
+            {
+                toastService.ShowError("Chip UID eksistere allerede.");
+            }
+        }
+        else
+        {
+            await ToastValidation();
+        }
+    }
+
+    protected async Task UploadChip(int btnCount, DataRow row)
+    {
+        ChipUploadInfo chipUploadInfo = new();
+        chipUploadInfo = ChipUploadInfos.Where(c => c.ID == btnCount.ToString()).FirstOrDefault();
+        UID = chipUploadInfo.UID;
+        LaanerID = chipUploadInfo.BorrowID;
+        await CreateChip();
+        dt.Rows.Remove(row);
+        await GetChip();
+        StateHasChanged();
+
+        //Reset list and btnCounter after upload.
+        ChipUploadInfos.Clear();
+        btnCounter = 0;
+    }
+
+
+
+    protected async Task UploadAllChips()
+    {
+        AllChips = await _ChipCaller.GetAllChips();
+        
+        await _jsChipsModule.InvokeVoidAsync("OpenExistingChipsModal");
+        List<ChipHandlingDTO> chips = new();
+        foreach (ChipUploadInfo item in ChipUploadInfos)
+        {
+            if (!AllChips.Any(x => x.UID == item.UID))
+            {
+                ChipHandlingDTO chipObj = new ChipHandlingDTO
+                    {
+                        UID = item.UID,
+                        LaanerID = item.BorrowID,
+                        CreateDate = DateTime.Now
+
+                    };
+                chips.Add(chipObj);
+            }
+            else
+                AlreadyExistingChips.Add(item);
+
+        }
+        try
+        {
+            await _ChipCaller.CreateChips(chips);
+            toastService.ShowSuccess("Oprettede chips");
+        }
+        catch (Exception)
+        {
+            toastService.ShowError("Noget gik galt ved oprettelse af Chips");
+        }
+
+        await GetChip();
+        StateHasChanged();
+        dt.Clear();
+
+        await _jsChipsModule.InvokeVoidAsync("Resize");
+    }
+
+    protected async Task CloseExistingChipsModal() => await _jsChipsModule.InvokeVoidAsync("CloseExistingChipsModal");
+
+    protected async Task UpdateChip()
+    {
+        if (!IsNull(UID) && !IsNull(LaanerID))
+        {
+            if (!await _ChipCaller.ChipExists(UID) || (await _ChipCaller.ChipExists(UID) && UID == LastUID))
+            {
+                ChipHandlingDTO chipDTO = new ChipHandlingDTO
+                    {
+                        ChipID = ChipID,
+                        UID = UID,
+                        LaanerID = LaanerID
+                    };
+                try
+                {
+                    await _ChipCaller.UpdateChip(chipDTO);
+                    toastService.ShowSuccess("Chip blev opdateret.");
+                }
+                catch (Exception)
+                {
+                    toastService.ShowError("Noget gik galt med Opdateringen af Chip");
+                }
+
+
+                await GetChip();
+            }
+            else
+                toastService.ShowError("Chip UID eksistere allerede.");
+        }
+        else
+            await ToastValidation();
+    }
+
+    protected bool IsNull(string value) { return string.IsNullOrWhiteSpace(value); }
+
+    protected async Task ToggleChip(Chip obj)
+    {
+        if (obj.Aktive == true)
+        {
+            obj.Aktive = false;
+        }
+        else
+        {
+            obj.Aktive = true;
+        }
+        ChipHandlingDTO chipObj = new()
+            {
+                ChipID = obj.ChipID,
+                UID = obj.UID,
+                LaanerID = obj.LaanerID,
+                Aktive = obj.Aktive
+            };
+
+        try
+        {
+            await _ChipCaller.UpdateChip(chipObj);
+            toastService.ShowSuccess("Chip blev opdateret.");
+        }
+        catch (Exception)
+        {
+            toastService.ShowError("Noget gik galt med Opdateringen af Chip");
+        }
+
+    }
+
+    protected async Task ImportExcelFile(InputFileChangeEventArgs e)
+    {
+
+        if (Path.GetExtension(e.File.Name) != ".csv")
+        {
+            toastService.ShowError("Tager kun imod .csv filer");
+            return;
+        }
+
+        var fileStream = e.File.OpenReadStream();
+        MemoryStream ms = new MemoryStream();
+        await fileStream.CopyToAsync(ms);
+        fileStream.Close();
+        ms.Position = 0; //Makes the memoryStream go to the start of the list.
+
+        char csvDelimiter = ';';
+
+        dt = new DataTable();
+        using (StreamReader sr = new StreamReader(ms))
+        {
+            string[] headers = sr.ReadLine().Split(csvDelimiter);
+            foreach (string header in headers)
+            {
+                try
+                {
+                    dt.Columns.Add(header);
+                }
+                catch { }
+            }
+            while (!sr.EndOfStream)
+            {
+                string[] rows = sr.ReadLine().Split(csvDelimiter);
+                DataRow dr = dt.NewRow();
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    dr[i] = rows[i];
+                }
+                dt.Rows.Add(dr);
+            }
+
+        }
+        StateHasChanged();
+    }
+
+    protected async Task ExportCSVFile() => await _jsModule.InvokeVoidAsync("export_table_to_csv", "#TemplateExcel", "Chips.csv");
+    protected async Task IsAlphabetKeyAndNumbers(KeyboardEventArgs e) => await _jsSite.InvokeVoidAsync("isAlphabetKeyAndNumbers", e.Code);
+
+
+    protected async Task ShowEditModal(int id, string uid, string laanerID)
+    {
+        ChipID = id;
+        UID = uid;
+        LastUID = uid;
+        LaanerID = laanerID;
+
+        await _jsChipsModule.InvokeVoidAsync("ShowEditModal");
+    }
+
+    protected async Task CloseEditModal()
+    {
+        ChipID = 0;
+        UID = null;
+        LastUID = null;
+        LaanerID = null;
+
+        await _jsChipsModule.InvokeVoidAsync("CloseEditModal");
+    }
+
+    protected async Task ToastValidation()
+    {
+        if (string.IsNullOrWhiteSpace(UID))
+            toastService.ShowError("UID skal udfyldes");
+        if (string.IsNullOrWhiteSpace(LaanerID))
+            toastService.ShowError("LaanerID skal udfyldes");
+    }
+
+    protected async Task SortTable(int col) => _jsChipsModule.InvokeVoidAsync("sortTable", col);
+}

@@ -22,6 +22,416 @@ namespace BlazorApp1.Server.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Lobsystem.Shared.Models.Chip", b =>
+                {
+                    b.Property<int>("ChipID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ChipID"));
+
+                    b.Property<bool>("Aktive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ChangeDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LaanerID")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("UID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ChipID");
+
+                    b.ToTable("Chips");
+
+                    b.HasData(
+                        new
+                        {
+                            ChipID = 1,
+                            Aktive = true,
+                            ChangeDate = new DateTime(2023, 8, 30, 8, 53, 13, 617, DateTimeKind.Local).AddTicks(6470),
+                            CreateDate = new DateTime(2023, 8, 30, 8, 53, 13, 617, DateTimeKind.Local).AddTicks(6525),
+                            LaanerID = "123",
+                            UID = "0002592549"
+                        },
+                        new
+                        {
+                            ChipID = 2,
+                            Aktive = true,
+                            ChangeDate = new DateTime(2023, 8, 30, 8, 53, 13, 617, DateTimeKind.Local).AddTicks(6528),
+                            CreateDate = new DateTime(2023, 8, 30, 8, 53, 13, 617, DateTimeKind.Local).AddTicks(6530),
+                            LaanerID = "456",
+                            UID = "0002616098"
+                        });
+                });
+
+            modelBuilder.Entity("Lobsystem.Shared.Models.ChipGroup", b =>
+                {
+                    b.Property<int>("ChipGroupID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ChipGroupID"));
+
+                    b.Property<int>("ChipID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EventID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GroupID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("GroupNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("ChipGroupID");
+
+                    b.HasIndex("ChipID");
+
+                    b.HasIndex("GroupID");
+
+                    b.ToTable("ChipGroups");
+                });
+
+            modelBuilder.Entity("Lobsystem.Shared.Models.Event", b =>
+                {
+                    b.Property<int>("EventID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EventID"));
+
+                    b.Property<int>("Chips")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CooldownTimer")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2500)
+                        .HasColumnType("nvarchar(2500)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("EventName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("TypesID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("EventID");
+
+                    b.HasIndex("TypesID");
+
+                    b.ToTable("Events");
+
+                    b.HasData(
+                        new
+                        {
+                            EventID = 1,
+                            Chips = 0,
+                            CooldownTimer = 30,
+                            CreateDate = new DateTime(2023, 8, 30, 8, 53, 13, 617, DateTimeKind.Local).AddTicks(6555),
+                            Description = "bla bla",
+                            EndDate = new DateTime(2023, 9, 4, 8, 53, 13, 617, DateTimeKind.Local).AddTicks(6549),
+                            EventName = "Test1",
+                            IsDeleted = false,
+                            StartDate = new DateTime(2023, 8, 30, 8, 53, 13, 617, DateTimeKind.Local).AddTicks(6553),
+                            TypesID = 1,
+                            Username = "Ole"
+                        });
+                });
+
+            modelBuilder.Entity("Lobsystem.Shared.Models.Group", b =>
+                {
+                    b.Property<int>("GroupID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GroupID"));
+
+                    b.Property<string>("GroupName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.HasKey("GroupID");
+
+                    b.ToTable("Groups");
+                });
+
+            modelBuilder.Entity("Lobsystem.Shared.Models.Post", b =>
+                {
+                    b.Property<int>("PostID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PostID"));
+
+                    b.Property<int>("Distance")
+                        .HasMaxLength(5)
+                        .HasColumnType("int");
+
+                    b.Property<int>("EventID")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Multiplyer")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PostNum")
+                        .HasColumnType("int");
+
+                    b.HasKey("PostID");
+
+                    b.HasIndex("EventID");
+
+                    b.ToTable("Posts");
+
+                    b.HasData(
+                        new
+                        {
+                            PostID = 1,
+                            Distance = 500,
+                            EventID = 1,
+                            IsDeleted = false,
+                            Multiplyer = 0,
+                            PostNum = 1
+                        });
+                });
+
+            modelBuilder.Entity("Lobsystem.Shared.Models.Registration", b =>
+                {
+                    b.Property<int>("RegistrationID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RegistrationID"));
+
+                    b.Property<int>("ChipID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EventID")
+                        .HasColumnType("int");
+
+                    b.HasKey("RegistrationID");
+
+                    b.HasIndex("ChipID");
+
+                    b.HasIndex("EventID");
+
+                    b.ToTable("Registrations");
+
+                    b.HasData(
+                        new
+                        {
+                            RegistrationID = 1,
+                            ChipID = 1,
+                            CreateDate = new DateTime(2023, 8, 30, 8, 53, 13, 617, DateTimeKind.Local).AddTicks(6597),
+                            EventID = 1
+                        },
+                        new
+                        {
+                            RegistrationID = 2,
+                            ChipID = 2,
+                            CreateDate = new DateTime(2023, 8, 30, 8, 53, 13, 617, DateTimeKind.Local).AddTicks(6599),
+                            EventID = 1
+                        });
+                });
+
+            modelBuilder.Entity("Lobsystem.Shared.Models.Scanning", b =>
+                {
+                    b.Property<int>("ScanningID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ScanningID"));
+
+                    b.Property<int>("ChipID")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("PostID")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("TimeStamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ScanningID");
+
+                    b.HasIndex("ChipID");
+
+                    b.HasIndex("PostID");
+
+                    b.ToTable("Scannings");
+                });
+
+            modelBuilder.Entity("Lobsystem.Shared.Models.Types", b =>
+                {
+                    b.Property<int>("TypesID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TypesID"));
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("MultipleRounds")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Multiplyer")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TypeName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("TypesID");
+
+                    b.ToTable("Types");
+
+                    b.HasData(
+                        new
+                        {
+                            TypesID = 1,
+                            IsDeleted = false,
+                            MultipleRounds = false,
+                            Multiplyer = 0,
+                            TypeName = "typetest"
+                        });
+                });
+
+            modelBuilder.Entity("Lobsystem.Shared.Models.User", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "f36433a2-bbe5-45c5-af5d-747204c7978e",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "87fdec86-2d9c-4d80-8b41-4ee02d0d072d",
+                            Email = "admin@example.com",
+                            EmailConfirmed = true,
+                            IsDeleted = false,
+                            LockoutEnabled = false,
+                            Name = "Ole",
+                            NormalizedEmail = "ADMIN@EXAMPLE.COM",
+                            NormalizedUserName = "OLEDF",
+                            PasswordHash = "AQAAAAIAAYagAAAAEK2Fli2IgE4JvhDVtg+c4kwPMmFQ9kE23q3PTwe1AoGOemR7Xq7O3ncSK9g/nH/tMQ==",
+                            PhoneNumber = "88888888",
+                            PhoneNumberConfirmed = true,
+                            SecurityStamp = "3MGMRVY3L6INIULL47JSPA6HWVPWUEIQ",
+                            TwoFactorEnabled = false,
+                            UserName = "oledf"
+                        });
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -178,337 +588,83 @@ namespace BlazorApp1.Server.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("SBO.LobSystem.Domain.Model.Chip", b =>
+            modelBuilder.Entity("Lobsystem.Shared.Models.ChipGroup", b =>
                 {
-                    b.Property<int>("ChipID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.HasOne("Lobsystem.Shared.Models.Chip", "Chip")
+                        .WithMany("ChipGroup")
+                        .HasForeignKey("ChipID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ChipID"));
+                    b.HasOne("Lobsystem.Shared.Models.Group", "Group")
+                        .WithMany("ChipGroup")
+                        .HasForeignKey("GroupID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Property<bool>("Aktive")
-                        .HasColumnType("bit");
+                    b.Navigation("Chip");
 
-                    b.Property<DateTime?>("ChangeDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LaanerID")
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.Property<string>("UID")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ChipID");
-
-                    b.ToTable("Chips");
+                    b.Navigation("Group");
                 });
 
-            modelBuilder.Entity("SBO.LobSystem.Domain.Model.ChipGroup", b =>
+            modelBuilder.Entity("Lobsystem.Shared.Models.Event", b =>
                 {
-                    b.Property<int>("ChipGroupID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.HasOne("Lobsystem.Shared.Models.Types", "Type")
+                        .WithMany("Event")
+                        .HasForeignKey("TypesID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ChipGroupID"));
-
-                    b.Property<int>("ChipID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("EventID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("GroupID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("GroupNumber")
-                        .HasColumnType("int");
-
-                    b.HasKey("ChipGroupID");
-
-                    b.HasIndex("ChipID");
-
-                    b.HasIndex("GroupID");
-
-                    b.ToTable("ChipGroups");
+                    b.Navigation("Type");
                 });
 
-            modelBuilder.Entity("SBO.LobSystem.Domain.Model.Event", b =>
+            modelBuilder.Entity("Lobsystem.Shared.Models.Post", b =>
                 {
-                    b.Property<int>("EventID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.HasOne("Lobsystem.Shared.Models.Event", "Event")
+                        .WithMany("Posts")
+                        .HasForeignKey("EventID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EventID"));
-
-                    b.Property<int>("Chips")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CooldownTimer")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(2500)
-                        .HasColumnType("nvarchar(2500)");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("EventName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("TypesID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Username")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("EventID");
-
-                    b.HasIndex("TypesID");
-
-                    b.ToTable("Events");
+                    b.Navigation("Event");
                 });
 
-            modelBuilder.Entity("SBO.LobSystem.Domain.Model.Group", b =>
+            modelBuilder.Entity("Lobsystem.Shared.Models.Registration", b =>
                 {
-                    b.Property<int>("GroupID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.HasOne("Lobsystem.Shared.Models.Chip", "Chip")
+                        .WithMany("Registration")
+                        .HasForeignKey("ChipID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GroupID"));
+                    b.HasOne("Lobsystem.Shared.Models.Event", "Event")
+                        .WithMany()
+                        .HasForeignKey("EventID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Property<string>("GroupName")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                    b.Navigation("Chip");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.HasKey("GroupID");
-
-                    b.ToTable("Groups");
+                    b.Navigation("Event");
                 });
 
-            modelBuilder.Entity("SBO.LobSystem.Domain.Model.Post", b =>
+            modelBuilder.Entity("Lobsystem.Shared.Models.Scanning", b =>
                 {
-                    b.Property<int>("PostID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.HasOne("Lobsystem.Shared.Models.Chip", "Chip")
+                        .WithMany("Scanning")
+                        .HasForeignKey("ChipID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PostID"));
+                    b.HasOne("Lobsystem.Shared.Models.Post", "Post")
+                        .WithMany("Scannings")
+                        .HasForeignKey("PostID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Property<int>("Distance")
-                        .HasMaxLength(5)
-                        .HasColumnType("int");
+                    b.Navigation("Chip");
 
-                    b.Property<int>("EventID")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("Multiplyer")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PostNum")
-                        .HasColumnType("int");
-
-                    b.HasKey("PostID");
-
-                    b.HasIndex("EventID");
-
-                    b.ToTable("Posts");
-                });
-
-            modelBuilder.Entity("SBO.LobSystem.Domain.Model.Registration", b =>
-                {
-                    b.Property<int>("RegistrationID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RegistrationID"));
-
-                    b.Property<int>("ChipID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("EventID")
-                        .HasColumnType("int");
-
-                    b.HasKey("RegistrationID");
-
-                    b.HasIndex("ChipID");
-
-                    b.HasIndex("EventID");
-
-                    b.ToTable("Registrations");
-                });
-
-            modelBuilder.Entity("SBO.LobSystem.Domain.Model.Scanning", b =>
-                {
-                    b.Property<int>("ScanningID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ScanningID"));
-
-                    b.Property<int>("ChipID")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("PostID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("TimeStamp")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ScanningID");
-
-                    b.HasIndex("ChipID");
-
-                    b.HasIndex("PostID");
-
-                    b.ToTable("Scannings");
-                });
-
-            modelBuilder.Entity("SBO.LobSystem.Domain.Model.Types", b =>
-                {
-                    b.Property<int>("TypesID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TypesID"));
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("MultipleRounds")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("Multiplyer")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TypeName")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
-
-                    b.HasKey("TypesID");
-
-                    b.ToTable("Types");
-                });
-
-            modelBuilder.Entity("SBO.Lobsystem.Domain.Models.User", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "f36433a2-bbe5-45c5-af5d-747204c7978e",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "87fdec86-2d9c-4d80-8b41-4ee02d0d072d",
-                            Email = "admin@example.com",
-                            EmailConfirmed = true,
-                            IsDeleted = false,
-                            LockoutEnabled = false,
-                            NormalizedEmail = "ADMIN@EXAMPLE.COM",
-                            NormalizedUserName = "OLEDF",
-                            PasswordHash = "AQAAAAIAAYagAAAAEFm0Z+IMZdwunW/PtzG0Ob8s10fm51NdK4S43/dCtOAgTosorzXF8ZoWGSr9pQ+DVQ==",
-                            PhoneNumber = "88888888",
-                            PhoneNumberConfirmed = true,
-                            SecurityStamp = "3MGMRVY3L6INIULL47JSPA6HWVPWUEIQ",
-                            TwoFactorEnabled = false,
-                            UserName = "oledf"
-                        });
+                    b.Navigation("Post");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -522,7 +678,7 @@ namespace BlazorApp1.Server.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("SBO.Lobsystem.Domain.Models.User", null)
+                    b.HasOne("Lobsystem.Shared.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -531,7 +687,7 @@ namespace BlazorApp1.Server.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("SBO.Lobsystem.Domain.Models.User", null)
+                    b.HasOne("Lobsystem.Shared.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -546,7 +702,7 @@ namespace BlazorApp1.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SBO.Lobsystem.Domain.Models.User", null)
+                    b.HasOne("Lobsystem.Shared.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -555,93 +711,14 @@ namespace BlazorApp1.Server.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("SBO.Lobsystem.Domain.Models.User", null)
+                    b.HasOne("Lobsystem.Shared.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SBO.LobSystem.Domain.Model.ChipGroup", b =>
-                {
-                    b.HasOne("SBO.LobSystem.Domain.Model.Chip", "Chip")
-                        .WithMany("ChipGroup")
-                        .HasForeignKey("ChipID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SBO.LobSystem.Domain.Model.Group", "Group")
-                        .WithMany("ChipGroup")
-                        .HasForeignKey("GroupID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Chip");
-
-                    b.Navigation("Group");
-                });
-
-            modelBuilder.Entity("SBO.LobSystem.Domain.Model.Event", b =>
-                {
-                    b.HasOne("SBO.LobSystem.Domain.Model.Types", "Type")
-                        .WithMany("Event")
-                        .HasForeignKey("TypesID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Type");
-                });
-
-            modelBuilder.Entity("SBO.LobSystem.Domain.Model.Post", b =>
-                {
-                    b.HasOne("SBO.LobSystem.Domain.Model.Event", "Event")
-                        .WithMany("Posts")
-                        .HasForeignKey("EventID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-                });
-
-            modelBuilder.Entity("SBO.LobSystem.Domain.Model.Registration", b =>
-                {
-                    b.HasOne("SBO.LobSystem.Domain.Model.Chip", "Chip")
-                        .WithMany("Registration")
-                        .HasForeignKey("ChipID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SBO.LobSystem.Domain.Model.Event", "Event")
-                        .WithMany()
-                        .HasForeignKey("EventID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Chip");
-
-                    b.Navigation("Event");
-                });
-
-            modelBuilder.Entity("SBO.LobSystem.Domain.Model.Scanning", b =>
-                {
-                    b.HasOne("SBO.LobSystem.Domain.Model.Chip", "Chip")
-                        .WithMany("Scanning")
-                        .HasForeignKey("ChipID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SBO.LobSystem.Domain.Model.Post", "Post")
-                        .WithMany("Scannings")
-                        .HasForeignKey("PostID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Chip");
-
-                    b.Navigation("Post");
-                });
-
-            modelBuilder.Entity("SBO.LobSystem.Domain.Model.Chip", b =>
+            modelBuilder.Entity("Lobsystem.Shared.Models.Chip", b =>
                 {
                     b.Navigation("ChipGroup");
 
@@ -650,22 +727,22 @@ namespace BlazorApp1.Server.Migrations
                     b.Navigation("Scanning");
                 });
 
-            modelBuilder.Entity("SBO.LobSystem.Domain.Model.Event", b =>
+            modelBuilder.Entity("Lobsystem.Shared.Models.Event", b =>
                 {
                     b.Navigation("Posts");
                 });
 
-            modelBuilder.Entity("SBO.LobSystem.Domain.Model.Group", b =>
+            modelBuilder.Entity("Lobsystem.Shared.Models.Group", b =>
                 {
                     b.Navigation("ChipGroup");
                 });
 
-            modelBuilder.Entity("SBO.LobSystem.Domain.Model.Post", b =>
+            modelBuilder.Entity("Lobsystem.Shared.Models.Post", b =>
                 {
                     b.Navigation("Scannings");
                 });
 
-            modelBuilder.Entity("SBO.LobSystem.Domain.Model.Types", b =>
+            modelBuilder.Entity("Lobsystem.Shared.Models.Types", b =>
                 {
                     b.Navigation("Event");
                 });

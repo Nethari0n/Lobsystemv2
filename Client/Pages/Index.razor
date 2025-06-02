@@ -1,12 +1,285 @@
 ﻿@page "/"
+@using Lobsystem.Shared.DTO;
 
-<AuthorizeView>
-    <Authorized>
-        <h1>Hello @context.User.Identity.Name !!</h1>
-        <p>Welcome to Blazor Learner.</p>
-        <SurveyPrompt Title="How is Blazor working for you?" />
-    </Authorized>
-    <Authorizing>
-        <h1>Loading ...</h1>
-    </Authorizing>
-</AuthorizeView>
+<div class="container">
+    <div class="text-center">
+        <div class="Dashboard">
+            <div class="container">
+
+                @*//------------------------ Table One ------------------------//*@
+                <h1 style="margin-top: 1.5rem;">Igangværende</h1>
+                <div class="Table-1 Tables TableScrollable">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Titel</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Start</th>
+                                <th scope="col">Afsluttet</th>
+                                <th scope="col">Bruger</th>
+                                <th scope="col">Handlinger</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in EventList.Where(x => x.StartDate <= DateTime.Now && x.EndDate >= DateTime.Now))
+                            {
+                                <tr>
+                                    @if (item.EventName.Length > 16)
+                                    {
+                                        <td>@item.EventName.Substring(0, 10)...</td>
+                                    }
+                                    else
+                                    {
+                                        <td>@item.EventName</td>
+                                    }
+                                    <td>@item.TypeName</td>
+                                    <td>@item.StartDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@item.EndDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@item.Username</td>
+                                    <td>
+                                        <div class="Rediger">
+                                            <a class="dropdown-toggle text-decoration-none navbar-btn" id="HandlingDrop" data-bs-toggle="dropdown" aria-expanded="false">Dropdown</a>
+                                            <ul class="dropdown-menu" aria-labelledby="HandlingDrop">
+                                                <li><a class="dropdown-item text-decoration-none" type="button" href="@($"/Live-Rapport?id={item.EventID}")">Live Rapport</a></li>
+                                                <li><a class="dropdown-item text-decoration-none" type="button" href="@($"/EventScan?id={item.EventID}")">Skan</a></li>
+                                                <li><input class="dropdown-item SlutInput" type="button" @onclick="(async e => {await EndEventConf(item);})" value="Slut Begivenhed"></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item text-decoration-none" type="button" href="@($"/EventChips?id={item.EventID}")">Administrer Chips</a></li>
+                                                <li><a class="dropdown-item text-decoration-none" type="button" href="@($"/EditEvent?id={item.EventID}")">Rediger</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+
+
+                @*//------------------------ Table Two ------------------------//*@
+                <h1>Fremtidige</h1>
+                <div class="Table-2 Tables TableScrollable">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Titel</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Start</th>
+                                <th scope="col">Afsluttet</th>
+                                <th scope="col">Bruger</th>
+                                <th scope="col">Handlinger</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                foreach (var item in EventList.Where(x => x.StartDate > DateTime.Now))
+                                {
+                                    <tr>
+                                        @if (item.EventName.Length > 16)
+                                        {
+                                            <td>@item.EventName.Substring(0, 10)...</td>
+                                        }
+                                        else
+                                        {
+                                            <td>@item.EventName</td>
+                                        }
+                                        <td>@item.TypeName</td>
+                                        <td>@item.StartDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>@item.EndDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>@item.Username</td>
+                                        <td>
+                                            <div class="Rediger">
+                                                <a class="dropdown-toggle text-decoration-none navbar-btn" id="HandlingDrop" data-bs-toggle="dropdown" aria-expanded="false">Dropdown</a>
+                                                <ul class="dropdown-menu" aria-labelledby="HandlingDrop">
+                                                    <li><input class="dropdown-item text-decoration-none SlutInput" type="button" @onclick="(async e => {await StartEventConf(item);})" value="Start Begivenhed"> </li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item text-decoration-none" type="button" href="@($"/EventScan?id={item.EventID}")">Skan</a> </li>
+                                                    <li><a class="dropdown-item text-decoration-none" type="button" href="@($"/EditEvent?id={item.EventID}")">Rediger</a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item text-decoration-none" type="button" href="@($"/EventChips?id={item.EventID}")">Tilføj Chips</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+
+
+                @*//------------------------ Table Three ------------------------//*@
+                <h1>Afsluttede</h1>
+                <div class="Table-3 Tables TableScrollable">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Titel</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Start</th>
+                                <th scope="col">Afsluttet</th>
+                                <th scope="col">Bruger</th>
+                                <th scope="col">Handlinger</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                foreach (var item in EventList.Where(x => x.EndDate < DateTime.Now))
+                                {
+                                    <tr>
+                                        @if (item.EventName.Length > 16)
+                                        {
+                                            <td>@item.EventName.Substring(0, 10)...</td>
+                                        }
+                                        else
+                                        {
+                                            <td>@item.EventName</td>
+                                        }
+                                        <td>@item.TypeName</td>
+                                        <td>@item.StartDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>@item.EndDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>@item.Username</td>
+                                        <td>
+                                            <div class="Rediger">
+                                                <a class="dropdown-toggle text-decoration-none navbar-btn" id="HandlingDrop" data-bs-toggle="dropdown" aria-expanded="false">Dropdown</a>
+                                                <ul class="dropdown-menu" aria-labelledby="HandlingDrop">
+                                                    <li><a class="dropdown-item text-decoration-none" type="button" href="@($"/Rapport?id={item.EventID}")">Rapport</a></li>
+                                                    <li><a class="dropdown-item text-decoration-none" type="button" @onclick="(async e => {await DeleteEvent(item);})">Slet</a></li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item text-decoration-none" type="button" href="@($"/EditEvent?id={item.EventID}")">Rediger</a></li>
+                                                </ul>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    //------------------------ Properties ------------------------//
+
+    public List<EventTypeDTO> EventList { get; set; } = new();
+
+    public string EventID { get; set; }
+
+    public bool MyProperty { get; set; }
+
+    //------------------------- Methods --------------------------//
+
+    protected override async Task OnInitializedAsync()
+    {
+        var toast = await localStore.GetItemAsStringAsync("EventToastName");
+        await localStore.RemoveItemAsync("EventToastName");
+        if (!string.IsNullOrEmpty(toast))
+            toastService.ShowSuccess($"Event: {toast} blev oprettet");
+
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        EventList = await _EventCaller.GetAllEvents();
+        StateHasChanged();
+        //return base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected async Task StartEvent(EventTypeDTO eventDTO)
+    {
+        EditEventDTO editEventDTO = new()
+            {
+                CooldownTimer = eventDTO.CooldownTimer,
+                Description = eventDTO.Description,
+                StartDate = DateTime.Now,
+                EndDate = eventDTO.EndDate,
+                Username = eventDTO.Username,
+                EventId = eventDTO.EventID,
+                TypesID = eventDTO.TypesID,
+                EventName = eventDTO.EventName
+            };
+        eventDTO.StartDate = DateTime.Now;
+        try
+        {
+            await _EventCaller.UpdateEventPosts(editEventDTO);
+            toastService.ShowSuccess($"Eventen {editEventDTO.EventName} er Startet");
+        }
+        catch (Exception)
+        {
+            toastService.ShowError("Noget gik galt under start af Event");
+        }
+    }
+
+    protected async Task EndEvent(EventTypeDTO eventDTO)
+    {
+        EditEventDTO editEventDTO = new()
+            {
+                CooldownTimer = eventDTO.CooldownTimer,
+                Description = eventDTO.Description,
+                StartDate = eventDTO.StartDate,
+                EndDate = DateTime.Now,
+                Username = eventDTO.Username,
+                EventId = eventDTO.EventID,
+                TypesID = eventDTO.TypesID,
+                EventName = eventDTO.EventName
+            };
+        try
+        {
+            await _EventCaller.UpdateEventPosts(editEventDTO);
+            toastService.ShowSuccess($"Eventen {editEventDTO.EventName} er afsluttet");
+        }
+        catch (Exception)
+        {
+            toastService.ShowError("Noget gik galt under start af Event");
+        }
+    }
+
+    protected async Task DeleteEvent(EventTypeDTO events)
+    {
+        if (!await JsRuntime.InvokeAsync<bool>("confirm", $"Er du sikker på du vil slette begivenheden til '{events.EventName}'?"))
+            return;
+        else
+        {
+            try
+            {
+                await _EventCaller.DeleteEvent(events.EventID);
+                EventList.Remove(events);
+                toastService.ShowSuccess($"Eventen: {events.EventName} blev slettet");
+            }
+            catch (Exception)
+            {
+                throw;
+                //toastService.ShowError("Noget gik galt under sletning af event");
+            }
+            
+        }
+    }
+
+    protected async Task StartEventConf(EventTypeDTO events)
+    {
+        if (!await JsRuntime.InvokeAsync<bool>("confirm", $"Er du sikker på du vil start begivenheden til '{events.EventName}'?"))
+            return;
+        else
+        {
+            await StartEvent(events);
+            StateHasChanged();
+        }
+    }
+
+    protected async Task EndEventConf(EventTypeDTO events)
+    {
+        if (!await JsRuntime.InvokeAsync<bool>("confirm", $"Er du sikker på du vil slutte begivenheden til '{events.EventName}'?"))
+            return;
+        else
+        {
+            await EndEvent(events);
+            StateHasChanged();
+        }
+    }
+}

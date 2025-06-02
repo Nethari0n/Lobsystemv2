@@ -1,5 +1,6 @@
 ﻿@using System.Net.Http
 @using System.Net.Http.Json
+@using Lobsystem.Client.IAPICallers;
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.AspNetCore.Components.Web
@@ -11,5 +12,28 @@
 @using Lobsystem.Client.Services
 @using Lobsystem.Shared.Models;
 @using Microsoft.AspNetCore.Components.Authorization
+@using System.Timers
+@using System.Net.NetworkInformation
+@using Microsoft.Extensions.Primitives
+@using Blazored.Toast
+@using Blazored.Toast.Services
+@using Blazored.Modal
+@using Blazored.Modal.Services
+
+@inject IUserCaller _UserCaller
+@inject IGroupCaller _GroupCaller
+@inject IRapportAPICaller _RapportCaller
+@inject IChipCaller _ChipCaller
+@inject IPostCaller _PostCaller
+@inject ITypesCaller _TypesCaller
+@inject IScanCaller _ScanCaller
+@inject IEventCaller _EventCaller
+@inject ICRUDCaller _CRUDCaller
+@inject IAuthService _AuthService
+@inject IChipGroupCaller _ChipGroupCaller
+@inject IRegistrationCaller _RegistrationCaller
 @inject NavigationManager navigationManager
 @inject CustomStateProvider authStateProvider
+@inject IJSRuntime JsRuntime
+@inject Blazored.LocalStorage.ILocalStorageService localStore
+@inject IToastService toastService

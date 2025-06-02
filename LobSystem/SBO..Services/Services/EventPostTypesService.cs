@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using SBO.Lobsystem.Domain.Data;
-using SBO.LobSystem.Domain.Model;
+using Lobsystem.Shared.Models;
 using SBO.LobSystem.Services.ExtensionMethods;
 using SBO.LobSystem.Services.Interface;
 using System;
@@ -15,8 +15,8 @@ namespace SBO.LobSystem.Services.Services
     public class EventPostTypesService : IEventPostTypesService
     {
         readonly ApplicationDBContext _lobsContext;
-        readonly ICreateService _iCreateService;
-        public EventPostTypesService(ApplicationDBContext lobsContext, ICreateService iCreateService)
+        readonly ICRUDService _iCreateService;
+        public EventPostTypesService(ApplicationDBContext lobsContext, ICRUDService iCreateService)
         {
             _lobsContext = lobsContext;
             _iCreateService = iCreateService;
@@ -24,23 +24,21 @@ namespace SBO.LobSystem.Services.Services
 
         #region Event
 
-        public Event AddEvent(Event events)
+        public void AddEvent(Event events)
         {
-            
-                _lobsContext.Events.Add(events);
-                _lobsContext.SaveChanges();
-            
-           
-            return FindEvent(events.CreateDate, events.Username);
+
+            _lobsContext.Events.Add(events);
+            _lobsContext.SaveChanges();
+
+
+            //return FindEvent(events.CreateDate, events.Username);
         }
 
-        public Event FindEvent(DateTime time, string name) => _lobsContext.Events.Where(x => x.CreateDate == time && x.Username == name).AsNoTracking().FirstOrDefault();
+        //public Event FindEvent(DateTime time, string name) => _lobsContext.Events.Where(x => x.CreateDate == time && x.Username == name).AsNoTracking().FirstOrDefault();
 
 
 
-        public List<Event> GetAllEvents() => _lobsContext.Events.Where(e => e.IsDeleted == false).Include(x => x.Type).AsNoTracking().ToList();
-
-        public Event GetEvent(int id) => _lobsContext.Events.Where(c => c.EventID == id).AsNoTracking().FirstOrDefault();
+        public async Task<List<Event>> GetAllEvents() => await _lobsContext.Events.Where(e => e.IsDeleted == false).Include(x => x.Type).AsNoTracking().ToListAsync();
 
         public void DeleteEvent(int ID)
         {
@@ -54,9 +52,9 @@ namespace SBO.LobSystem.Services.Services
 
         public Event GetEventByID(int id)
         {
-            
-                return _lobsContext.Events.Where(c => c.EventID == id).AsNoTracking().FirstOrDefault();
-            
+
+            return _lobsContext.Events.Where(c => c.EventID == id).AsNoTracking().FirstOrDefault();
+
         }
 
         #endregion
@@ -79,10 +77,10 @@ namespace SBO.LobSystem.Services.Services
 
         public string GetTypeNameByID(int id)
         {
-            
-                string types = _lobsContext.Types.Where(x => x.TypesID == id).AsNoTracking().FirstOrDefault().TypeName;
-                return types;
-            
+
+            string types = _lobsContext.Types.Where(x => x.TypesID == id).AsNoTracking().FirstOrDefault().TypeName;
+            return types;
+
         }
 
         public void DeleteType(int ID)
@@ -102,8 +100,8 @@ namespace SBO.LobSystem.Services.Services
 
         public bool TypeExists(string TypeName)
         {
-            var types = _lobsContext.Types.Where(x => x.TypeName == TypeName && x.IsDeleted == false).AsNoTracking().SingleOrDefault() ;
-          
+            var types = _lobsContext.Types.Where(x => x.TypeName == TypeName && x.IsDeleted == false).AsNoTracking().SingleOrDefault();
+
 
             if ( types == null )
             {

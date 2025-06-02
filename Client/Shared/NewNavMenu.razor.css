@@ -18,6 +18,10 @@
     top: -2px;
 }
 
+.navbartoprow {
+    flex-direction: row !important;
+}
+
 .nav-item {
     font-size: 0.9rem;
     padding-bottom: 0.5rem;
@@ -50,7 +54,7 @@
             color: white;
         }
 
-@media (min-width: 641px) {
+@media (min-width: 768px) {
     .navbar-toggler {
         display: none;
     }

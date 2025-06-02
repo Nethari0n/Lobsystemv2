@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SBO.Lobsystem.Domain.Data;
-using SBO.LobSystem.Domain.Model;
+using Lobsystem.Shared.Models;
 using SBO.LobSystem.Services.Interface;
 using System;
 using System.Collections.Generic;
@@ -111,6 +111,11 @@ namespace SBO.LobSystem.Services.Services
         public bool CheckPostScan(int id, int postID)
         {
             return _lobsContext.Scannings.Any(x => x.ChipID == id && x.PostID == postID) ? true : false;
+        }
+
+        public Scanning GetScanById(int id)
+        {
+            return _lobsContext.Scannings.Where(x => x.ScanningID == id).SingleOrDefault();
         }
 
         //public async Task<List<Scanning>> AddScansFromListAsync(List<Scanning> list)
